@@ -4,9 +4,28 @@ import { AppService } from "./app.service";
 import { UsersModule } from "./users/users.module";
 import { RoomsModule } from "./rooms/rooms.module";
 import { QuizzesModule } from "./quizzes/quizzes.module";
+import { ConfigModule } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
-    imports: [UsersModule, RoomsModule, QuizzesModule],
+    imports: [
+        ConfigModule.forRoot(),
+        TypeOrmModule.forRoot({
+            type: "mysql",
+            host: process.env.DATABASE_HOST,
+            port: +process.env.DATABASE_PORT,
+            username: process.env.DATABASE_USER,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_NAME,
+            entities: [],
+            synchronize: true,
+        }),
+        MongooseModule.forRoot(process.env.MONGODB_URL),
+        UsersModule,
+        RoomsModule,
+        QuizzesModule,
+    ],
     controllers: [AppController],
     providers: [AppService],
 })
