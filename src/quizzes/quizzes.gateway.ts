@@ -13,6 +13,7 @@ export class QuizzesGateway {
 
     @SubscribeMessage("createQuiz")
     create(@MessageBody() createQuizDto: CreateQuizDto) {
+        //test
         return this.quizzesService.create(createQuizDto);
     }
 
