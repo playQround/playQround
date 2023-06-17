@@ -7,6 +7,7 @@ import { QuizzesModule } from "./quizzes/quizzes.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
+import { Quizzes } from "./quizzes/entities/quizzes.entity";
 
 @Module({
     imports: [
@@ -18,10 +19,10 @@ import { MongooseModule } from "@nestjs/mongoose";
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [],
+            entities: [Quizzes],
             synchronize: true,
         }),
-        MongooseModule.forRoot(process.env.MONGODB_URL),
+        //MongooseModule.forRoot(process.env.MONGODB_URL),
         UsersModule,
         RoomsModule,
         QuizzesModule,
