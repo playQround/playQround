@@ -5,7 +5,7 @@ export class Rooms {
     @PrimaryGeneratedColumn()
     roomId : number;
 
-    @Column()
+    @Column() // random generate & unique 로 변경 해야 할 것 같습니다.
     key : string;
     
     @Column()
