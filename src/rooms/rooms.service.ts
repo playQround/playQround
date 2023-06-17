@@ -13,18 +13,29 @@ export class RoomsService {
         private RoomsRepository : Repository<Rooms>
     ) {}
     
-    // async의 return 객체는 Promise 의 string ("This action adds a new room", 수정 예정) 
+    // async의 return 객체 수정 ("This action adds a new room", 수정 예정) 
     async create(createRoomDto: CreateRoomDto): Promise<string> {
-        this.RoomsRepository.save(createRoomDto);
-        return "This action adds a new room";
+        this.RoomsRepository.save(createRoomDto); // await 추가해야함, bug fix 브랜치 생성 후 작업 예정
+        return "This action adds a new room"; // 반환 데이터는 roomId : roomId 형식이어야 함.
     }
 
-    findAll() {
-        return `This action returns all rooms`;
+    async findAll(): Promise<object> {
+        const allRooms = await this.RoomsRepository.find();
+        const rooms = allRooms.map(( {roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
+            { roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }
+        ))
+        return { rooms : rooms };
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} room`;
+    async findOne(id: number): Promise<object> {
+        const target = await this.RoomsRepository.findOneBy({roomId : id});
+        const targetRoom = {roomId : target.roomId, 
+                            roomName : target.roomName,
+                            roomStatus : target.roomStatus,
+                            maxPeople : target.maxPeople,
+                            cutRating : target.cutRating,};
+
+        return targetRoom;
     }
 
     update(id: number, updateRoomDto: UpdateRoomDto) {
