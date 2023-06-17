@@ -7,7 +7,7 @@ import { QuizzesModule } from "./quizzes/quizzes.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
-
+import { Quizzes } from "./quizzes/entities/quizzes.entity";
 import { Rooms } from './rooms/entities/room.entity';
 
 @Module({
@@ -20,7 +20,7 @@ import { Rooms } from './rooms/entities/room.entity';
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [ Rooms ], // DB table 등록
+            entities: [ Rooms, Quizzes ], // DB table 등록
             synchronize: true,
         }),
         // MongooseModule.forRoot(process.env.MONGODB_URL),
