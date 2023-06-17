@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
 import { Rooms } from "./entities/room.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class RoomsService {
@@ -20,6 +21,7 @@ export class RoomsService {
     }
 
     async findAll(): Promise<object> {
+        // 논리적 삭제 진행된 방 === roomStauts 값이 4가 아닌 데이터들 제외 필요
         const allRooms = await this.RoomsRepository.find();
         const rooms = allRooms.map(( {roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
             { roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }
@@ -28,6 +30,7 @@ export class RoomsService {
     }
 
     async findOne(id: number): Promise<object> {
+        // notfounderror 추가 필요
         const target = await this.RoomsRepository.findOneBy({roomId : id});
         const targetRoom = {roomId : target.roomId, 
                             roomName : target.roomName,
@@ -38,11 +41,31 @@ export class RoomsService {
         return targetRoom;
     }
 
-    update(id: number, updateRoomDto: UpdateRoomDto) {
-        return `This action updates a #${id} room`;
+    async update(id: number, updateRoomDto: UpdateRoomDto): Promise<object> {
+        const targetRoom = await this.RoomsRepository.findOneBy({roomId : id});
+        
+        // notfounderror message 협의 필요
+        if (!targetRoom) {
+            throw new NotFoundException(`${id}`);
+        }
+
+        const updatedRoom = Object.assign(targetRoom, updateRoomDto);
+        await this.RoomsRepository.save(updatedRoom);
+
+        return { message : "updated"};
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} room`;
+    async remove(id: number): Promise<object> {
+        const targetRoom = await this.RoomsRepository.findOneBy({roomId : id});
+        
+        // notfounderror message 협의 필요
+        if (!targetRoom) {
+            throw new NotFoundException(`${id}`);
+        }
+
+        targetRoom.roomStatus = 4; // 논리적 삭제 : roomStatus 값을 4로 변경.
+        const deleteRoom = await this.RoomsRepository.save(targetRoom);
+
+        return { message : "deleted"};
     }
 }
