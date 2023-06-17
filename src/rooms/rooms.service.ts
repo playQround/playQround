@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
 import { Rooms } from "./entities/room.entity";
-import { Repository } from "typeorm";
+import { Like, MoreThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { NotFoundError } from "rxjs";
 
@@ -25,8 +25,20 @@ export class RoomsService {
         const allRooms = await this.RoomsRepository.find();
         const rooms = allRooms.map(( {roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
             { roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }
-        ))
+        ));
+
         return { rooms : rooms };
+    }
+
+    async search(roomName: string, roomStatus: number, maxPeople: number, cutRating: number): Promise<object> {
+        const roomList = await this.RoomsRepository.findBy({
+            roomName : Like("%" + roomName + "%"),
+            roomStatus : roomStatus,
+            maxPeople : MoreThanOrEqual(maxPeople),
+            cutRating : MoreThanOrEqual(cutRating),
+        });
+
+        return { rooms : roomList };
     }
 
     async findOne(id: number): Promise<object> {
@@ -36,7 +48,8 @@ export class RoomsService {
                             roomName : target.roomName,
                             roomStatus : target.roomStatus,
                             maxPeople : target.maxPeople,
-                            cutRating : target.cutRating,};
+                            cutRating : target.cutRating,
+                        };
 
         return targetRoom;
     }
