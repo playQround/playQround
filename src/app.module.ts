@@ -12,7 +12,9 @@ import { Rooms } from './rooms/entities/room.entity';
 
 @Module({
     imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
         TypeOrmModule.forRoot({
             type: "mysql",
             host: process.env.DATABASE_HOST,
@@ -20,12 +22,11 @@ import { Rooms } from './rooms/entities/room.entity';
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [ Rooms, Quizzes ], // DB table 등록
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
         MongooseModule.forRoot(
             process.env.MONGODB_URL
-        
         ),
         UsersModule,
         RoomsModule,
