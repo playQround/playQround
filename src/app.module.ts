@@ -8,7 +8,7 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Quizzes } from "./quizzes/entities/quizzes.entity";
-import { Rooms } from './rooms/entities/room.entity';
+import { Rooms } from "./rooms/entities/room.entity";
 
 @Module({
     imports: [
