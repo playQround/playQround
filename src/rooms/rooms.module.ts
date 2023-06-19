@@ -2,11 +2,15 @@ import { Module } from "@nestjs/common";
 import { RoomsService } from "./rooms.service";
 import { RoomsController } from "./rooms.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Rooms } from "./entities/room.entity";
+import { Room, RoomSchema } from "./schemas/room.schema";
+import { MongooseModule } from "@nestjs/mongoose";
+import { RoomsRepository } from "./rooms.repository";
 
 @Module({
-    imports : [TypeOrmModule.forFeature([Rooms])], // entity 사용을 위해 등록
+    imports: [
+        MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
+    ], // entity 사용을 위해 등록 - Mongoose ver.
     controllers: [RoomsController],
-    providers: [RoomsService],
+    providers: [RoomsService, RoomsRepository],
 })
 export class RoomsModule {}

@@ -1,73 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+# 회원가입 API 구현
+1. 필요 모듈 설치
+```
+npm i --save @nestjs/config // config 패키지
+npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
+npm i @nestjs/mongoose mongoose // mongodb 패키지
 ```
 
-## Running the app
+2. Config(dotenv와 유사한 서비스) 설정
+```
+// app.module.ts 파일 설정 추가
+// imports 항목에 아래와 같이 env 파일 경로 추가
+@Module({
+  imports: [ConfigModule.forRoot({
+    isGlobal: true, // 전역 모듈로 설정
+  })],
+})
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+// 루트경로에 .env 파일 생성 및 아래 내용 추가
+DATABASE_HOST=<SQLDB호스트경로>
+DATABASE_PORT=<SQLDB포트>
+DATABASE_USERNAME=<SQLDB유저아이디>
+DATABASE_PASSWORD=<SQLDB비밀번호>
+DATABASE_NAME=<SQLDB이름>
+MONGODB_URL=<MongoDB URL>
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+3. DB 연결을 위한 설정
+```
+// app.modules.ts 설정 추가
+// TypeOrmModule -> MySQL 연결
+// MongooseModule -> MongoDB 연결
+imports: [
+        TypeOrmModule.forRoot({
+            type: "mysql",
+            host: process.env.DATABASE_HOST,
+            port: +process.env.DATABASE_PORT,
+            username: process.env.DATABASE_USER,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_NAME,
+            entities: [],
+            synchronize: true,
+        }),
+        MongooseModule.forRoot(process.env.MONGODB_URL),
+    ],
 ```
 
-## Support
+4. Entity 정의 (Repository Pattern)
+```
+// 4-1. 시간 기준을 (utc+9) 시간으로 변경하기 위해 트랜스포머 생성
+// src/transformers/kct.transformer.ts
+import { ValueTransformer } from "typeorm";
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+export class kctTransformer implements ValueTransformer {
+    // to() 값을 저장할 때 사용되는 메서드
+    to(value: Date): Date {
+        return value;
+    }
 
-## Stay in touch
+    // from() 값을 호출할때 사용되는 메서드
+    from(value: Date | string): Date {
+        if (typeof value === "string") {
+            value = new Date(value);
+        }
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+        if (value) {
+            // UTC+9 시간으로 변환
+            value.setHours(value.getHours() + 9);
+        }
 
-## License
+        return value;
+    }
+}
 
-Nest is [MIT licensed](LICENSE).
+// 4-2. user.entity.ts 정의
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ValueTransformer } from "typeorm";
+import { kctTransformer } from '../transformers/kct.transformer';
+
+@Entity()
+export class User {
+    @PrimaryGeneratedColumn()
+    userId: number;
+
+    @Column({ unique: true })
+    userEmail: string;
+
+    @Column({ unique: true })
+    userName: string;
+
+    @Column()
+    userPassword: string;
+
+    @Column()
+    userRating: number;
+
+    @CreateDateColumn({
+        type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP(6)', // 마이크로초까지 표현
+        transformer: new kctTransformer(),
+    })
+    createdAt: Date;
+
+    @UpdateDateColumn({
+        type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP(6)',
+        transformer: new kctTransformer(),
+    })
+    updatedAt: Date;
+}
+```
+
+5. Repository 정의
+```
+
+```
+

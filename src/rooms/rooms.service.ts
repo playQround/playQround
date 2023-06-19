@@ -1,48 +1,48 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
-import { Rooms } from "./entities/room.entity";
-import { Repository } from "typeorm";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectModel } from "@nestjs/mongoose";
+import { Room } from "./schemas/room.schema";
+import { Model } from "mongoose";
+import { RoomsRepository } from "./rooms.repository";
 
 @Injectable()
 export class RoomsService {
     // 사용할 DB table 불러오기
-    constructor (
-        @InjectRepository(Rooms)
-        private RoomsRepository : Repository<Rooms>
-    ) {}
-    
-    // async의 return 객체 수정 ("This action adds a new room", 수정 예정) 
-    async create(createRoomDto: CreateRoomDto): Promise<string> {
-        this.RoomsRepository.save(createRoomDto); // await 추가해야함, bug fix 브랜치 생성 후 작업 예정
-        return "This action adds a new room"; // 반환 데이터는 roomId : roomId 형식이어야 함.
+
+    constructor(private readonly roomRepository: RoomsRepository) {}
+
+    async create(createRoomDto: CreateRoomDto): Promise<object> {
+        return await this.roomRepository.create(createRoomDto);
     }
 
     async findAll(): Promise<object> {
-        const allRooms = await this.RoomsRepository.find();
-        const rooms = allRooms.map(( {roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
-            { roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }
-        ))
-        return { rooms : rooms };
+        return await this.roomRepository.findAll();
     }
 
-    async findOne(id: number): Promise<object> {
-        const target = await this.RoomsRepository.findOneBy({roomId : id});
-        const targetRoom = {roomId : target.roomId, 
-                            roomName : target.roomName,
-                            roomStatus : target.roomStatus,
-                            maxPeople : target.maxPeople,
-                            cutRating : target.cutRating,};
-
-        return targetRoom;
+    async search(
+        roomName: string,
+        roomStatus: number,
+        maxPeople: number,
+        cutRating: number,
+    ): Promise<object> {
+        return await this.roomRepository.search(
+            roomName,
+            roomStatus,
+            maxPeople,
+            cutRating,
+        );
     }
 
-    update(id: number, updateRoomDto: UpdateRoomDto) {
-        return `This action updates a #${id} room`;
+    async findOne(id: string): Promise<object> {
+        return await this.roomRepository.findOne(id);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} room`;
+    async update(id: string, updateRoomDto: UpdateRoomDto): Promise<object> {
+        return await this.roomRepository.update(id, updateRoomDto);
+    }
+
+    async remove(id: string): Promise<object> {
+        return await this.roomRepository.remove(id);
     }
 }
