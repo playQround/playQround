@@ -7,6 +7,8 @@ import { QuizzesModule } from "./quizzes/quizzes.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
+import { Quizzes } from "./quizzes/entities/quizzes.entity";
+import { Rooms } from './rooms/entities/room.entity';
 
 @Module({
     imports: [
@@ -23,7 +25,9 @@ import { MongooseModule } from "@nestjs/mongoose";
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
-        // MongooseModule.forRoot(process.env.MONGODB_URL),
+        MongooseModule.forRoot(
+            process.env.MONGODB_URL
+        ),
         UsersModule,
         RoomsModule,
         QuizzesModule,

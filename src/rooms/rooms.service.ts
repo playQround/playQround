@@ -1,26 +1,48 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
+import { InjectModel } from "@nestjs/mongoose";
+import { Room } from "./schemas/room.schema";
+import { Model } from "mongoose";
+import { RoomsRepository } from "./rooms.repository";
 
 @Injectable()
 export class RoomsService {
-    create(createRoomDto: CreateRoomDto) {
-        return "This action adds a new room";
+    // 사용할 DB table 불러오기
+
+    constructor(private readonly roomRepository: RoomsRepository) {}
+
+    async create(createRoomDto: CreateRoomDto): Promise<object> {
+        return await this.roomRepository.create(createRoomDto);
     }
 
-    findAll() {
-        return `This action returns all rooms`;
+    async findAll(): Promise<object> {
+        return await this.roomRepository.findAll();
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} room`;
+    async search(
+        roomName: string,
+        roomStatus: number,
+        maxPeople: number,
+        cutRating: number,
+    ): Promise<object> {
+        return await this.roomRepository.search(
+            roomName,
+            roomStatus,
+            maxPeople,
+            cutRating,
+        );
     }
 
-    update(id: number, updateRoomDto: UpdateRoomDto) {
-        return `This action updates a #${id} room`;
+    async findOne(id: string): Promise<object> {
+        return await this.roomRepository.findOne(id);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} room`;
+    async update(id: string, updateRoomDto: UpdateRoomDto): Promise<object> {
+        return await this.roomRepository.update(id, updateRoomDto);
+    }
+
+    async remove(id: string): Promise<object> {
+        return await this.roomRepository.remove(id);
     }
 }
