@@ -9,7 +9,7 @@ export class UsersService {
         private readonly usersRepository: UsersRepository
     ) {}
 
-    async create(createUserDto: CreateUserDto): Promise<Object> {
+    async signUp(createUserDto: CreateUserDto): Promise<Object> {
         const user = await this.usersRepository.create(createUserDto);
         return user;
     }

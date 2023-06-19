@@ -17,8 +17,8 @@ export class UsersController {
 
     // 회원가입
     @Post()
-    create(@Body() createUserDto: CreateUserDto): Promise<Object> {
-        return this.usersService.create(createUserDto);
+    signUp(@Body() createUserDto: CreateUserDto): Promise<Object> {
+        return this.usersService.signUp(createUserDto);
     }
 
     @Get()
