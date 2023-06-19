@@ -4,6 +4,7 @@ import {
     Post,
     Body,
     Patch,
+    Put,
     Param,
     Delete,
     Query,
@@ -35,16 +36,16 @@ export class RoomsController {
 
     @Get(":id") // 방 입장하기 === 단일 방 정보 조회
     findOne(@Param("id") id: string) {
-        return this.roomsService.findOne(+id);
+        return this.roomsService.findOne(id);
     }
 
-    @Patch(":id") // 방 정보 수정하기
+    @Put(":id") // 방 정보 수정하기
     update(@Param("id") id: string, @Body() updateRoomDto: UpdateRoomDto) {
-        return this.roomsService.update(+id, updateRoomDto);
+        return this.roomsService.update(id, updateRoomDto);
     }
 
     @Delete(":id") // 방 삭제하기: 논리적 삭제
     remove(@Param("id") id: string) {
-        return this.roomsService.remove(+id);
+        return this.roomsService.remove(id);
     }
 }

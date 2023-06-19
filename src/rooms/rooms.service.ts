@@ -1,50 +1,57 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
-import { Rooms } from "./entities/room.entity";
 import { Like, MoreThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+
+import { InjectModel } from '@nestjs/mongoose';
+import { Room } from "./schemas/room.schema"
+import { Model } from "mongoose"
 import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class RoomsService {
     // 사용할 DB table 불러오기
     constructor (
-        @InjectRepository(Rooms)
-        private RoomsRepository : Repository<Rooms>
+        @InjectModel(Room.name)
+        private RoomModel : Model<Room>
     ) {}
     
-    // async의 return 객체 수정 ("This action adds a new room", 수정 예정) 
-    async create(createRoomDto: CreateRoomDto): Promise<string> {
-        this.RoomsRepository.save(createRoomDto); // await 추가해야함, bug fix 브랜치 생성 후 작업 예정
-        return "This action adds a new room"; // 반환 데이터는 roomId : roomId 형식이어야 함.
+    async create(createRoomDto: CreateRoomDto): Promise<object> {
+        const newRoom = new this.RoomModel(createRoomDto);
+        newRoom.save();
+        
+        let idValue = newRoom._id;
+        let roomId = idValue.toHexString();
+
+        return { roomId }; // 반환 데이터는 roomId : roomId 형식이어야 함.
     }
 
     async findAll(): Promise<object> {
         // 논리적 삭제 진행된 방 === roomStauts 값이 4가 아닌 데이터들 제외 필요
-        const allRooms = await this.RoomsRepository.find();
-        const rooms = allRooms.map(( {roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
-            { roomId, roomName, roomStatus, maxPeople, cutRating, createdAt }
+        const allRooms = await this.RoomModel.find().exec();
+        const rooms = allRooms.map(({_id, roomName, roomStatus, maxPeople, cutRating, createdAt }) => (
+            { _id, roomName, roomStatus, maxPeople, cutRating, createdAt }
         ));
 
         return { rooms : rooms };
     }
 
     async search(roomName: string, roomStatus: number, maxPeople: number, cutRating: number): Promise<object> {
-        const roomList = await this.RoomsRepository.findBy({
-            roomName : Like("%" + roomName + "%"),
+        const roomList = await this.RoomModel.find({
+            roomName : {$regex : roomName } ,
             roomStatus : roomStatus,
-            maxPeople : MoreThanOrEqual(maxPeople),
-            cutRating : MoreThanOrEqual(cutRating),
+            maxPeople : {$gte : maxPeople},
+            cutRating : {$gte : cutRating},
         });
 
         return { rooms : roomList };
     }
 
-    async findOne(id: number): Promise<object> {
+    async findOne(id: string): Promise<object> {
         // notfounderror 추가 필요
-        const target = await this.RoomsRepository.findOneBy({roomId : id});
-        const targetRoom = {roomId : target.roomId, 
+        const target = await this.RoomModel.findOne({_id : id}).exec();
+        const targetRoom = {roomId : target._id, 
                             roomName : target.roomName,
                             roomStatus : target.roomStatus,
                             maxPeople : target.maxPeople,
@@ -54,8 +61,8 @@ export class RoomsService {
         return targetRoom;
     }
 
-    async update(id: number, updateRoomDto: UpdateRoomDto): Promise<object> {
-        const targetRoom = await this.RoomsRepository.findOneBy({roomId : id});
+    async update(id: string, updateRoomDto: UpdateRoomDto): Promise<object> {
+        const targetRoom = await this.RoomModel.findOne({_id : id});
         
         // notfounderror message 협의 필요
         if (!targetRoom) {
@@ -63,13 +70,13 @@ export class RoomsService {
         }
 
         const updatedRoom = Object.assign(targetRoom, updateRoomDto);
-        await this.RoomsRepository.save(updatedRoom);
+        await updatedRoom.save();
 
         return { message : "updated"};
     }
 
-    async remove(id: number): Promise<object> {
-        const targetRoom = await this.RoomsRepository.findOneBy({roomId : id});
+    async remove(id: string): Promise<object> {
+        const targetRoom = await this.RoomModel.findOne({_id : id});
         
         // notfounderror message 협의 필요
         if (!targetRoom) {
@@ -77,8 +84,7 @@ export class RoomsService {
         }
 
         targetRoom.roomStatus = 4; // 논리적 삭제 : roomStatus 값을 4로 변경.
-        const deleteRoom = await this.RoomsRepository.save(targetRoom);
-
+        targetRoom.save();
         return { message : "deleted"};
     }
 }
