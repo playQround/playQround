@@ -15,8 +15,9 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    // 회원가입
     @Post()
-    create(@Body() createUserDto: CreateUserDto) {
+    create(@Body() createUserDto: CreateUserDto): Promise<Object> {
         return this.usersService.create(createUserDto);
     }
 

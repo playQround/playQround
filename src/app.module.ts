@@ -10,7 +10,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
     imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
         TypeOrmModule.forRoot({
             type: "mysql",
             host: process.env.DATABASE_HOST,
@@ -18,10 +20,10 @@ import { MongooseModule } from "@nestjs/mongoose";
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [],
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
-        MongooseModule.forRoot(process.env.MONGODB_URL),
+        // MongooseModule.forRoot(process.env.MONGODB_URL),
         UsersModule,
         RoomsModule,
         QuizzesModule,
