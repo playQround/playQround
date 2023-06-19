@@ -8,10 +8,14 @@ import { Server, Socket } from "socket.io";
 import { QuizzesService } from "./quizzes.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
+import { RecordsService } from "../records/records.service";
 
 @WebSocketGateway()
 export class QuizzesGateway {
-    constructor(private readonly quizzesService: QuizzesService) {}
+    constructor(
+        private readonly quizzesService: QuizzesService,
+        private readonly RecordsService: RecordsService,
+    ) {}
     @WebSocketServer() server: Server;
     //소켓에 접속 되었을때 실행
     public handleConnection(client: Socket, ...args: any[]) {
@@ -75,6 +79,17 @@ export class QuizzesGateway {
                     `★☆★☆★☆★☆${data["nickname"]}님이 정답을 맞추셨습니다★☆★☆★☆★☆`,
                 );
 
+            //console.log("data", data);
+            //console.log("기록으로 리턴합니다");
+            //정답자가 나왔으므로 중간결과를 저장한다.
+            const UpdateRecordDto = {
+                userId: Math.floor(Math.random() * 1000000) + 1, //유저의 ID값을 가져와야한다.
+                roomId: data["room"], //생성될때의 방 값을 가져와야한다.
+                userName: data["nickname"], //유저의 이름을 가져와야한다.
+                userScore: 123, //점수 기입방식의 논의가 필요하다.
+            };
+            this.RecordsService.update(UpdateRecordDto);
+
             //퀴즈 DB의 총 갯수를 구한다.
             const quizCount = await this.quizzesService.getQuizCount();
 
@@ -92,10 +107,13 @@ export class QuizzesGateway {
                 .emit("message", `${data["nickname"]} : ${data["message"]}`);
         }
 
-        return this.quizzesService.checkAnswer(
-            data["nickname"],
-            data["message"],
-        );
+        // return this.quizzesService.checkAnswer(
+        //     data["nickname"],
+        //     data["message"],
+        // );
+
+        return;
+        //return this.RecordService.test(record);
     }
 
     @SubscribeMessage("startQuiz")
