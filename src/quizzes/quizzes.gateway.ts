@@ -51,6 +51,16 @@ export class QuizzesGateway {
             data["message"],
             data["answer"],
         );
+        //치트키 요소입니다... 정답을 모를땐 사용하세요 !answer
+        if (data["message"] === "!answer") {
+            client
+                .to(data["room"])
+                .emit(
+                    "message",
+                    `${data["nickname"]} : 정답은 ${data["answer"]}`,
+                );
+            return;
+        }
 
         if (answerCheck) {
             //채팅 내용을 프론트 앤드로 보낸다
@@ -74,7 +84,7 @@ export class QuizzesGateway {
 
             //퀴즈를 프론트앤드로 보낸다.
             client.to(data["room"]).emit("quize", newQuiz);
-            console.log("quize", newQuiz);
+            //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다
             client
@@ -99,8 +109,13 @@ export class QuizzesGateway {
 
         //퀴즈를 프론트 앤드로 보낸다
         client.to(data["room"]).emit("quize", newQuiz);
-        console.log("quize", newQuiz);
-        console.log(`${data["nickname"]}님이 퀴즈를 시작하셨습니다.`);
+        //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
+        client
+            .to(data["room"])
+            .emit(
+                "message",
+                `()()()()()()${data["nickname"]}님이 퀴즈를 시작하셨습니다.()()()()()()()`,
+            );
 
         return this.quizzesService.startQuiz(randomNum);
     }
