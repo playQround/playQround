@@ -1,9 +1,10 @@
-# 회원가입 API 구현
 1. 필요 모듈 설치
 ```
 npm i --save @nestjs/config // config 패키지
 npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
 npm i @nestjs/mongoose mongoose // mongodb 패키지
+npm i jsonwebtoken
+npm i --save-dev @types/jsonwebtoken // jwt 패키지
 ```
 
 2. Config(dotenv와 유사한 서비스) 설정
@@ -11,9 +12,10 @@ npm i @nestjs/mongoose mongoose // mongodb 패키지
 // app.module.ts 파일 설정 추가
 // imports 항목에 아래와 같이 env 파일 경로 추가
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true, // 전역 모듈로 설정
-  })],
+    imports: [ConfigModule.forRoot({
+        load: [authConfig],
+        isGlobal: true, // 전역 모듈로 설정
+    })],
 })
 
 // 루트경로에 .env 파일 생성 및 아래 내용 추가
@@ -23,6 +25,14 @@ DATABASE_USERNAME=<SQLDB유저아이디>
 DATABASE_PASSWORD=<SQLDB비밀번호>
 DATABASE_NAME=<SQLDB이름>
 MONGODB_URL=<MongoDB URL>
+
+// src/config/ 디렉토리 아래에 auth 관련 클래스 정의 및 app.modules.ts 파일에 load 설정 추가
+// 예시 src/config/authConfig.ts -> JWT키를 코드에서 사용하기 위한 클래스
+import { registerAs } from "@nestjs/config";
+
+export default registerAs('auth', () => ({
+  jwtSecret: process.env.JWT_SECRET,
+}));
 ```
 
 3. DB 연결을 위한 설정
@@ -38,7 +48,7 @@ imports: [
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [],
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
         MongooseModule.forRoot(process.env.MONGODB_URL),
@@ -108,9 +118,3 @@ export class User {
     updatedAt: Date;
 }
 ```
-
-5. Repository 정의
-```
-
-```
-
