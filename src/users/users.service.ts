@@ -1,26 +1,35 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, Res } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { UsersRepository } from "./users.repository";
+import { SignInDto } from "./dto/sign-in.dto";
+import * as jwt from 'jsonwebtoken';
+import authConfig from "src/config/authConfig";
+import { ConfigType } from "@nestjs/config";
 
 @Injectable()
 export class UsersService {
-    create(createUserDto: CreateUserDto) {
-        return "This action adds a new user";
+    constructor(
+        private readonly usersRepository: UsersRepository, 
+        @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>
+    ) {}
+
+    async signUp(createUserDto: CreateUserDto): Promise<Object> {
+        const user = await this.usersRepository.create(createUserDto);
+        return user;
     }
 
-    findAll() {
-        return `This action returns all users`;
-    }
+    async signIn(singInDto: SignInDto, @Res() res: any): Promise<Object> {
+        const user = await this.usersRepository.findOne(singInDto);
+        const payload = { ...user };
 
-    findOne(id: number) {
-        return `This action returns a #${id} user`;
-    }
+        // jwt 토큰 생성
+        const token = jwt.sign(payload, this.config.jwtSecret, { expiresIn: '1h' })
 
-    update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} user`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} user`;
+        // 쿠키로 토큰 설정
+        const a = await res.cookie('authorization', `Bearer ${token}`, { secure: true });
+        
+        // jwt 토큰 반환
+        return token;
     }
 }

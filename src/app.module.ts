@@ -7,12 +7,16 @@ import { QuizzesModule } from "./quizzes/quizzes.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Quizzes } from "./quizzes/entities/quizzes.entity";
-import { Rooms } from './rooms/entities/room.entity';
+import authConfig from "./config/authConfig";
+// import { Quizzes } from "./quizzes/entities/quizzes.entity";
+// import { Rooms } from "./rooms/entities/room.entity";
 
 @Module({
     imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            load: [authConfig],
+            isGlobal: true,
+        }),
         TypeOrmModule.forRoot({
             type: "mysql",
             host: process.env.DATABASE_HOST,
@@ -20,12 +24,11 @@ import { Rooms } from './rooms/entities/room.entity';
             username: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
-            entities: [ Rooms, Quizzes ], // DB table 등록
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
             synchronize: true,
         }),
         MongooseModule.forRoot(
             process.env.MONGODB_URL
-        
         ),
         UsersModule,
         RoomsModule,

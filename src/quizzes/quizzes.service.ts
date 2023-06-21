@@ -12,23 +12,22 @@ export class QuizzesService {
         private quizRepository: Repository<Quizzes>,
     ) {}
 
+    //퀴즈 DB에서 quizid를 기준으로 퀴즈를 찾는다.
     startQuiz(quizid: number): Promise<Quizzes | null> {
-        console.log("Service", quizid);
         return this.quizRepository.findOneBy({ quizid });
     }
 
-    checkAnswer(data_0: any, data_1: number): boolean {
-        console.log("checkAnswer_0", data_0);
-        console.log("checkAnswer_1", data_1);
-        //const answer = this.quizRepository.findOneBy({ id });
-        //console.log("checkAnswer_2", answer);
-        //this.quizRepository.findOneBy({ id: 1 });
-        //const answer :Promise<string> = ;
-        if (data_0 === data_1) {
-            console.log("정답입니다~");
+    //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
+    checkAnswer(message: any, answer: any): boolean {
+        if (message === answer) {
             return true;
         }
         return false;
+    }
+
+    //퀴즈 DB의 총 갯수를 구한다.
+    getQuizCount(): Promise<number> {
+        return this.quizRepository.count();
     }
 
     create(createQuizDto: CreateQuizDto) {
