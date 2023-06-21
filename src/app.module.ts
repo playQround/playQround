@@ -7,12 +7,14 @@ import { QuizzesModule } from "./quizzes/quizzes.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
-import { Quizzes } from "./quizzes/entities/quizzes.entity";
-import { Rooms } from "./rooms/entities/room.entity";
+import authConfig from "./config/authConfig";
+// import { Quizzes } from "./quizzes/entities/quizzes.entity";
+// import { Rooms } from "./rooms/entities/room.entity";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
+            load: [authConfig],
             isGlobal: true,
         }),
         TypeOrmModule.forRoot({
