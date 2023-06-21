@@ -28,10 +28,20 @@ export class RoomsController {
     }
 
     @Get("search")
-    search(@Query("roomName") roomName: string, @Query("roomStatus") roomStatus: string, @Query("maxPeople") maxPeople:string, @Query("cutRating") cutRating: string) {
+    search(
+        @Query("roomName") roomName: string,
+        @Query("roomStatus") roomStatus: string,
+        @Query("maxPeople") maxPeople: string,
+        @Query("cutRating") cutRating: string,
+    ) {
         // 데이터 입력에 주의를 해야함..
         // roomStatus, maxPeople, cutRating 초기값  0, roomName 비어있으면 비어서 전달
-        return this.roomsService.search(roomName, +roomStatus, +maxPeople, +cutRating);
+        return this.roomsService.search(
+            roomName,
+            +roomStatus,
+            +maxPeople,
+            +cutRating,
+        );
     }
 
     @Get(":id") // 방 입장하기 === 단일 방 정보 조회

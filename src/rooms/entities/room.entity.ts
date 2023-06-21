@@ -1,37 +1,42 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm";
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Rooms {
     @PrimaryGeneratedColumn()
-    roomId : number;
+    roomId: number;
 
     @Column() // random generate & unique 로 변경 해야 할 것 같습니다.
-    key : string;
-    
+    key: string;
+
     @Column()
-    roomName : string;
-    
+    roomName: string;
+
     @Column({
-        default : 0
+        default: 0,
     })
-    roomStatus : number;
+    roomStatus: number;
 
     @Column()
-    maxPeople : number;
+    maxPeople: number;
 
     @Column()
-    public : boolean;
+    public: boolean;
 
     @Column()
-    cutRating : number;
+    cutRating: number;
 
     @CreateDateColumn({
-        nullable : true
+        nullable: true,
     })
     createdAt: Date;
 
     @CreateDateColumn({
-        nullable : true
+        nullable: true,
     })
-    updatedAt : Date;
+    updatedAt: Date;
 }

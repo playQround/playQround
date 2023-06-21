@@ -3,12 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Users } from "./entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { SignInDto } from "./dto/sign-in.dto";
 
 @Injectable()
 export class UsersRepository {
     constructor(
-        @InjectRepository(Users) private usersRepository: Repository<Users>
+        @InjectRepository(Users) private usersRepository: Repository<Users>,
     ) {}
 
     async create(createUserDto: CreateUserDto): Promise<Object> {
@@ -19,15 +18,12 @@ export class UsersRepository {
         await this.usersRepository.save(user);
         return user;
     }
-    
-    async findAll() {
-        return;
-    }
-    
-    async findOne(singInDto: SignInDto): Promise<Object> {
+
+    // 비밀번호 미포함
+    async find(userData: Partial<Users>): Promise<Object> {
         const user = await this.usersRepository.find({
             select: [
-                "userId", 
+                "userId",
                 "userEmail",
                 "userName",
                 "userRating",
@@ -35,18 +31,23 @@ export class UsersRepository {
                 "updatedAt",
             ],
             where: {
-                userEmail: singInDto.userEmail,
-                userPassword: singInDto.userPassword
+                ...userData,
             },
         });
         return user;
     }
-    
-    async update() {
-        return;
+
+    // 비밀번호 포함 조회
+    async findOne(userData: Partial<Users>): Promise<Object> {
+        const user = await this.usersRepository.find({
+            where: {
+                ...userData,
+            },
+        });
+        return user;
     }
-    
-    async remove() {
+
+    async update() {
         return;
     }
 }

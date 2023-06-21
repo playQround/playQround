@@ -1,9 +1,9 @@
 1. 필요 모듈 설치
 ```
-npm i --save @nestjs/config // config 패키지
+npm i --save @nestjs/config // config 패키지 (dotenv와 유사한 기능)
 npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
 npm i @nestjs/mongoose mongoose // mongodb 패키지
-npm i jsonwebtoken
+npm i jsonwebtoken // jwt 패키지
 npm i --save-dev @types/jsonwebtoken // jwt 패키지
 ```
 
@@ -21,10 +21,11 @@ npm i --save-dev @types/jsonwebtoken // jwt 패키지
 // 루트경로에 .env 파일 생성 및 아래 내용 추가
 DATABASE_HOST=<SQLDB호스트경로>
 DATABASE_PORT=<SQLDB포트>
-DATABASE_USERNAME=<SQLDB유저아이디>
+DATABASE_USER=<SQLDB유저아이디>
 DATABASE_PASSWORD=<SQLDB비밀번호>
 DATABASE_NAME=<SQLDB이름>
 MONGODB_URL=<MongoDB URL>
+JWT_SECRET=<jwt시크릿키>
 
 // src/config/ 디렉토리 아래에 auth 관련 클래스 정의 및 app.modules.ts 파일에 load 설정 추가
 // 예시 src/config/authConfig.ts -> JWT키를 코드에서 사용하기 위한 클래스
@@ -117,4 +118,75 @@ export class User {
     })
     updatedAt: Date;
 }
+```
+
+5. Guard를 통한 인가(Authorization) 설정
+```
+// 5-1. 필요 모듈 설치
+npm install @nestjs/passport @nestjs/jwt passport-jwt
+
+// 5-2. src/auth/auth.guard.ts 생성
+import {
+    CanActivate,
+    ExecutionContext,
+    Inject,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import authConfig from 'src/config/authConfig';
+import { ConfigType } from '@nestjs/config';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+    constructor(
+        private jwtService: JwtService,
+        @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
+    ) {}
+
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        const request = context.switchToHttp().getRequest();
+        const token = this.extractTokenFromHeader(request);
+        if (!token) {
+            throw new UnauthorizedException();
+        }
+        try {
+            const payload = await this.jwtService.verifyAsync(
+                token,
+                {
+                    secret: this.config.jwtSecret
+                }
+            );
+            request['user'] = {
+                userId: payload.userId,
+                userEmail: payload.userEmail,
+                userName: payload.userName,
+                userPassword: payload.userPassword,
+                userRating: payload.userRating,
+                createdAt: payload.createdAt,
+                updatedAt: payload.updatedAt,
+            };
+        } catch {
+            throw new UnauthorizedException();
+        }
+        return true;
+    }
+
+    private extractTokenFromHeader(request: Request): string | undefined {
+        const [type, token] = request.headers.authorization?.split(' ') ?? [];
+        return type === 'Bearer' ? token : undefined;
+    }
+}
+
+// 5-3. authguard를 실제 API 메소드에 적용
+// 적용 샘플 예제
+// 유저 조회
+@UseGuards(AuthGuard) // 적용하고자 하는 메소드상단에 가드 데코레이터 추가
+@Get('info')
+async getUserInfo(@Req() req: any): Promise<any> {
+    const user = req.user; // 토큰에서 유저 정보가 필요한 경우 req.user를 통해 추출 가능
+    return await this.usersService.getUserInfo({userId: user.userId, userEmail: user.userEmail});
+}
+
 ```
