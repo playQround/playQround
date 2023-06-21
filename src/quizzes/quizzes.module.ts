@@ -10,15 +10,19 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { RecordsRepository } from "src/records/records.repository";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Quizzes]),
-              MongooseModule.forFeature([
-                  { name: Record.name, schema: RecordSchema },
-              ],
-    providers: [QuizzesGateway, 
-                QuizzesService, 
-                QuizzesRepository,
-                RecordsService,
-                RecordsRepository,],
-    exports : [QuizzesRepository]
+    imports: [
+        TypeOrmModule.forFeature([Quizzes]),
+        MongooseModule.forFeature([
+            { name: Record.name, schema: RecordSchema },
+        ]),
+    ],
+    providers: [
+        QuizzesGateway,
+        QuizzesService,
+        QuizzesRepository,
+        RecordsService,
+        RecordsRepository,
+    ],
+    exports: [QuizzesRepository],
 })
 export class QuizzesModule {}
