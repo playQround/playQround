@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ValueTransformer } from "typeorm";
-import { kctTransformer } from '../transformers/kct.transformer';
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    ValueTransformer,
+} from "typeorm";
+import { kctTransformer } from "../transformers/kct.transformer";
 
 @Entity()
 export class Users {
@@ -19,15 +26,15 @@ export class Users {
     userRating: number;
 
     @CreateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)',
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
         transformer: new kctTransformer(),
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)',
+        type: "timestamp",
+        default: () => "CURRENT_TIMESTAMP(6)",
         transformer: new kctTransformer(),
     })
     updatedAt: Date;
