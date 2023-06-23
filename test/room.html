@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Chat Room</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+</head>
+
+<body onload="settingNickname()">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 text-center bg-light">
+        <h1 id="room-name" class="py-3">방이름이 여기에 출력됩니다.</h1>
+      </div>
+      <div class="col-12 text-center bg-light">
+        <h3 id="room-id" class="py-3">방코드가 여기에 출력됩니다.</h3>
+      </div>
+      <div class="col-12 text-center bg-light">
+        <h1 id="question" class="py-3">문제가 여기에 출력됩니다.</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-9">
+        <div id="chat" class="border my-3 px-3 py-2" style="height: 400px; overflow: auto">
+          채팅 내역이 여기에 출력됩니다.
+        </div>
+        <form class="input-group mb-3" onsubmit="event.preventDefault(); sendMessage();">
+          <input type="text" id="message-input" class="form-control" placeholder="채팅을 입력해주세요."
+            aria-label="Recipient's username" aria-describedby="basic-addon2" />
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onclick="sendMessage()">
+              전송
+            </button>
+
+            <button class="btn btn-outline-secondary" type="button" onclick="startMessage()">
+              퀴즈시작
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-3 border-left">
+        <h3 class="text-center">참여자 목록</h3>
+        <ul id="participant-list" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.1.slim.js"></script>
+  <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="http://192.168.65.134:3000/socket.io/socket.io.js"></script> -->
+  <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script>
+  <script>
+    let now_quiz_answer = "";
+    let nickname = "";
+    let userid = "";
+    let socketRoom = "";
+    //소켓 인스턴스 생성
+    let socket = io("http://121.154.221.110:3000");
+    //let socket = io("http://192.168.65.134:3000");
+
+    //닉네임과 방코드 입력받기 (url에서 입력받는것으로 수정)
+    /*
+    function settingNickname() {
+      const randomNum = Math.floor(Math.random() * 1000000) + 1;
+      nickname = prompt("닉네임을 입력해주세요.") || `익명${randomNum}`;
+      socketRoom =
+        prompt(
+          "방 코드를 입력해주세요. 방이름을 모르면 빈칸으로 엔터 (영어와 숫자로만)"
+        ) || `temp_room`;
+      $("#room-id").text(`방 코드: ${socketRoom}`);
+      socket.emit("joinRoom", { room: socketRoom, nickname: nickname });
+    }
+    */
+
+    //닉네임과 방코드를 url로부터 입력받기
+    function settingNickname() {
+      // 쿼리 문자열을 가져옵니다. (예: '?myVariable=Hello%2C%20world!')
+      var queryString = window.location.search;
+
+      // URLSearchParams 객체를 생성하여 쿼리 문자열을 파싱합니다.
+      var urlParams = new URLSearchParams(queryString);
+
+      // 'myVariable'의 값을 가져옵니다.
+      var data = urlParams.get("data");
+
+      //string을 json으로 변환
+      const roomData = JSON.parse(data);
+
+      socketRoom = roomData["socketRoom"] || `temp_room`;
+
+      const randomNum = Math.floor(Math.random() * 1000000) + 1;
+      console.log(roomData["nickname"])
+      if (roomData["nickname"] == "") {
+        nickname = prompt("닉네임을 입력해주세요.") || `익명${randomNum}`;
+      } else {
+        nickname = roomData["nickname"];
+      }
+
+      console.log(roomData["userid"])
+      if (roomData["userid"] == "") {
+        userid = Math.floor(Math.random() * 1000000) + 1; //유저의 ID값을 가져와야한다. ;
+      } else {
+        userid = roomData["userid"];
+      }
+
+      $("#room-name").text(`${roomData["roomName"]}`);
+      $("#room-id").text(`방 코드: ${socketRoom}`);
+      socket.emit("joinRoom", { room: socketRoom, nickname: nickname });
+
+    }
+
+    //전송버튼 클릭시 room이름과 message와 answer(퀴즈정답)과 nickname을 서버로 보내기
+    function sendMessage() {
+      const message = $("#message-input").val();
+      socket.emit("message", {
+        room: socketRoom,
+        message: message,
+        answer: now_quiz_answer,
+        nickname: nickname,
+        userid: userid,
+      });
+      $("#message-input").val("");
+    }
+
+    //퀴즈시작버튼 클릭시 room이름과 nickname을 서버로 보내기
+    function startMessage() {
+      socket.emit("startQuiz", { room: socketRoom, nickname: nickname });
+    }
+
+    //소켓이 연결에 성공했을 때
+    socket.on("connect", () => {
+      console.log("연결됨!!");
+    });
+
+    //서버로부터 소켓으로 채팅입력에대한 처리가 돌아왔을때 및 채팅내역 맨아래로 스크롤
+    socket.on("message", (message) => {
+      $("#chat").append(`<div>${message}</div>`);
+      $("#chat").scrollTop($("#chat")[0].scrollHeight);
+    });
+
+    //서버로부터 퀴즈에 대한 정보가 전달 되었을 때
+    socket.on("quize", (quizz) => {
+      now_quiz_answer = quizz.answer;
+      $("#question").text(`${quizz.question} (${quizz.answer.length}글자)`);
+    });
+
+    //서버로부터 참가자에 대한 정보가 들어 왔을때
+    socket.on("participant", (participant) => {
+      /////////////////////////// 참가자를 DB참조해서 가져오기
+      // participantData = JSON.parse(participant);
+      // $("#participant-list").empty();
+      // for (var i = 0; i < participantData.length; i++) {
+      //   console.log(participantData[i].name);
+      //   $("#participant-list").append(
+      //     `<li class="list-group-item">${participantData[i].name} : ${participantData[i].score} </li>`
+      //   );
+      // }
+
+      $("#participant-list").append(
+        `<li class="list-group-item">${participant}</li>`
+      );
+    });
+  </script>
+</body>
+
+</html>
