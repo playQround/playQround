@@ -83,10 +83,10 @@ export class QuizzesGateway {
             //console.log("기록으로 리턴합니다");
             //정답자가 나왔으므로 중간결과를 저장한다.
             const UpdateRecordDto = {
-                userId: Math.floor(Math.random() * 1000000) + 1, //유저의 ID값을 가져와야한다.
+                userId: data["userid"], //유저의 아이디를 가져와야한다.
                 roomId: data["room"], //생성될때의 방 값을 가져와야한다.
                 userName: data["nickname"], //유저의 이름을 가져와야한다.
-                userScore: 123, //점수 기입방식의 논의가 필요하다.
+                userScore: 1, //점수 기입방식의 논의가 필요하다.
             };
             this.RecordsService.update(UpdateRecordDto);
 

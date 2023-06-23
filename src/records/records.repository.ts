@@ -13,8 +13,29 @@ export class RecordsRepository {
     ) {}
 
     async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {
-        const newRecord = new this.RecordModel(UpdateRecordDto);
-        return await newRecord.save();
+        const findRecord = await this.RecordModel.findOne({
+            userId: UpdateRecordDto.userId,
+            roomId: UpdateRecordDto.roomId,
+        });
+        console.log("repo", findRecord);
+        if (!findRecord) {
+            // throw new NotFoundException(
+            //     `Record with ID ${UpdateRecordDto.userId} not found`,
+
+            // );
+            const newRecord = new this.RecordModel(UpdateRecordDto);
+            await newRecord.save();
+            return newRecord;
+        } else {
+            console.log("repo_findone", findRecord);
+            //검색된 결과의 점수를 업데이트한다.
+            findRecord.userScore += 1;
+            await findRecord.save();
+            return findRecord;
+        }
+        return await this.RecordModel.findOne({
+            userId: UpdateRecordDto.userId,
+        });
     }
 
     // async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {

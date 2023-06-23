@@ -34,7 +34,8 @@ export class AuthService {
 
         // 쿠키로 토큰 설정
         await res.cookie("authorization", `Bearer ${token}`, {
-            secure: true,
+            secure: false,
+            samesite: "none",
         });
 
         // jwt 토큰 반환

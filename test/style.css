@@ -1,0 +1,238 @@
+body {
+    display: flex;
+    justify-content: space-between;
+}
+
+#mainContent {
+    flex: 1;
+    padding: 10px;
+}
+
+#rightSidebar {
+    width: 300px;
+    height: 100vh;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-left: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+#rightSidebar button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+#rightSidebar button:hover {
+    background-color: #45a049;
+}
+
+#loginInfo {
+    margin-bottom: 20px;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* Responsive layout - makes the sidebar and the content stack on top of each other */
+@media (max-width: 600px) {
+    body {
+        flex-direction: column;
+    }
+    #rightSidebar {
+        width: 100%;
+        height: auto;
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f6f6f6;
+}
+
+#searchContainer {
+    margin-bottom: 20px;
+}
+
+#searchContainer input[type="text"] {
+    padding: 10px;
+    width: 75%;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
+
+#searchContainer button {
+    padding: 10px 20px;
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+#searchContainer button:hover {
+    background-color: #45a049;
+}
+
+#searchFilters {
+    margin-bottom: 20px;
+}
+
+#searchFilters input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#roomList {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    background-color: #fff;
+}
+
+#createRoomPopup input[type="text"],
+#createRoomPopup input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
+
+#createRoomPopup button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+#createRoomPopup button:hover {
+    background-color: #45a049;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #ddd;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 15px;
+}
+
+th {
+    background-color: #4caf50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#createRoomPopup button:last-child {
+    background-color: #f44336; /* Red */
+}
+
+#createRoomPopup button:last-child:hover {
+    background-color: #da190b;
+}
+
+#loginPopup .modal-content,
+#signupPopup .modal-content {
+    width: 30%;
+}
+
+#loginPopup input[type="text"],
+#loginPopup input[type="password"],
+#signupPopup input[type="text"],
+#signupPopup input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
+
+#loginPopup button,
+#signupPopup button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+#loginPopup button:hover,
+#signupPopup button:hover {
+    background-color: #45a049;
+}
+
+#loginPopup button:last-child,
+#signupPopup button:last-child {
+    background-color: #f44336; /* Red */
+}
+
+#loginPopup button:last-child:hover,
+#signupPopup button:last-child:hover {
+    background-color: #da190b;
+}
+
+.selected {
+    background-color: #f0f0f0;
+    /*테두리 색깔변경*/
+    border: 2px solid #f80404;
+    /*테두리 둥글게*/
+    border-radius: 5px;
+}
