@@ -29,6 +29,7 @@ export class RoomsRepository {
                 _id,
                 roomName,
                 roomStatus,
+                nowPeople,
                 maxPeople,
                 cutRating,
                 createdAt,
@@ -36,6 +37,7 @@ export class RoomsRepository {
                 _id,
                 roomName,
                 roomStatus,
+                nowPeople,
                 maxPeople,
                 cutRating,
                 createdAt,
@@ -68,6 +70,7 @@ export class RoomsRepository {
             roomId: target._id,
             roomName: target.roomName,
             roomStatus: target.roomStatus,
+            nowPeople:target.nowPeople,
             maxPeople: target.maxPeople,
             cutRating: target.cutRating,
         };
