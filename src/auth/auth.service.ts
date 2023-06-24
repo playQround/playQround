@@ -19,10 +19,6 @@ export class AuthService {
         userPassword: string,
         @Res() res: any,
     ): Promise<any> {
-        // 비밀번호 비교를 위한 암호화
-        const hashedPassword1 = await bcrypt.hash(userPassword, 10);
-        const hashedPassword2 = await bcrypt.hash(userPassword, 10);
-
         // 입력한 이메일을 사용하는 유저 조회
         const user = await this.usersRepository.findOne({ userEmail });
    
