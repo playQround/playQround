@@ -10,6 +10,7 @@ export class UsersRepository {
         @InjectRepository(Users) private usersRepository: Repository<Users>,
     ) {}
 
+    // 유저 생성
     async create(createUserDto: CreateUserDto): Promise<Object> {
         const user = new Users();
         user.userEmail = createUserDto.userEmail;
@@ -19,16 +20,13 @@ export class UsersRepository {
         return user;
     }
 
-    // 비밀번호 미포함
-    async find(userData: Partial<Users>): Promise<Object> {
-        const user = await this.usersRepository.find({
+    // 비밀번호 미포함 조회
+    async findOneInfo(userData: Partial<Users>): Promise<Object> {
+        const user = await this.usersRepository.findOne({
             select: [
-                "userId",
-                "userEmail",
-                "userName",
-                "userRating",
-                "createdAt",
-                "updatedAt",
+                'userEmail',
+                'userName',
+                'userRating',
             ],
             where: {
                 ...userData,
@@ -38,16 +36,12 @@ export class UsersRepository {
     }
 
     // 비밀번호 포함 조회
-    async findOne(userData: Partial<Users>): Promise<Object> {
+    async findOneAll(userData: Partial<Users>): Promise<Object> {
         const user = await this.usersRepository.findOne({
             where: {
                 ...userData,
             },
         });
         return user;
-    }
-
-    async update() {
-        return;
     }
 }

@@ -34,6 +34,7 @@ export class UsersController {
     async getUserInfo(@Req() req: any, @Res() res: any): Promise<Object> {
         const user = req.user; // 유저 토큰 정보가 필요한 경우
 
+        // console.log(user)
         const userResult = await this.usersService.getUserInfo({
             userId: user.userId,
             userEmail: user.userEmail,

@@ -15,7 +15,7 @@ export class UsersService {
     // 회원가입 Service
     async signUp(createUserDto: CreateUserDto): Promise<Object> {
         // 이메일 중복확인
-        const checkEmail = await this.usersRepository.findOne({
+        const checkEmail = await this.usersRepository.findOneInfo({
             userEmail: createUserDto.userEmail,
         })
         if (checkEmail) {
@@ -23,7 +23,7 @@ export class UsersService {
         }
 
         // 사용자명 중복확인
-        const checkUserName = await this.usersRepository.findOne({
+        const checkUserName = await this.usersRepository.findOneInfo({
             userName: createUserDto.userName,
         })
         if (checkUserName) {
@@ -43,11 +43,7 @@ export class UsersService {
 
     // 유저 조회 Service
     async getUserInfo(dto: object): Promise<Object> {
-        const user = await this.usersRepository.find(dto);
-        return {
-            userEmail: user[0].userEmail,
-            userName: user[0].userName,
-            userRating: user[0].userRating,
-        };
+        const user = await this.usersRepository.findOneInfo(dto);
+        return user;
     }
 }
