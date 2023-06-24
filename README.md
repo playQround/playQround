@@ -5,6 +5,9 @@ npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
 npm i @nestjs/mongoose mongoose // mongodb 패키지
 npm i jsonwebtoken // jwt 패키지
 npm i --save-dev @types/jsonwebtoken // jwt 패키지
+npm i cookie-parser // 쿠키 Parser 패키지
+npm i bcrypt // 비밀번호 암호화를 위한 패키지
+npm i --save-dev @types/bcrypt
 ```
 
 2. Config(dotenv와 유사한 서비스) 설정

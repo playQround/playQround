@@ -3,6 +3,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 import authConfig from "src/config/authConfig";
 import { ConfigType } from "@nestjs/config";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,6 @@ export class UsersService {
         const checkEmail = await this.usersRepository.findOne({
             userEmail: createUserDto.userEmail,
         })
-        console.log(checkEmail)
         if (checkEmail) {
             throw new BadRequestException('이미 사용 중인 userEmail입니다.');
         }
@@ -31,17 +31,19 @@ export class UsersService {
         }
 
         // 암호화된 비밀번호 저장
+        // 10으로 입력된 인자는 salt로 사용할 숫자 -> 숫자가 높을수록 암호화 강도가 높아지지만 암호화에 소요되는 시간도 증가(10~12 권장)
+        const hashedPassword = await bcrypt.hash(createUserDto.userPassword, 10);
 
         // 이메일 인증
 
-        const user = await this.usersRepository.create(createUserDto);
+        // 유저 생성
+        const user = await this.usersRepository.create({ ...createUserDto, userPassword: hashedPassword});
         return user;
     }
 
     // 유저 조회 Service
     async getUserInfo(dto: object): Promise<Object> {
         const user = await this.usersRepository.find(dto);
-        console.log(user[0]);
         return {
             userEmail: user[0].userEmail,
             userName: user[0].userName,

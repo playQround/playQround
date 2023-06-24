@@ -43,7 +43,8 @@ export class AuthGuard implements CanActivate {
     }
 
     private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(" ") ?? [];
+        const [type, token] = request.cookies.authorization.split(" ") ?? []; // 쿠키를 통한 인증
+        // const [type, token] = request.headers.authorization?.split(" ") ?? []; // 헤더를 통한 인증
         return type === "Bearer" ? token : undefined;
     }
 }
