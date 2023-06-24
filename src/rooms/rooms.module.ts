@@ -10,7 +10,7 @@ import { QuizzesModule } from "src/quizzes/quizzes.module";
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
-        QuizzesModule
+        QuizzesModule,
     ], // entity 사용을 위해 등록 - Mongoose ver.
     controllers: [RoomsController],
     providers: [RoomsService, RoomsRepository],

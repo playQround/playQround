@@ -5,7 +5,6 @@ import {
     HttpStatus,
     Post,
     Res,
-    UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/sign-in.dto";
@@ -14,7 +13,6 @@ import { SignInDto } from "./dto/sign-in.dto";
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    @HttpCode(HttpStatus.OK)
     @Post("signin")
     async signIn(@Body() signInDto: SignInDto, @Res() res: any) {
         await this.authService.signIn(
@@ -22,7 +20,7 @@ export class AuthController {
             signInDto.userPassword,
             res,
         );
-        return res.json({
+        return res.status(HttpStatus.OK).json({
             message: "signed in",
         });
     }

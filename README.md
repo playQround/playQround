@@ -5,6 +5,9 @@ npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
 npm i @nestjs/mongoose mongoose // mongodb 패키지
 npm i jsonwebtoken // jwt 패키지
 npm i --save-dev @types/jsonwebtoken // jwt 패키지
+npm i cookie-parser // 쿠키 Parser 패키지
+npm i bcrypt // 비밀번호 암호화를 위한 패키지
+npm i --save-dev @types/bcrypt
 ```
 
 2. Config(dotenv와 유사한 서비스) 설정
@@ -189,4 +192,68 @@ async getUserInfo(@Req() req: any): Promise<any> {
     return await this.usersService.getUserInfo({userId: user.userId, userEmail: user.userEmail});
 }
 
+```
+
+6. 입력 데이터에 대한 유효성 검사 기능 추가
+```
+// 6-1. class-validator 설치
+npm install class-validator class-transformer
+
+// 6-2. DTO 클래스 생성 및 수정
+// 예 > src/users/dto/create-user.dto.ts
+import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
+
+export class CreateUserDto {
+    // 이메일에 대한 검증 규칙 지정: 값이 공백인지 확인, 이메일 형식인지 확인
+    @IsNotEmpty()
+    @IsEmail()
+    readonly userEmail: string;
+
+    // 유저네임에 대한 검증 규칙 지정: 값이 공백인지 확인, 문자열 형식인지 확인, 길이가 4자 이상 ~ 20자 이하인지 확인
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(20)
+    readonly userName: string;
+
+    // 패스워드에 대한 검증 규칙 지정: 값이 공백인지 확인
+    // 정규표현식 : 최소 8자 이상이어야 하며, 최소 하나의 알파벳이 포함, 최소 하나의 숫자가 포함
+    @IsNotEmpty()
+    @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {
+        message: '비밀번호는 최소 8자 이상이며, 알파벳과 숫자를 포함해야 합니다.',
+    })
+    readonly userPassword: string;
+}
+
+// 6-3. 컨트롤러에서 유효성 검사 적용
+// 예 > src/users/users.controller.ts에서 CreateUserDto를 사용하면 사전에 유효성 검증이 진행된 데이터를 통해 데이터를 전달 합니다.
+// 회원가입
+@Post("signup")
+async signUp(
+    @Body() createUserDto: CreateUserDto, // dto를 통해 유효성 검증 진행
+    @Res() res: any,
+): Promise<Object> {
+    await this.usersService.signUp(createUserDto);
+    return res.status(201).json({
+        message: "signed up",
+    });
+}
+
+// 6-4. src/main.ts 파일에 유효성 검사 파이프라인을 전역적으로 사용하도록 추가
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { join } from "path";
+import { ValidationPipe } from "@nestjs/common";
+
+async function bootstrap() {
+    //const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    console.log(join(__dirname, "../test"));
+    app.useStaticAssets(join(__dirname, "../test"));
+    app.useGlobalPipes(new ValidationPipe()); // 입력값 유효성 검사를 위한 ValidationPipe 추가
+    app.setGlobalPrefix("api");
+    await app.listen(3000);
+}
+bootstrap();
 ```

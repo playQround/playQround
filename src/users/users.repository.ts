@@ -39,7 +39,7 @@ export class UsersRepository {
 
     // 비밀번호 포함 조회
     async findOne(userData: Partial<Users>): Promise<Object> {
-        const user = await this.usersRepository.find({
+        const user = await this.usersRepository.findOne({
             where: {
                 ...userData,
             },

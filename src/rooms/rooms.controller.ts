@@ -45,8 +45,8 @@ export class RoomsController {
     }
 
     @Get(":id/start")
-    start(@Param("id") id: string, @Query("count") quizCount: string){
-        return this.roomsService.start(id, +quizCount)
+    start(@Param("id") id: string, @Query("count") quizCount: string) {
+        return this.roomsService.start(id, +quizCount);
     }
 
     @Get(":id") // 방 입장하기 === 단일 방 정보 조회
