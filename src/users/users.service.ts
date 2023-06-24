@@ -1,6 +1,5 @@
-import { Inject, Injectable, Res } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, Res } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { UsersRepository } from "./users.repository";
 import authConfig from "src/config/authConfig";
 import { ConfigType } from "@nestjs/config";
@@ -14,6 +13,27 @@ export class UsersService {
 
     // 회원가입 Service
     async signUp(createUserDto: CreateUserDto): Promise<Object> {
+        // 이메일 중복확인
+        const checkEmail = await this.usersRepository.findOne({
+            userEmail: createUserDto.userEmail,
+        })
+        console.log(checkEmail)
+        if (checkEmail) {
+            throw new BadRequestException('이미 사용 중인 userEmail입니다.');
+        }
+
+        // 사용자명 중복확인
+        const checkUserName = await this.usersRepository.findOne({
+            userName: createUserDto.userName,
+        })
+        if (checkUserName) {
+            throw new BadRequestException('이미 사용 중인 userName입니다.');
+        }
+
+        // 암호화된 비밀번호 저장
+
+        // 이메일 인증
+
         const user = await this.usersRepository.create(createUserDto);
         return user;
     }

@@ -12,8 +12,8 @@ export class RoomsService {
 
     constructor(
         private readonly roomRepository: RoomsRepository,
-        private readonly quizzesRepository : QuizzesRepository,
-        ) {}
+        private readonly quizzesRepository: QuizzesRepository,
+    ) {}
 
     async create(createRoomDto: CreateRoomDto): Promise<object> {
         return await this.roomRepository.create(createRoomDto);
@@ -37,7 +37,7 @@ export class RoomsService {
         );
     }
 
-    async start(id : string, quizCount: number): Promise<any>{
+    async start(id: string, quizCount: number): Promise<any> {
         return await this.quizzesRepository.start(quizCount);
         // return await this.roomRepository.start(id, quizCount);
     }
