@@ -11,11 +11,12 @@ export class UsersRepository {
     ) {}
 
     // 유저 생성
-    async create(createUserDto: CreateUserDto): Promise<Object> {
+    async create(createUserDto: CreateUserDto, verifyToken: string): Promise<Object> {
         const user = new Users();
         user.userEmail = createUserDto.userEmail;
         user.userName = createUserDto.userName;
         user.userPassword = createUserDto.userPassword;
+        user.verifyToken = verifyToken;
         await this.usersRepository.save(user);
         return user;
     }
@@ -43,5 +44,14 @@ export class UsersRepository {
             },
         });
         return user;
+    }
+
+    // 유저 활성화
+    async update(verifyToken: string): Promise<boolean> {
+        await this.usersRepository.update(
+            {verifyToken},
+            { active: true }
+        );
+        return true;
     }
 }
