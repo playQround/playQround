@@ -7,11 +7,13 @@ import {
     UseGuards,
     Req,
     HttpStatus,
+    Query,
     Logger,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "src/auth/auth.guard";
+import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { Request } from "express";
 
 @Controller("users")
@@ -38,18 +40,29 @@ export class UsersController {
         });
     }
 
+    // 이메일 인증 Controller
+    @Post('verify')
+    async verifyEmail(
+        @Query() verifyEmailDto: VerifyEmailDto, 
+        @Res() res: any,
+    ): Promise<Object> {
+        const { signupVerifyToken } = verifyEmailDto;
+        await this.usersService.verifyEmail(signupVerifyToken);
+        return res.status(HttpStatus.OK).json({
+            message: "verified",
+        })
+    }
+
     // 유저 조회 Controller
     @UseGuards(AuthGuard)
     @Get("info")
     async getUserInfo(@Req() req: any, @Res() res: any): Promise<Object> {
         const user = req.user; // 유저 토큰 정보가 필요한 경우
-
         // 유저 정보 조회 로그
         this.logger.verbose(
             `Fetching user information for user with ID: ${user.userId}, Name: ${user.userName}`,
         );
 
-        // console.log(user)
         const userResult = await this.usersService.getUserInfo({
             userId: user.userId,
             userEmail: user.userEmail,

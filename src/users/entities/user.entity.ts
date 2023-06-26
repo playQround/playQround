@@ -25,6 +25,12 @@ export class Users {
     @Column({ default: 0 })
     userRating: number;
 
+    @Column({default: false})
+    active: boolean;
+
+    @Column()
+    verifyToken: string;
+
     @CreateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP(6)",

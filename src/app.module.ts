@@ -11,11 +11,12 @@ import authConfig from "./config/authConfig";
 // import { Quizzes } from "./quizzes/entities/quizzes.entity";
 // import { Rooms } from "./rooms/entities/room.entity";
 import { AuthModule } from "./auth/auth.module";
+import emailConfig from "./config/emailConfig";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
-            load: [authConfig],
+            load: [authConfig, emailConfig],
             isGlobal: true,
         }),
         TypeOrmModule.forRoot({

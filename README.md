@@ -8,6 +8,10 @@ npm i --save-dev @types/jsonwebtoken // jwt 패키지
 npm i cookie-parser // 쿠키 Parser 패키지
 npm i bcrypt // 비밀번호 암호화를 위한 패키지
 npm i --save-dev @types/bcrypt
+npm i uuid // uuid 생성용 패키지
+npm i --save-dev @types/uuid
+npm i nodemailer
+npm i --save-dev @types/nodemailer
 ```
 
 2. Config(dotenv와 유사한 서비스) 설정

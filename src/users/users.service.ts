@@ -1,13 +1,16 @@
-import { BadRequestException, Inject, Injectable, Res } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException, Res } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
 import authConfig from "src/config/authConfig";
 import { ConfigType } from "@nestjs/config";
 import * as bcrypt from 'bcrypt';
+import * as uuid from 'uuid';
+import { EmailUtil } from "src/utils/email.util";
 
 @Injectable()
 export class UsersService {
     constructor(
+        private readonly emailUtil : EmailUtil,
         private readonly usersRepository: UsersRepository,
         @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
     ) {}
@@ -35,10 +38,31 @@ export class UsersService {
         const hashedPassword = await bcrypt.hash(createUserDto.userPassword, 10);
 
         // 이메일 인증
+        const verifyToken = uuid.v1(); // uuid를 통한 인증용 토큰 생성
+        await this.emailUtil.sendUserJoinVerification(createUserDto.userEmail, verifyToken);
 
         // 유저 생성
-        const user = await this.usersRepository.create({ ...createUserDto, userPassword: hashedPassword});
+        const user = await this.usersRepository.create(
+            {
+                ...createUserDto, 
+                userPassword: hashedPassword,
+            }, 
+            verifyToken
+        );
         return user;
+    }
+
+    // 이메일 인증 Service
+    async verifyEmail(verifyToken: string): Promise<boolean> {
+        const user = await this.usersRepository.findOneInfo({ verifyToken });
+
+        if (!user) {
+            throw new NotFoundException('유저가 존재하지 않습니다.');
+        }
+
+        await this.usersRepository.update(verifyToken);
+
+        return true;
     }
 
     // 유저 조회 Service
