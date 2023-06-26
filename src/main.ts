@@ -1,9 +1,10 @@
 import { NestFactory } from "@nestjs/core";
+import { Logger } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 import { ValidationPipe } from "@nestjs/common";
-import * as cookieParser from 'cookie-parser';
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
     //const app = await NestFactory.create(AppModule);
@@ -13,6 +14,8 @@ async function bootstrap() {
     app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe()); // 입력값 유효성 검사를 위한 ValidationPipe 추가
     app.setGlobalPrefix("api");
-    await app.listen(3000);
+    const port = 3000;
+    await app.listen(port);
+    Logger.log(`Application is running on port(${port})`);
 }
 bootstrap();

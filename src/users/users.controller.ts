@@ -8,14 +8,18 @@ import {
     Req,
     HttpStatus,
     Query,
+    Logger,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "src/auth/auth.guard";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
+import { Request } from "express";
 
 @Controller("users")
 export class UsersController {
+    // Logger 사용
+    private readonly logger = new Logger(UsersController.name);
     constructor(private readonly usersService: UsersService) {}
 
     // 회원가입 Controller
@@ -23,7 +27,13 @@ export class UsersController {
     async signUp(
         @Body() createUserDto: CreateUserDto, // dto를 통해 유효성 검증 진행
         @Res() res: any,
+        @Req() req: Request,
     ): Promise<Object> {
+        // 회원가입 시도 로그(회원가입 전이므로 ip 기준으로 로깅)
+        const clientIp = req.ip;
+        this.logger.verbose(
+            `Attempting to sign up with user name: ${createUserDto.userName} with ip of ${clientIp}`,
+        );
         await this.usersService.signUp(createUserDto);
         return res.status(HttpStatus.CREATED).json({
             message: "signed up",
@@ -48,6 +58,10 @@ export class UsersController {
     @Get("info")
     async getUserInfo(@Req() req: any, @Res() res: any): Promise<Object> {
         const user = req.user; // 유저 토큰 정보가 필요한 경우
+        // 유저 정보 조회 로그
+        this.logger.verbose(
+            `Fetching user information for user with ID: ${user.userId}, Name: ${user.userName}`,
+        );
 
         const userResult = await this.usersService.getUserInfo({
             userId: user.userId,
