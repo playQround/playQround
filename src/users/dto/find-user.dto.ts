@@ -1,5 +1,5 @@
 export class FindUserDto {
-    readonly useId: number;
+    readonly userId: number;
     readonly userEmail: string;
     readonly userName: string;
     readonly userPassword: string;

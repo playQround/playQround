@@ -10,25 +10,24 @@ export class UsersRepository {
         @InjectRepository(Users) private usersRepository: Repository<Users>,
     ) {}
 
-    async create(createUserDto: CreateUserDto): Promise<Object> {
+    // 유저 생성
+    async create(createUserDto: CreateUserDto, verifyToken: string): Promise<Object> {
         const user = new Users();
         user.userEmail = createUserDto.userEmail;
         user.userName = createUserDto.userName;
         user.userPassword = createUserDto.userPassword;
+        user.verifyToken = verifyToken;
         await this.usersRepository.save(user);
         return user;
     }
 
-    // 비밀번호 미포함
-    async find(userData: Partial<Users>): Promise<Object> {
-        const user = await this.usersRepository.find({
+    // 비밀번호 미포함 조회
+    async findOneInfo(userData: Partial<Users>): Promise<Object> {
+        const user = await this.usersRepository.findOne({
             select: [
-                "userId",
-                "userEmail",
-                "userName",
-                "userRating",
-                "createdAt",
-                "updatedAt",
+                'userEmail',
+                'userName',
+                'userRating',
             ],
             where: {
                 ...userData,
@@ -38,8 +37,8 @@ export class UsersRepository {
     }
 
     // 비밀번호 포함 조회
-    async findOne(userData: Partial<Users>): Promise<Object> {
-        const user = await this.usersRepository.find({
+    async findOneAll(userData: Partial<Users>): Promise<Object> {
+        const user = await this.usersRepository.findOne({
             where: {
                 ...userData,
             },
@@ -47,7 +46,12 @@ export class UsersRepository {
         return user;
     }
 
-    async update() {
-        return;
+    // 유저 활성화
+    async update(verifyToken: string): Promise<boolean> {
+        await this.usersRepository.update(
+            {verifyToken},
+            { active: true }
+        );
+        return true;
     }
 }

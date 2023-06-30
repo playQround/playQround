@@ -9,9 +9,11 @@ import { QuizzesService } from "./quizzes.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
+import { Logger } from "@nestjs/common";
 
 @WebSocketGateway()
 export class QuizzesGateway {
+    private readonly logger = new Logger(QuizzesGateway.name);
     constructor(
         private readonly quizzesService: QuizzesService,
         private readonly RecordsService: RecordsService,
@@ -21,13 +23,14 @@ export class QuizzesGateway {
     public handleConnection(client: Socket, ...args: any[]) {
         //이미 접속된 room에서 나간다? 이게 맞나? 안하면 뒤에 join 작동안함
         client.leave(client.id);
-
-        console.log(`Client connected: ${client.id}`);
+        // 소켓 접속 로그
+        this.logger.verbose(`Client connected: ${client.id}`);
     }
 
     //소켓에 접속이 끊겼을때 실행
     async handleDisconnect(client: Socket, ...args: any[]) {
-        console.log(`Client disconnected: ${client.id}`);
+        // 소켓 접속 끊김 로그
+        this.logger.verbose(`Client disconnected: ${client.id}`);
     }
 
     //방에 입장했을 때 실행되는 서브스크립션
@@ -36,6 +39,8 @@ export class QuizzesGateway {
         //join을 통해 소켓의 room에 입장한다.
         client.join(data["room"]);
 
+        // 방 입장 로그
+        this.logger.verbose(`${data?.nickname} entered the room ${data?.room}`);
         //room에 입장했다는 메세지를 프론트앤드로 보낸다.
         client
             .to(data["room"])
@@ -57,6 +62,8 @@ export class QuizzesGateway {
         );
         //치트키 요소입니다... 정답을 모를땐 사용하세요 !answer
         if (data["message"] === "!answer") {
+            // 치트키 로그
+            this.logger.verbose(`User ${data?.nickname} used used cheat code`);
             client
                 .to(data["room"])
                 .emit(
@@ -134,6 +141,7 @@ export class QuizzesGateway {
                 "message",
                 `()()()()()()${data["nickname"]}님이 퀴즈를 시작하셨습니다.()()()()()()()`,
             );
+        this.logger.verbose(`User ${data?.nickname} starts the quiz`);
 
         return this.quizzesService.startQuiz(randomNum);
     }

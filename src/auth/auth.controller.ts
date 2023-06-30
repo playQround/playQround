@@ -3,28 +3,28 @@ import {
     Controller,
     HttpCode,
     HttpStatus,
+    Logger,
     Post,
     Res,
-    UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/sign-in.dto";
 
 @Controller("auth")
 export class AuthController {
+    // Logger 사용
+    private readonly logger = new Logger(AuthController.name)
     constructor(private authService: AuthService) {}
 
-    @HttpCode(HttpStatus.OK)
     @Post("signin")
     async signIn(@Body() signInDto: SignInDto, @Res() res: any) {
-        const loginToken = await this.authService.signIn(
-                                signInDto.userEmail,
-                                signInDto.userPassword,
-                                res,
-                            );
-        return res.json({
+        this.logger.verbose(`User signing in: ${signInDto.userEmail}`);
+        await this.authService.signIn(
+            signInDto,
+            res,
+        );
+        return res.status(HttpStatus.OK).json({
             message: "signed in",
-            token : loginToken,
         });
     }
 }
