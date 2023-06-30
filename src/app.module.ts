@@ -8,8 +8,6 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
 import authConfig from "./config/authConfig";
-// import { Quizzes } from "./quizzes/entities/quizzes.entity";
-// import { Rooms } from "./rooms/entities/room.entity";
 import { AuthModule } from "./auth/auth.module";
 import emailConfig from "./config/emailConfig";
 
