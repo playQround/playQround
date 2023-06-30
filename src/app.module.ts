@@ -25,7 +25,7 @@ import emailConfig from "./config/emailConfig";
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
             entities: [__dirname + "/**/*.entity{.ts,.js}"],
-            synchronize: true,
+            synchronize: false, // 동기화 옵션 해제
         }),
         MongooseModule.forRoot(process.env.MONGODB_URL),
         UsersModule,
