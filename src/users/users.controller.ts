@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { AuthGuard } from "src/auth/auth.guard";
+import { AuthGuard } from "../auth/auth.guard";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { Request } from "express";
 

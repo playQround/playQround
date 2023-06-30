@@ -4,10 +4,10 @@ import { QuizzesGateway } from "./quizzes.gateway";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Quizzes } from "./entities/quizzes.entity";
 import { QuizzesRepository } from "./quizzes.repository";
-import { RecordsService } from "src/records/records.service";
+import { RecordsService } from "../records/records.service";
 import { Record, RecordSchema } from "../records/schema/records.schema";
 import { MongooseModule } from "@nestjs/mongoose";
-import { RecordsRepository } from "src/records/records.repository";
+import { RecordsRepository } from "../records/records.repository";
 
 @Module({
     imports: [
