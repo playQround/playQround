@@ -46,6 +46,10 @@ export class RoomsService {
         return await this.roomRepository.findOne(id);
     }
 
+    async leaveRoom(id: string): Promise<any>{
+        return await this.roomRepository.leaveRoom(id);
+    }
+
     async update(id: string, updateRoomDto: UpdateRoomDto): Promise<object> {
         return await this.roomRepository.update(id, updateRoomDto);
     }
