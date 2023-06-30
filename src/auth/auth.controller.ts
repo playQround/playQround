@@ -17,13 +17,14 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post("signin")
     async signIn(@Body() signInDto: SignInDto, @Res() res: any) {
-        await this.authService.signIn(
-            signInDto.userEmail,
-            signInDto.userPassword,
-            res,
-        );
+        const loginToken = await this.authService.signIn(
+                                signInDto.userEmail,
+                                signInDto.userPassword,
+                                res,
+                            );
         return res.json({
             message: "signed in",
+            token : loginToken,
         });
     }
 }
