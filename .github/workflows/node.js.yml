@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Docker build
       run: |
-        docker login -u ${{ secrets.USERNAME }} - p ${{ secrets.PASSWORD }}
+        docker login -u ${{secrets.USERNAME}} -p ${{secrets.PASSWORD}}
         docker build --platform linux/amd64 -t playqround .
         docker tag playqround peterlah/playqround:${GITHUB_SHA::7}
         docker push peterlah/playqround:${GITHUB_SHA::7}
