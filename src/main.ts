@@ -15,7 +15,7 @@ async function bootstrap() {
     app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe()); // 입력값 유효성 검사를 위한 ValidationPipe 추가
     app.setGlobalPrefix("api");
-    const port = 3000;
+    const port = 80;
     await app.listen(port);
     Logger.log(`Application is running on port(${port})`);
 }
