@@ -71,6 +71,12 @@ export class RoomsController {
         return this.roomsService.findOne(id);
     }
 
+    @Get(":id/leave") // 방 퇴장하기 - 소켓 연결 끊어지는 경우 실행
+    leaveRoom(@Param("id") id: string){
+        this.logger.verbose(`Leaving room with ID: ${id}`);
+        return this.roomsService.leaveRoom(id);
+    }
+
     @Put(":id") // 방 정보 수정하기
     update(@Param("id") id: string, @Body() updateRoomDto: UpdateRoomDto) {
         // 방 정보 수정 로그
