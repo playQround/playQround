@@ -5,7 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Room, RoomSchema } from "./schemas/room.schema";
 import { MongooseModule } from "@nestjs/mongoose";
 import { RoomsRepository } from "./rooms.repository";
-import { QuizzesModule } from "src/quizzes/quizzes.module";
+import { QuizzesModule } from "../quizzes/quizzes.module";
 
 @Module({
     imports: [
