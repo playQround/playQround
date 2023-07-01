@@ -1,11 +1,11 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, Res } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UsersRepository } from "./users.repository";
-import authConfig from "src/config/authConfig";
+import authConfig from "../config/authConfig";
 import { ConfigType } from "@nestjs/config";
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as uuid from 'uuid';
-import { EmailUtil } from "src/utils/email.util";
+import { EmailUtil } from "../utils/email.util";
 
 @Injectable()
 export class UsersService {

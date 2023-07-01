@@ -8,8 +8,6 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
 import authConfig from "./config/authConfig";
-// import { Quizzes } from "./quizzes/entities/quizzes.entity";
-// import { Rooms } from "./rooms/entities/room.entity";
 import { AuthModule } from "./auth/auth.module";
 import emailConfig from "./config/emailConfig";
 
@@ -27,7 +25,7 @@ import emailConfig from "./config/emailConfig";
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
             entities: [__dirname + "/**/*.entity{.ts,.js}"],
-            synchronize: true,
+            synchronize: false, // 동기화 옵션 해제
         }),
         MongooseModule.forRoot(process.env.MONGODB_URL),
         UsersModule,
