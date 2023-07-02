@@ -59,6 +59,34 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+      
+    - name: Generate Environment Variables File for Production
+      run: |
+        echo "EMAIL_SERVICE=$EMAIL_SERVICE" >> .env
+        echo "EMAIL_AUTH_USER=$EMAIL_AUTH_USER" >> .env
+        echo "EMAIL_AUTH_PASSWORD=$EMAIL_AUTH_PASSWORD" >> .env
+        echo "EMAIL_BASE_URL=$EMAIL_BASE_URL" >> .env
+        echo "DATABASE_HOST=$DATABASE_HOST" >> .env
+        echo "DATABASE_PORT=$DATABASE_PORT" >> .env
+        echo "DATABASE_USER=$DATABASE_USER" >> .env
+        echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> .env
+        echo "DATABASE_NAME=$DATABASE_NAME" >> .env
+        echo "DATABASE_SYNCHRONIZE=$DATABASE_SYNCHRONIZE" >> .env
+        echo "MONGODB_URL=$MONGODB_URL" >> .env
+        echo "JWT_SECRET=$JWT_SECRET" >> .env
+      env:
+        EMAIL_SERVICE: ${{ secrets.EMAIL_SERVICE }}
+        EMAIL_AUTH_USER: ${{ secrets.EMAIL_AUTH_USER }}
+        EMAIL_AUTH_PASSWORD: ${{ secrets.EMAIL_AUTH_PASSWORD }}
+        EMAIL_BASE_URL: ${{ secrets.EMAIL_BASE_URL }}
+        DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+        DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+        DATABASE_USER: ${{ secrets.DATABASE_USER }}
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+        DATABASE_SYNCHRONIZE: ${{ secrets.DATABASE_SYNCHRONIZE }}
+        MONGODB_URL: ${{ secrets.MONGODB_URL }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     - name: Login to Amazon ECR
       id: login-ecr
