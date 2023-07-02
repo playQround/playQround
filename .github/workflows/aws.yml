@@ -37,8 +37,8 @@ env:
   ECR_REPOSITORY: playqround
   ECS_SERVICE: playqround-svc
   ECS_CLUSTER: playqround-cluster
-  ECS_TASK_DEFINITION: sample-fargate
-  CONTAINER_NAME: fargate-app
+  ECS_TASK_DEFINITION: playqround-td
+  CONTAINER_NAME: playqround-app
 
 permissions:
   contents: read
