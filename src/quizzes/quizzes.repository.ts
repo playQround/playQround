@@ -10,7 +10,7 @@ export class QuizzesRepository {
         private quizzesRepository: Repository<Quizzes>,
     ) {}
 
-    async start(quizCount: number): Promise<any> {
+    async start(id: string, quizCount: number): Promise<any> {
         // utils 로 보낼 함수
         const generateRandomQuizzes = async (quizCount: number) => {
             let quizArray = [];
@@ -32,10 +32,10 @@ export class QuizzesRepository {
             return quizArray;
         };
 
-        const quizIdList = generateRandomQuizzes(quizCount);
+        const quizIdList = await generateRandomQuizzes(quizCount);
 
         const quizList = await this.quizzesRepository
-            .createQueryBuilder()
+            .createQueryBuilder("quizzes")
             .where("quizzes.quizid IN (:id)", { id: quizIdList })
             .getMany();
 

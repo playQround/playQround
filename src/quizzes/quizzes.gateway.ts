@@ -20,6 +20,7 @@ export class QuizzesGateway {
     ) {}
     @WebSocketServer() server: Server;
     //소켓에 접속 되었을때 실행
+    //TODO 여기에 접속한 유저의 숫자를 카운트해야하나
     public handleConnection(client: Socket, ...args: any[]) {
         //이미 접속된 room에서 나간다? 이게 맞나? 안하면 뒤에 join 작동안함
         client.leave(client.id);
@@ -41,7 +42,7 @@ export class QuizzesGateway {
             `Client connected: ${this.server.engine.clientsCount}`,
         );
     }
-
+    //TODO 여기에 접속한 유저의 숫자를 카운트해야하나
     //방에 입장했을 때 실행되는 서브스크립션
     @SubscribeMessage("joinRoom")
     async joinRoom(client: Socket, data: any) {
@@ -165,6 +166,7 @@ export class QuizzesGateway {
                 "message",
                 `()()()()()()${data["nickname"]}님이 퀴즈를 시작하셨습니다.()()()()()()()`,
             );
+        client.to(data["room"]).emit("startQuiz");
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
 
         //5초간의 준비 시간을 1초간격으로 카운트다운해서 보낸 다음에 퀴즈를 보낸다.
