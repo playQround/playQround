@@ -54,6 +54,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.1.slim.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script>
   <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
   <script>
@@ -131,10 +132,57 @@
 
     //퀴즈시작버튼 클릭시 room이름과 nickname을 서버로 보내기
     function startMessage() {
+      //총진행될 문제의 수
+      const questionCount = 10;
+      var currentUrl = window.location.origin;
+
+      //url링크
+      const url = currentUrl + "/api/rooms/" + socketRoom + "/start?count=" + questionCount
+      //console.log(url)
+
+      //axios api를 이용하여 방상태를 변경한다
+      axios.get(url)
+        .then(function (response) {
+          // handle success
+          //console.log(response);
+          console.log("퀴즈시작 성공")
+        })
+        .catch(function (error) {
+          // handle error
+          //console.log(error);
+          console.log("퀴즈시작 실패")
+        });
+
+
       $("#quiz-start").attr("disabled", true);
       socket.emit("startQuiz", { room: socketRoom, nickname: nickname });
     }
 
+    // 퀴즈가 끝났을때
+    function endMessage() {
+      var currentUrl = window.location.origin;
+
+      //url링크
+      const url = currentUrl + "/api/rooms/" + socketRoom + "/end"
+      //console.log(url)
+
+      //axios api를 이용하여 방상태를 변경한다
+      axios.get(url)
+        .then(function (response) {
+          // handle success
+          //console.log(response);
+          console.log("퀴즈끝 성공")
+        })
+        .catch(function (error) {
+          // handle error
+          //console.log(error);
+          console.log("퀴즈끝 실패")
+        });
+
+      //TODO대기상태로 돌아가 시작하려면 추가 코드가 필요함
+      //$("#quiz-start").attr("disabled", true);
+      //socket.emit("startQuiz", { room: socketRoom, nickname: nickname });
+    }
     //소켓이 연결에 성공했을 때
     socket.on("connect", () => {
       console.log("연결됨!!");
@@ -149,9 +197,11 @@
     //서버로부터 퀴즈에 대한 정보가 전달 되었을 때
     socket.on("quize", (quizz) => {
       quiz_count++;
-      if (quiz_count > 10) {
+      if (quiz_count > 5) {
         //퀴즈 종료 alert 창 띄우기 내용은 참여자 점수 리스트
+        endMessage();
         alert("퀴즈가 종료되었습니다.");
+
         return
       }
       now_quiz_answer = quizz.answer;
@@ -200,6 +250,11 @@
     //퀴즈가 진행되는 동안의 카운트 다운
     socket.on("quizTime", (time) => {
       $("#quiz-count").text(`${time}`);
+    });
+
+    //퀴즈가 시작되었으므로 퀴즈시작 버튼을 비활성화 한다.
+    socket.on("startQuiz", () => {
+      $("#quiz-start").attr("disabled", true);
     });
 
 
