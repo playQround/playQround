@@ -64,6 +64,13 @@ export class RoomsController {
         return this.roomsService.start(id, +quizCount);
     }
 
+    @Get(":id/end")
+    end(@Param("id") id: string) {
+        // 방의 종료 로그
+        this.logger.verbose(`Ending room with ID: ${id}`);
+        return this.roomsService.end(id);
+    }
+
     @Get(":id") // 방 입장하기 === 단일 방 정보 조회
     findOne(@Param("id") id: string) {
         // 단일 방 정보 조회 로그(추후 useGuard 추가 시 user정보도 로그 추가 필요)
@@ -72,7 +79,7 @@ export class RoomsController {
     }
 
     @Get(":id/leave") // 방 퇴장하기 - 소켓 연결 끊어지는 경우 실행
-    leaveRoom(@Param("id") id: string){
+    leaveRoom(@Param("id") id: string) {
         this.logger.verbose(`Leaving room with ID: ${id}`);
         return this.roomsService.leaveRoom(id);
     }

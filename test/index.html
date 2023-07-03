@@ -301,16 +301,20 @@
 
           roomsList = response.data["rooms"];
           var roomListHTML =
-            "<table><tr><th>Name</th><th>Max Players</th><th>Score Cut</th></tr>";
+            "<table><tr><th>roomStatus</th><th>Name</th><th>Max Players</th><th>Score Cut</th></tr>";
           for (var i = 0; i < roomsList.length; i++) {
             //console.log("room_list !!! : ", roomsList[i])
 
             let room = roomsList[i];
+            const roomStatus = ["대기중", "진행중", "종료"]
+
             roomListHTML +=
               `<tr id =${room["_id"]} onclick="selectRoom(this.id)"><td>` +
+              roomStatus[room["roomStatus"]] +
+              "</td><td>" +
               room["roomName"] +
               "</td><td>" +
-              room["maxPeople"] +
+              room["nowPeople"] + "/" + room["maxPeople"] +
               "</td><td>" +
               room["cutRating"] +
               "</td></tr>";
@@ -346,13 +350,18 @@
         await axios.get('api/rooms/' + selectedRow)
           .then(function (response) {
             //console.log("Success:", response["data"]);
-            //console.log("Success:", response["data"]["roomId"]);
-            //console.log("Success:", response["data"]["roomName"]);
+            if (response["data"]["message"] != undefined) {
+              alert("방 인원이 가득 찼습니다.")
+              return;
+            }
             //방 상태 확인
+            if (response["data"]["roomStatus"] != 0) {
+              alert("이미 진행중인 방입니다.")
+              return;
+            }
 
-            //방 인원 확인
 
-            //레이팅 컷 확인
+
 
             //로그인 정보로 방 참여
             //console.log("nowUserName : ", nowUserName)
