@@ -1,7 +1,7 @@
 import { Inject, Injectable, Res, UnauthorizedException } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
-import authConfig from "src/config/authConfig";
-import { UsersRepository } from "src/users/users.repository";
+import authConfig from "../config/authConfig";
+import { UsersRepository } from "../users/users.repository";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from 'bcryptjs';
 import { SignInDto } from "./dto/sign-in.dto";
