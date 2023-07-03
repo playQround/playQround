@@ -261,5 +261,3 @@ async function bootstrap() {
 }
 bootstrap();
 ```
-
-test

@@ -53,16 +53,16 @@
   <script src="https://code.jquery.com/jquery-3.6.1.slim.js"></script>
   <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="http://192.168.65.134:3000/socket.io/socket.io.js"></script> -->
-  <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script>
-  <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+  <!-- <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script> -->
+  <script src="http://localhost/socket.io/socket.io.js"></script>
   <script>
     let now_quiz_answer = "";
     let nickname = "";
     let userid = "";
     let socketRoom = "";
     //소켓 인스턴스 생성
-    let socket = io("http://121.154.221.110:3000");
-    // let socket = io("http://localhost:3000");
+    // let socket = io("http://121.154.221.110:3000");
+    let socket = io("http://localhost");
     //let socket = io("http://192.168.65.134:3000");
 
     //닉네임과 방코드 입력받기 (url에서 입력받는것으로 수정)

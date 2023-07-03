@@ -383,7 +383,8 @@
             //string을 json으로 변환
             const roomData2 = JSON.parse(data);
             console.log(roomData2);
-            window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
+            window.location.href = "http://localhost/room.html?data=" + encodeURIComponent(jsonRoomData);
+            // window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
           })
           .catch(function (error) {
             console.error("Error:", error);
