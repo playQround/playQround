@@ -11,7 +11,7 @@ import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class QuizzesGateway {
     private readonly logger = new Logger(QuizzesGateway.name);
     constructor(
