@@ -35,7 +35,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: playqround
-  ECS_SERVICE: play-svc
+  ECS_SERVICE: playqround-svc
   ECS_CLUSTER: playqround-cluster
   ECS_TASK_DEFINITION: playqround-td
   CONTAINER_NAME: playqround-app
