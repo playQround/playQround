@@ -13,18 +13,16 @@ import { SignInDto } from "./dto/sign-in.dto";
 @Controller("auth")
 export class AuthController {
     // Logger 사용
-    private readonly logger = new Logger(AuthController.name)
+    private readonly logger = new Logger(AuthController.name);
     constructor(private authService: AuthService) {}
 
     @Post("signin")
     async signIn(@Body() signInDto: SignInDto, @Res() res: any) {
         this.logger.verbose(`User signing in: ${signInDto.userEmail}`);
-        await this.authService.signIn(
-            signInDto,
-            res,
-        );
+        const token = await this.authService.signIn(signInDto, res);
         return res.status(HttpStatus.OK).json({
             message: "signed in",
+            token,
         });
     }
 }
