@@ -10,6 +10,7 @@ import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
+import { subscribe } from "diagnostics_channel";
 
 @WebSocketGateway()
 export class QuizzesGateway {
@@ -154,5 +155,24 @@ export class QuizzesGateway {
     @SubscribeMessage("updateQuiz")
     update(@MessageBody() updateQuizDto: UpdateQuizDto) {
         return this.quizzesService.update(updateQuizDto.id, updateQuizDto);
+    }
+
+    // web RTC test code..
+    @SubscribeMessage("webRtcJoin")
+    async endterUser(client: Socket, roomId : any) {
+        client.join(roomId);
+        // const toClient = this.server.sockets.sockets;
+        // for (const websocket in toClient) {
+        //     if (client.hasOwnProperty(websocket) && websocket !== client.id) {
+        //         client[websocket].emit('welcome', 'welcome')
+        //         console.log(client[websocket])
+        //     }
+        // }
+        client.broadcast.emit('welcome', 'welcome');
+    }
+
+    @SubscribeMessage("signal")
+    async receiveOffer(client: Socket, message: any){
+        client.to("webRtc").emit('signal', message);
     }
 }

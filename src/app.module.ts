@@ -4,6 +4,7 @@ import { AppService } from "./app.service";
 import { UsersModule } from "./users/users.module";
 import { RoomsModule } from "./rooms/rooms.module";
 import { QuizzesModule } from "./quizzes/quizzes.module";
+import { webrtcMoudle } from "./webrtc/webrtc.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MongooseModule } from "@nestjs/mongoose";
@@ -32,6 +33,7 @@ import emailConfig from "./config/emailConfig";
         RoomsModule,
         QuizzesModule,
         AuthModule,
+        webrtcMoudle,
     ],
     controllers: [AppController],
     providers: [AppService],
