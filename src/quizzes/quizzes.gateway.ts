@@ -157,22 +157,4 @@ export class QuizzesGateway {
         return this.quizzesService.update(updateQuizDto.id, updateQuizDto);
     }
 
-    // web RTC test code..
-    @SubscribeMessage("webRtcJoin")
-    async endterUser(client: Socket, roomId : any) {
-        client.join(roomId);
-        // const toClient = this.server.sockets.sockets;
-        // for (const websocket in toClient) {
-        //     if (client.hasOwnProperty(websocket) && websocket !== client.id) {
-        //         client[websocket].emit('welcome', 'welcome')
-        //         console.log(client[websocket])
-        //     }
-        // }
-        client.broadcast.emit('welcome', 'welcome');
-    }
-
-    @SubscribeMessage("signal")
-    async receiveOffer(client: Socket, message: any){
-        client.to("webRtc").emit('signal', message);
-    }
 }

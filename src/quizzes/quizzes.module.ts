@@ -17,7 +17,7 @@ import { RecordsRepository } from "../records/records.repository";
         ]),
     ],
     providers: [
-        QuizzesGateway,
+        // QuizzesGateway,
         QuizzesService,
         QuizzesRepository,
         RecordsService,

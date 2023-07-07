@@ -31,7 +31,7 @@ import emailConfig from "./config/emailConfig";
         MongooseModule.forRoot(process.env.MONGODB_URL),
         UsersModule,
         RoomsModule,
-        QuizzesModule,
+        // QuizzesModule,
         AuthModule,
         webrtcMoudle,
     ],
