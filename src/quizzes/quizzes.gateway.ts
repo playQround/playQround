@@ -18,6 +18,7 @@ export class QuizzesGateway {
         private readonly quizzesService: QuizzesService,
         private readonly RecordsService: RecordsService,
     ) {}
+
     @WebSocketServer() server: Server;
     //소켓에 접속 되었을때 실행
     //TODO 여기에 접속한 유저의 숫자를 카운트해야하나
@@ -26,7 +27,6 @@ export class QuizzesGateway {
         client.leave(client.id);
         // 소켓 접속 로그
         this.logger.verbose(`Client connected: ${client.id}`);
-
         //소켓에 연결된 숫자를 로그에 기록
         this.logger.verbose(
             `Client connected: ${this.server.engine.clientsCount}`,
@@ -42,13 +42,29 @@ export class QuizzesGateway {
             `Client connected: ${this.server.engine.clientsCount}`,
         );
     }
+
+    // Method to get the list of client IDs in a room
+    private getClientIdsInRoom(room: string): string[] {
+        const clientsInRoom = this.server.sockets.adapter.rooms.get(room);
+        return clientsInRoom ? Array.from(clientsInRoom) : [];
+    }
+
     //TODO 여기에 접속한 유저의 숫자를 카운트해야하나
     //방에 입장했을 때 실행되는 서브스크립션
     @SubscribeMessage("joinRoom")
     async joinRoom(client: Socket, data: any) {
+        const usersInThisRoom = this.getClientIdsInRoom(data?.room);
+        if (usersInThisRoom.includes(client.id)) {
+            this.logger.verbose(
+                `${data?.nickname} re-entered the room ${data?.room}`,
+            );
+            client
+                .to(data["room"])
+                .emit("message", `${data["nickname"]} 님이 재입장하셨습니다.`);
+            return;
+        }
         //join을 통해 소켓의 room에 입장한다.
         client.join(data["room"]);
-
         // 방 입장 로그
         this.logger.verbose(`${data?.nickname} entered the room ${data?.room}`);
         //room에 입장했다는 메세지를 프론트앤드로 보낸다.
@@ -56,10 +72,37 @@ export class QuizzesGateway {
             .to(data["room"])
             .emit("message", `${data["nickname"]} 님이 입장하셨습니다.`);
 
-        //참여자목록을 업데이트한다.
-        client.to(data["room"]).emit("participant", `${data["nickname"]}`);
+        //참여자목록을 Record document에 저장
+        const UpdateRecordDto = {
+            userId: data.userId? data.userId : -1, //유저의 아이디를 가져와야한다.
+            roomId: data.room, //생성될때의 방 값을 가져와야한다.
+            userName: data.nickname, //유저의 이름을 가져와야한다.
+            userScore: 0, //점수 기입방식의 논의가 필요하다.
+        };
+        // 사용자 정보를 입력
+        await this.RecordsService.update(UpdateRecordDto);
+        //client.to(data["room"]).emit("participant", `${data["nickname"]}`);
+        this.logger.verbose(
+            `Number of users in room: ${this.getClientIdsInRoom.length}`,
+        );
+        // 입력 후 전체 사용자 목록을 조회해서,
+        const roomRecord = await this.RecordsService.getRoomRecord(
+            data["room"],
+        );
+        client.to(data["room"]).emit("participant", roomRecord);
 
         return;
+    }
+
+    @SubscribeMessage("leaveRoom")
+    async leaveRoom(client: Socket, data: any) {
+        client.leave(data?.room);
+        client
+            .to(data["room"])
+            .emit("message", `${data?.userName} 님이 퇴장하셨습니다.`);
+        this.logger.verbose(`${data?.userName} left the room ${data?.room}`);
+        const roomUserCount = this.getClientIdsInRoom(data?.room).length;
+        this.logger.verbose(`Number of users in room: ${roomUserCount}`);
     }
 
     //프론트 앤드 socket.emit("message", message, now_quiz_answer); 에 응답하기위한 서브스크립션
@@ -104,7 +147,7 @@ export class QuizzesGateway {
             //console.log("기록으로 리턴합니다");
             //정답자가 나왔으므로 중간결과를 저장한다.
             const UpdateRecordDto = {
-                userId: data["userid"], //유저의 아이디를 가져와야한다.
+                userId: data["userId"], //유저의 아이디를 가져와야한다.
                 roomId: data["room"], //생성될때의 방 값을 가져와야한다.
                 userName: data["nickname"], //유저의 이름을 가져와야한다.
                 userScore: 1, //점수 기입방식의 논의가 필요하다.
@@ -136,9 +179,11 @@ export class QuizzesGateway {
             //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다
+            this.logger.verbose(`${data["nickname"]} : ${data["message"]}`);
             client
                 .to(data["room"])
                 .emit("message", `${data["nickname"]} : ${data["message"]}`);
+            this.getClientIdsInRoom(data?.room);
         }
 
         // return this.quizzesService.checkAnswer(

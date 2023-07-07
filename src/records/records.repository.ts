@@ -15,7 +15,7 @@ export class RecordsRepository {
 
     async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {
         const findRecord = await this.RecordModel.findOne({
-            userId: UpdateRecordDto.userId,
+            userName: UpdateRecordDto.userName,
             roomId: UpdateRecordDto.roomId,
         });
         //console.log("repo", findRecord);
