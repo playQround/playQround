@@ -24,7 +24,7 @@ export class RecordsService {
             .sort((a, b) => b.userScore - a.userScore)
             .map((record) => {
                 return {
-                    username: record.userName,
+                    userName: record.userName,
                     userScore: record.userScore,
                 };
             });
