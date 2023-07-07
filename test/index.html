@@ -2,436 +2,440 @@
 <html>
 
 <head>
-  <title>Quiz Game Room</title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Quiz Game Room</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body>
-  <div id="mainContent">
-    <div id="searchContainer">
-      <input type="text" id="searchBox" placeholder="Search rooms..." />
-      <button onclick="search()">Search</button>
-      <div id="searchFilters">
-        <!-- Put your search filter checkboxes here. -->
-        <!-- <input type="checkbox" id="filter1" /> Filter 1
+    <div id="mainContent">
+        <div id="searchContainer">
+            <input type="text" id="searchBox" placeholder="Search rooms..." />
+            <button onclick="search()">Search</button>
+            <div id="searchFilters">
+                <!-- Put your search filter checkboxes here. -->
+                <!-- <input type="checkbox" id="filter1" /> Filter 1
         <input type="checkbox" id="filter2" /> Filter 2
         <input type="checkbox" id="filter3" /> Filter 3
         <input type="checkbox" id="filter4" /> Filter 4 -->
-      </div>
-    </div>
-    <div id="roomList">
-      <!-- The list of rooms will be generated here. -->
-    </div>
-    <!-- <button onclick="openCreateRoomPopup()">Create Room</button> -->
-  </div>
-
-  <div id="rightSidebar">
-    <button id=signup onclick="openSignUpPopup()">Sign Up</button>
-    <button id=login onclick="openLoginPopup()">Log In</button>
-    <div id="loginInfo">
-      <!-- Logged in user info will appear here. -->
-    </div>
-    <button onclick="joinRoom()">Join Room</button>
-    <button id=createRoom onclick="openCreateRoomPopup()">Create Room</button>
-  </div>
-
-  <!-- The Modal -->
-  <div id="createRoomPopup" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <!-- <span class="close">&times;</span> -->
-      <h2>Create a Room</h2>
-      <input type="text" id="roomName" placeholder="Room name" />
-      <input type="number" id="maxPlayers" placeholder="Max players" />
-      <input type="number" id="scoreCut" placeholder="Score cut" />
-      <button onclick="createRoom()">Create</button>
-      <button onclick="closeCreateRoomPopup()">Cancel</button>
+            </div>
+        </div>
+        <div id="roomList">
+            <!-- The list of rooms will be generated here. -->
+        </div>
+        <!-- <button onclick="openCreateRoomPopup()">Create Room</button> -->
     </div>
 
-
-  </div>
-  <!-- Login Modal -->
-  <div id="loginPopup" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <!-- <span class="close">&times;</span> -->
-      <h2>Login</h2>
-      <input type="text" id="useremail" placeholder="Useremail" />
-      <input type="password" id="password" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <button onclick="closeLoginPopup()">Cancel</button>
+    <div id="rightSidebar">
+        <button id=signup onclick="openSignUpPopup()">Sign Up</button>
+        <button id=login onclick="openLoginPopup()">Log In</button>
+        <div id="loginInfo">
+            <!-- Logged in user info will appear here. -->
+        </div>
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="webRtc()">Web RTC</button>
+        <button id=createRoom onclick="openCreateRoomPopup()">Create Room</button>
     </div>
-  </div>
 
-  <!-- Signup Modal -->
-  <div id="signupPopup" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <!-- <span class="close">&times;</span> -->
-      <h2>Sign Up</h2>
-      <input type="text" id="newUseremail" placeholder="Useremail" />
-      <input type="text" id="newUsername" placeholder="Username" />
-      <input type="password" id="newPassword" placeholder="Password" />
-      <input type="password" id="confirmPassword" placeholder="Confirm Password" />
-      <button onclick="signup()">Sign Up</button>
-      <button onclick="closeSignUpPopup()">Cancel</button>
+    <!-- The Modal -->
+    <div id="createRoomPopup" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span> -->
+            <h2>Create a Room</h2>
+            <input type="text" id="roomName" placeholder="Room name" />
+            <input type="number" id="maxPlayers" placeholder="Max players" />
+            <input type="number" id="scoreCut" placeholder="Score cut" />
+            <button onclick="createRoom()">Create</button>
+            <button onclick="closeCreateRoomPopup()">Cancel</button>
+        </div>
+
+
     </div>
-  </div>
+    <!-- Login Modal -->
+    <div id="loginPopup" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span> -->
+            <h2>Login</h2>
+            <input type="text" id="useremail" placeholder="Useremail" />
+            <input type="password" id="password" placeholder="Password" />
+            <button onclick="login()">Login</button>
+            <button onclick="closeLoginPopup()">Cancel</button>
+        </div>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Signup Modal -->
+    <div id="signupPopup" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <!-- <span class="close">&times;</span> -->
+            <h2>Sign Up</h2>
+            <input type="text" id="newUseremail" placeholder="Useremail" />
+            <input type="text" id="newUsername" placeholder="Username" />
+            <input type="password" id="newPassword" placeholder="Password" />
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+            <button onclick="signup()">Sign Up</button>
+            <button onclick="closeSignUpPopup()">Cancel</button>
+        </div>
+    </div>
 
-  <script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    // When the user clicks on <span> (x), close the modal
-    // window.onload = function () {
-    //   var span = document.getElementsByClassName("close")[0];
-    //   span.onclick = function () {
-    //     var modal = document.getElementById("createRoomPopup");
-    //     modal.style.display = "none";
-    //   };
-    // };
-    //방만들기버튼을 숨김
-    document.getElementById("createRoom").style.display = "none";
+    <script>
+        // WEB RTC 이동 
+        const webRtc = () => {
+            window.location.href = window.location.href + "webRtc.html"
+        }
 
-    let nowUserName = ''; //현재 로그인한 사용자 이름
+        // When the user clicks on <span> (x), close the modal
+        // window.onload = function () {
+        //   var span = document.getElementsByClassName("close")[0];
+        //   span.onclick = function () {
+        //     var modal = document.getElementById("createRoomPopup");
+        //     modal.style.display = "none";
+        //   };
+        // };
+        //방만들기버튼을 숨김
+        document.getElementById("createRoom").style.display = "none";
 
-    let nowUserId = ''; //현재 로그인한 사용자 DB 아이디값
+        let nowUserName = ''; //현재 로그인한 사용자 이름
 
-    let selectedRow = null;//현재 선택된 방을 저장 할 변수
+        let nowUserId = ''; //현재 로그인한 사용자 DB 아이디값
 
-    // 페이지가 로드되었을 때 실행되는 함수
-    window.onload = function () {
-      // 페이지가 로드되면 바로 한 번 roomList를 새로고침
-      refreshRoomList();
+        let selectedRow = null; //현재 선택된 방을 저장 할 변수
 
-      // 그 후 5초마다 roomList를 새로고침
-      setInterval(refreshRoomList, 500000);
-    };
+        // 페이지가 로드되었을 때 실행되는 함수
+        window.onload = function() {
+            // 페이지가 로드되면 바로 한 번 roomList를 새로고침
+            refreshRoomList();
 
-    //검색에 사용될 함수
-    function search() {
-      // Perform the search using the searchBox value and the filter values.
-    }
+            // 그 후 5초마다 roomList를 새로고침
+            setInterval(refreshRoomList, 500000);
+        };
 
-    //방 생성 팝업을 띄우는 함수
-    function openCreateRoomPopup() {
-      var modal = document.getElementById("createRoomPopup");
-      modal.style.display = "block";
-    }
+        //검색에 사용될 함수
+        function search() {
+            // Perform the search using the searchBox value and the filter values.
+        }
 
-    //방생성 팝업을 닫는 함수
-    function closeCreateRoomPopup() {
-      document.getElementById('createRoomPopup').style.display = 'none';
-    }
+        //방 생성 팝업을 띄우는 함수
+        function openCreateRoomPopup() {
+            var modal = document.getElementById("createRoomPopup");
+            modal.style.display = "block";
+        }
 
-    //방을 생성해주는 함수
-    function createRoom() {
-      //모달창에서 데이터 받아오기
-      var roomName = document.getElementById("roomName").value;
-      var maxPlayers = document.getElementById("maxPlayers").value;
-      var scoreCut = document.getElementById("scoreCut").value;
+        //방생성 팝업을 닫는 함수
+        function closeCreateRoomPopup() {
+            document.getElementById('createRoomPopup').style.display = 'none';
+        }
 
-      //post api 호출로 방생성
-      const url = "api/rooms";
-      const data = {
-        roomName: roomName,
-        maxPeople: maxPlayers,
-        cutRating: scoreCut,
-      };
-      axios
-        .post(url, data)
-        .then(function (response) {
-          //console.log("Success:", response["data"]);
-          // var roomData = {
-          //   nickname: "",
-          //   socketRoom: response["data"].roomId,
-          // };
+        //방을 생성해주는 함수
+        function createRoom() {
+            //모달창에서 데이터 받아오기
+            var roomName = document.getElementById("roomName").value;
+            var maxPlayers = document.getElementById("maxPlayers").value;
+            var scoreCut = document.getElementById("scoreCut").value;
 
-          // //json string 전환
-          // jsonRoomData = JSON.stringify(roomData);
+            //post api 호출로 방생성
+            const url = "api/rooms";
+            const data = {
+                roomName: roomName,
+                maxPeople: maxPlayers,
+                cutRating: scoreCut,
+            };
+            axios
+                .post(url, data)
+                .then(function(response) {
+                    //console.log("Success:", response["data"]);
+                    // var roomData = {
+                    //   nickname: "",
+                    //   socketRoom: response["data"].roomId,
+                    // };
 
-          // // 페이지 전환
-          // //window.location.href = 'anotherpage.html?myVariable=' + encodeURIComponent(roomData);
-          // window.location.href =
-          //   "room.html?data=" + encodeURIComponent(jsonRoomData);
+                    // //json string 전환
+                    // jsonRoomData = JSON.stringify(roomData);
 
-          selectedRow = response["data"].roomId;
-          //console.log("selectedRow : ", selectedRow)
-          joinRoom();
+                    // // 페이지 전환
+                    // //window.location.href = 'anotherpage.html?myVariable=' + encodeURIComponent(roomData);
+                    // window.location.href =
+                    //   "room.html?data=" + encodeURIComponent(jsonRoomData);
 
-        })
-        .catch(function (error) {
-          console.error("Error:", error);
-        });
+                    selectedRow = response["data"].roomId;
+                    //console.log("selectedRow : ", selectedRow)
+                    joinRoom();
 
-      //모달창 닫기
-      var modal = document.getElementById("createRoomPopup");
-      modal.style.display = "none";
-    }
+                })
+                .catch(function(error) {
+                    console.error("Error:", error);
+                });
 
-    //로그인 팝업을 띄우는 함수
-    function openLoginPopup() {
-      var modal = document.getElementById("loginPopup");
-      modal.style.display = "block";
-    }
+            //모달창 닫기
+            var modal = document.getElementById("createRoomPopup");
+            modal.style.display = "none";
+        }
 
-    //로그인 팝업을 닫는 함수
-    function closeLoginPopup() {
-      document.getElementById('loginPopup').style.display = 'none';
-    }
+        //로그인 팝업을 띄우는 함수
+        function openLoginPopup() {
+            var modal = document.getElementById("loginPopup");
+            modal.style.display = "block";
+        }
 
-    //로그인을 해주는 함수
-    function login() {
+        //로그인 팝업을 닫는 함수
+        function closeLoginPopup() {
+            document.getElementById('loginPopup').style.display = 'none';
+        }
 
-      //모달창에서 데이터 받아오기
-      var useremail = document.getElementById("useremail").value;
-      //var username = document.getElementById("username").value;
-      var password = document.getElementById("password").value;
-      //console.log("useremail : ", useremail);
-      //console.log("password : ", password);
+        //로그인을 해주는 함수
+        function login() {
 
-      //post api 호출로 로그인
-      const url = "api/auth/signin";
-      const data = {
-        userEmail: useremail,
-        userPassword: password,
-      };
-      axios
-        .post(url, data)
-        .then(function (response) {
-          //console.log("Success axios:", response["data"]);
-          //로그인 성공시 로그인 정보를 저장
-          //localStorage.setItem("token", response["data"].token);
-          //localStorage.setItem("nickname", response["data"].nickname);
-          //localStorage.setItem("userId", response["data"].userId);
-          //로그인 정보를 화면에 표시
-          //document.getElementById("loginInfo").innerHTML = "Logged in as " + response["data"].nickname;
+            //모달창에서 데이터 받아오기
+            var useremail = document.getElementById("useremail").value;
+            //var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            //console.log("useremail : ", useremail);
+            //console.log("password : ", password);
 
-          //쿠키값에 저장된 정보를 확인하여 로그인 정보를 화면에 표시
-          var decodedCookie = decodeURIComponent(document.cookie);
-          //console.log("cookie : ", decodedCookie);
-          // 이곳에 Bearer 토큰 값을 넣어주십시오
-          var token = decodedCookie;
+            //post api 호출로 로그인
+            const url = "api/auth/signin";
+            const data = {
+                userEmail: useremail,
+                userPassword: password,
+            };
+            axios
+                .post(url, data)
+                .then(function(response) {
+                    //console.log("Success axios:", response["data"]);
+                    //로그인 성공시 로그인 정보를 저장
+                    //localStorage.setItem("token", response["data"].token);
+                    //localStorage.setItem("nickname", response["data"].nickname);
+                    //localStorage.setItem("userId", response["data"].userId);
+                    //로그인 정보를 화면에 표시
+                    //document.getElementById("loginInfo").innerHTML = "Logged in as " + response["data"].nickname;
 
-          // Bearer를 제거하고 토큰을 분할합니다.
-          var parts = token.split(' ')[1].split('.');
+                    //쿠키값에 저장된 정보를 확인하여 로그인 정보를 화면에 표시
+                    var decodedCookie = decodeURIComponent(document.cookie);
+                    //console.log("cookie : ", decodedCookie);
+                    // 이곳에 Bearer 토큰 값을 넣어주십시오
+                    var token = decodedCookie;
 
-          // 유용한 정보는 대게 payload 부분에 있습니다.
-          var payload = parts[1];
+                    // Bearer를 제거하고 토큰을 분할합니다.
+                    var parts = token.split(' ')[1].split('.');
 
-          // payload는 base64로 인코딩 되어 있으므로 디코딩해야 합니다.
-          // atob 함수를 사용하여 base64를 디코딩할 수 있습니다.
-          var decodedPayload = atob(payload);
+                    // 유용한 정보는 대게 payload 부분에 있습니다.
+                    var payload = parts[1];
 
-          // 디코딩된 payload는 문자열 형식의 JSON이므로, 이를 JavaScript 객체로 파싱해야 합니다.
-          var payloadObj = JSON.parse(decodedPayload);
-          // 콘솔에 payloadObj 객체를 출력합니다.
-          //console.log("1", payloadObj);
-          //console.log("2", payloadObj["userName"])
-          nowUserName = payloadObj["userName"];
-          nowUserId = payloadObj["userId"];
-          document.getElementById("loginInfo").innerHTML = `
+                    // payload는 base64로 인코딩 되어 있으므로 디코딩해야 합니다.
+                    // atob 함수를 사용하여 base64를 디코딩할 수 있습니다.
+                    var decodedPayload = atob(payload);
+
+                    // 디코딩된 payload는 문자열 형식의 JSON이므로, 이를 JavaScript 객체로 파싱해야 합니다.
+                    var payloadObj = JSON.parse(decodedPayload);
+                    // 콘솔에 payloadObj 객체를 출력합니다.
+                    //console.log("1", payloadObj);
+                    //console.log("2", payloadObj["userName"])
+                    nowUserName = payloadObj["userName"];
+                    nowUserId = payloadObj["userId"];
+                    document.getElementById("loginInfo").innerHTML = `
           <div>사용자정보</div>          
           <div>이름 : ${payloadObj["userName"]}</div>         
           <div>이메일 : ${payloadObj["userEmail"]}</div>          
           <div>점수 : ${payloadObj["userRating"]}</div>`
-          document.getElementById("login").style.display = "none";
-          document.getElementById("signup").style.display = "none";
-          document.getElementById("createRoom").style.display = "block";
-        })
-        .catch(function (error) {
-          console.error("Error:", error);
-        });
-      //userInfo();
-      //모달창 닫기
-      var modal = document.getElementById("loginPopup");
-      modal.style.display = "none";
-    }
-
-    //회원가입 팝업을 띄우는 함수
-    function openSignUpPopup() {
-      var modal = document.getElementById("signupPopup");
-      modal.style.display = "block";
-    }
-
-    //회원가입 팝업을 닫는 함수
-    function closeSignUpPopup() {
-      document.getElementById('signupPopup').style.display = 'none';
-    }
-
-    //회원가입을 해주는 함수
-    function signup() {
-      //모달창에서 데이터 받아오기
-      let useremail = document.getElementById("newUseremail").value;
-      let username = document.getElementById("newUsername").value;
-      let password = document.getElementById("newPassword").value;
-      let confirmPassword = document.getElementById("confirmPassword").value;
-
-      //post api 호출로 회원가입
-      const url = "api/users/signup";
-      const data = {
-        userEmail: useremail,
-        userName: username,
-        userPassword: password,
-        //confirmPassword: confirmPassword,
-      };
-
-      axios
-        .post(url, data)
-        .then(function (response) {
-          console.log("Success:", response["data"]);
-          //회원가입 성공시 팝업
-          alert("회원가입이 완료되었습니다.");
-        })
-        .catch(function (error) {
-          console.error("Error:", error);
-        });
-
-      //모달창 닫기
-      let modal = document.getElementById("signupPopup");
-      modal.style.display = "none";
-    }
-
-    // roomList를 조회하고 페이지에 표시하는 함수
-    function refreshRoomList() {
-      axios
-        .get("api/rooms")
-        .then(function (response) {
-          //console.log("room_list !!! : ", response.data["rooms"])
-
-          roomsList = response.data["rooms"];
-          var roomListHTML =
-            "<table><tr><th>roomStatus</th><th>Name</th><th>Max Players</th><th>Score Cut</th></tr>";
-          for (var i = 0; i < roomsList.length; i++) {
-            //console.log("room_list !!! : ", roomsList[i])
-
-            let room = roomsList[i];
-            const roomStatus = ["대기중", "진행중", "종료"]
-
-            roomListHTML +=
-              `<tr id =${room["_id"]} onclick="selectRoom(this.id)"><td>` +
-              roomStatus[room["roomStatus"]] +
-              "</td><td>" +
-              room["roomName"] +
-              "</td><td>" +
-              room["nowPeople"] + "/" + room["maxPeople"] +
-              "</td><td>" +
-              room["cutRating"] +
-              "</td></tr>";
-          }
-
-          document.getElementById("roomList").innerHTML = roomListHTML;
-        })
-        .catch(function (error) {
-          console.error("An error occurred:", error);
-        });
-    }
-
-    //방을 선택 했을때의 효과를 주는 함수
-    function selectRoom(rowId) {
-      if (selectedRow) {
-        // Remove the 'selected' class from the previously selected row.
-        document.getElementById(selectedRow).classList.remove('selected');
-      }
-
-      // Add the 'selected' class to the new selected row.
-      document.getElementById(rowId).classList.add('selected');
-
-      // Update the selected row.
-      selectedRow = rowId;
-    }
-
-    //방에 참여했을때 함수
-    async function joinRoom() {
-      if (selectedRow) {
-        // Implement your logic for joining the room using the "selectedRow" variable.
-        //console.log("selectedRow : ", selectedRow);
-
-        await axios.get('api/rooms/' + selectedRow)
-          .then(function (response) {
-            //console.log("Success:", response["data"]);
-            if (response["data"]["message"] != undefined) {
-              alert("방 인원이 가득 찼습니다.")
-              return;
-            }
-            //방 상태 확인
-            if (response["data"]["roomStatus"] != 0) {
-              alert("이미 진행중인 방입니다.")
-              return;
-            }
-
-
-
-
-            //로그인 정보로 방 참여
-            //console.log("nowUserName : ", nowUserName)
-            const randomNum = Math.floor(Math.random() * 1000000) + 1;
-            if (nowUserName == "") {
-              nowUserName = prompt("닉네임을 입력해주세요.") || `익명${randomNum}`;
-            }
-
-            let roomData = {
-              userid: nowUserId,
-              nickname: nowUserName,
-              socketRoom: response["data"]["roomId"],
-              roomName: response["data"]["roomName"],
-            };
-            let jsonRoomData = JSON.stringify(roomData);
-            //console.log("room url : ", "room.html?data=" + encodeURIComponent(jsonRoomData))
-
-            // 쿼리 문자열을 가져옵니다. (예: '?myVariable=Hello%2C%20world!')
-            var queryString = "?data=" + encodeURIComponent(jsonRoomData)
-            //console.log("queryString : ", queryString)
-
-            // URLSearchParams 객체를 생성하여 쿼리 문자열을 파싱합니다.
-            var urlParams = new URLSearchParams(queryString);
-
-            // 'myVariable'의 값을 가져옵니다.
-            var data = urlParams.get("data");
-
-            //string을 json으로 변환
-            const roomData2 = JSON.parse(data);
-            console.log(roomData2);
-            window.location.href = "http://ecs-alb-1452074460.ap-northeast-2.elb.amazonaws.com//room.html?data=" + encodeURIComponent(jsonRoomData);
-            // window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
-          })
-          .catch(function (error) {
-            console.error("Error:", error);
-          });
-
-
-
-
-
-
-
-      } else {
-        alert("No room selected.");
-      }
-    }
-
-    //회원정보를 불러오는 함수 (쿠키값을 이용)
-    async function userInfo() {
-      console.log("userInfo")
-      //axios 를 이용 하여 헤더값에 쿠키를 넣어줌
-
-      const url = "api/users/info";
-      const config = {
-
-        Authorization: "Bearer " + document.cookie,
-
-      };
-      console.log("config : ", config)
-      await axios
-        .get(url, config)
-        .then(function (response) {
-          console.log("Success:", response["data"]);
+                    document.getElementById("login").style.display = "none";
+                    document.getElementById("signup").style.display = "none";
+                    document.getElementById("createRoom").style.display = "block";
+                })
+                .catch(function(error) {
+                    console.error("Error:", error);
+                });
+            //userInfo();
+            //모달창 닫기
+            var modal = document.getElementById("loginPopup");
+            modal.style.display = "none";
         }
-        ).catch(function (error) {
-          console.error("Error:", error);
-        });
-    }
-  </script>
+
+        //회원가입 팝업을 띄우는 함수
+        function openSignUpPopup() {
+            var modal = document.getElementById("signupPopup");
+            modal.style.display = "block";
+        }
+
+        //회원가입 팝업을 닫는 함수
+        function closeSignUpPopup() {
+            document.getElementById('signupPopup').style.display = 'none';
+        }
+
+        //회원가입을 해주는 함수
+        function signup() {
+            //모달창에서 데이터 받아오기
+            let useremail = document.getElementById("newUseremail").value;
+            let username = document.getElementById("newUsername").value;
+            let password = document.getElementById("newPassword").value;
+            let confirmPassword = document.getElementById("confirmPassword").value;
+
+            //post api 호출로 회원가입
+            const url = "api/users/signup";
+            const data = {
+                userEmail: useremail,
+                userName: username,
+                userPassword: password,
+                //confirmPassword: confirmPassword,
+            };
+
+            axios
+                .post(url, data)
+                .then(function(response) {
+                    console.log("Success:", response["data"]);
+                    //회원가입 성공시 팝업
+                    alert("회원가입이 완료되었습니다.");
+                })
+                .catch(function(error) {
+                    console.error("Error:", error);
+                });
+
+            //모달창 닫기
+            let modal = document.getElementById("signupPopup");
+            modal.style.display = "none";
+        }
+
+        // roomList를 조회하고 페이지에 표시하는 함수
+        function refreshRoomList() {
+            axios
+                .get("api/rooms")
+                .then(function(response) {
+                    //console.log("room_list !!! : ", response.data["rooms"])
+
+                    roomsList = response.data["rooms"];
+                    var roomListHTML =
+                        "<table><tr><th>roomStatus</th><th>Name</th><th>Max Players</th><th>Score Cut</th></tr>";
+                    for (var i = 0; i < roomsList.length; i++) {
+                        //console.log("room_list !!! : ", roomsList[i])
+
+                        let room = roomsList[i];
+                        const roomStatus = ["대기중", "진행중", "종료"]
+
+                        roomListHTML +=
+                            `<tr id =${room["_id"]} onclick="selectRoom(this.id)"><td>` +
+                            roomStatus[room["roomStatus"]] +
+                            "</td><td>" +
+                            room["roomName"] +
+                            "</td><td>" +
+                            room["nowPeople"] + "/" + room["maxPeople"] +
+                            "</td><td>" +
+                            room["cutRating"] +
+                            "</td></tr>";
+                    }
+
+                    document.getElementById("roomList").innerHTML = roomListHTML;
+                })
+                .catch(function(error) {
+                    console.error("An error occurred:", error);
+                });
+        }
+
+        //방을 선택 했을때의 효과를 주는 함수
+        function selectRoom(rowId) {
+            if (selectedRow) {
+                // Remove the 'selected' class from the previously selected row.
+                document.getElementById(selectedRow).classList.remove('selected');
+            }
+
+            // Add the 'selected' class to the new selected row.
+            document.getElementById(rowId).classList.add('selected');
+
+            // Update the selected row.
+            selectedRow = rowId;
+        }
+
+        //방에 참여했을때 함수
+        async function joinRoom() {
+            if (selectedRow) {
+                // Implement your logic for joining the room using the "selectedRow" variable.
+                //console.log("selectedRow : ", selectedRow);
+
+                await axios.get('api/rooms/' + selectedRow)
+                    .then(function(response) {
+                        //console.log("Success:", response["data"]);
+                        if (response["data"]["message"] != undefined) {
+                            alert("방 인원이 가득 찼습니다.")
+                            return;
+                        }
+                        //방 상태 확인
+                        if (response["data"]["roomStatus"] != 0) {
+                            alert("이미 진행중인 방입니다.")
+                            return;
+                        }
+
+
+
+
+                        //로그인 정보로 방 참여
+                        //console.log("nowUserName : ", nowUserName)
+                        const randomNum = Math.floor(Math.random() * 1000000) + 1;
+                        if (nowUserName == "") {
+                            nowUserName = prompt("닉네임을 입력해주세요.") || `익명${randomNum}`;
+                        }
+
+                        let roomData = {
+                            userid: nowUserId,
+                            nickname: nowUserName,
+                            socketRoom: response["data"]["roomId"],
+                            roomName: response["data"]["roomName"],
+                        };
+                        let jsonRoomData = JSON.stringify(roomData);
+                        //console.log("room url : ", "room.html?data=" + encodeURIComponent(jsonRoomData))
+
+                        // 쿼리 문자열을 가져옵니다. (예: '?myVariable=Hello%2C%20world!')
+                        var queryString = "?data=" + encodeURIComponent(jsonRoomData)
+                            //console.log("queryString : ", queryString)
+
+                        // URLSearchParams 객체를 생성하여 쿼리 문자열을 파싱합니다.
+                        var urlParams = new URLSearchParams(queryString);
+
+                        // 'myVariable'의 값을 가져옵니다.
+                        var data = urlParams.get("data");
+
+                        //string을 json으로 변환
+                        const roomData2 = JSON.parse(data);
+                        console.log(roomData2);
+                        window.location.href = "http://ecs-alb-1452074460.ap-northeast-2.elb.amazonaws.com//room.html?data=" + encodeURIComponent(jsonRoomData);
+                        // window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
+                    })
+                    .catch(function(error) {
+                        console.error("Error:", error);
+                    });
+
+
+
+
+
+
+
+            } else {
+                alert("No room selected.");
+            }
+        }
+
+        //회원정보를 불러오는 함수 (쿠키값을 이용)
+        async function userInfo() {
+            console.log("userInfo")
+                //axios 를 이용 하여 헤더값에 쿠키를 넣어줌
+
+            const url = "api/users/info";
+            const config = {
+
+                Authorization: "Bearer " + document.cookie,
+
+            };
+            console.log("config : ", config)
+            await axios
+                .get(url, config)
+                .then(function(response) {
+                    console.log("Success:", response["data"]);
+                }).catch(function(error) {
+                    console.error("Error:", error);
+                });
+        }
+    </script>
 
 </body>
 
