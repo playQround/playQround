@@ -38,15 +38,20 @@ export class RoomsService {
     }
 
     async start(id: string, quizCount: number): Promise<any> {
-        return await this.quizzesRepository.start(quizCount);
+        this.roomRepository.roomStatusUpdate(id, 1);
+        return await this.quizzesRepository.start(id, quizCount);
         // return await this.roomRepository.start(id, quizCount);
+    }
+
+    async end(id: string): Promise<any> {
+        return await this.roomRepository.roomStatusUpdate(id, 2);
     }
 
     async findOne(id: string): Promise<object> {
         return await this.roomRepository.findOne(id);
     }
 
-    async leaveRoom(id: string): Promise<any>{
+    async leaveRoom(id: string): Promise<any> {
         return await this.roomRepository.leaveRoom(id);
     }
 
