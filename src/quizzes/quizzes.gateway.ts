@@ -10,6 +10,7 @@ import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
+import { subscribe } from "diagnostics_channel";
 
 @WebSocketGateway({ cors: true })
 export class QuizzesGateway {
@@ -186,6 +187,7 @@ export class QuizzesGateway {
     update(@MessageBody() updateQuizDto: UpdateQuizDto) {
         return this.quizzesService.update(updateQuizDto.id, updateQuizDto);
     }
+
 }
 let countDownQuiz;
 
