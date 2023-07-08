@@ -8,6 +8,13 @@ import { QuizzesRepository } from "./quizzes.repository";
 export class QuizzesService {
     constructor(private readonly quizzesRepository: QuizzesRepository) {}
 
+    // 익명 접속자의 임시 userId 생성 메서드
+    anonymousUserId(): number {
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 100);
+        return timestamp + random;
+    }
+
     //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
     startQuiz(quizId: number): Promise<Quizzes | null> {
         return this.quizzesRepository.startQuiz(quizId);
