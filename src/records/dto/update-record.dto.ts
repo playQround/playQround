@@ -1,6 +1,8 @@
 export class UpdateRecordDto {
     userId: number;
 
+    socketId: string;
+
     roomId: string;
 
     userName: string;

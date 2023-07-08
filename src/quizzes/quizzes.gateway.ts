@@ -10,7 +10,6 @@ import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
-import { subscribe } from "diagnostics_channel";
 
 @WebSocketGateway({ cors: true })
 export class QuizzesGateway {
@@ -76,6 +75,7 @@ export class QuizzesGateway {
         //참여자목록을 Record document에 저장
         const UpdateRecordDto = {
             userId: data.userId ? data.userId : -1, //유저의 아이디를 가져와야한다.
+            socketId: client.id,
             roomId: data.room, //생성될때의 방 값을 가져와야한다.
             userName: data.nickname, //유저의 이름을 가져와야한다.
             userScore: 0, //점수 기입방식의 논의가 필요하다.
@@ -91,14 +91,8 @@ export class QuizzesGateway {
             data["room"],
         );
 
-        const participantList = JSON.parse(roomRecord).map((item) => {
-            if (item.userName === data.nickname) {
-                return { ...item, socketId: client.id };
-            } else item;
-        });
-        client
-            .to(data["room"])
-            .emit("participant", JSON.stringify(participantList));
+        console.log(roomRecord)
+        client.to(data["room"]).emit("participant", roomRecord);
 
         return;
     }
@@ -152,6 +146,7 @@ export class QuizzesGateway {
             //정답자가 나왔으므로 중간결과를 저장한다.
             const UpdateRecordDto = {
                 userId: data["userId"], //유저의 아이디를 가져와야한다.
+                socketId: client.id,
                 roomId: data["room"], //생성될때의 방 값을 가져와야한다.
                 userName: data["nickname"], //유저의 이름을 가져와야한다.
                 userScore: 1, //점수 기입방식의 논의가 필요하다.
