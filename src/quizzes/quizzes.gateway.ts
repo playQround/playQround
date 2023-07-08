@@ -74,7 +74,9 @@ export class QuizzesGateway {
 
         //참여자목록을 Record document에 저장
         const UpdateRecordDto = {
-            userId: data.userId ? data.userId : -1, //유저의 아이디를 가져와야한다.
+            userId: data.userId
+                ? data.userId
+                : this.quizzesService.anonymousUserId(), //유저의 아이디를 가져와야한다.
             socketId: client.id,
             roomId: data.room, //생성될때의 방 값을 가져와야한다.
             userName: data.nickname, //유저의 이름을 가져와야한다.
@@ -91,7 +93,7 @@ export class QuizzesGateway {
             data["room"],
         );
 
-        console.log(roomRecord)
+        console.log(roomRecord);
         client.to(data["room"]).emit("participant", roomRecord);
 
         return;
