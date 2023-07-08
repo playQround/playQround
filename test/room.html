@@ -54,9 +54,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.1.slim.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script>
-  <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+  <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script src="http://192.168.65.134:3000/socket.io/socket.io.js"></script> -->
+  <!-- <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script> -->
+  <script src="https://api.playqround.site/socket.io/socket.io.js"></script>
   <script>
     let now_quiz_answer = "";
     let nickname = "";
@@ -65,7 +66,9 @@
     let now_quiz_point = 0;
     let quiz_count = 0;
     //소켓 인스턴스 생성
-    let socket = io("http://121.154.221.110:3000");
+    // let socket = io("http://121.154.221.110:3000");
+    let socket = io("https://api.playqround.site");
+    //let socket = io("http://192.168.65.134:3000");
 
     //닉네임과 방코드 입력받기 (url에서 입력받는것으로 수정)
     /*
