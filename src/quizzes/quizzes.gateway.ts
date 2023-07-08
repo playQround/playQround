@@ -12,7 +12,7 @@ import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
 import { subscribe } from "diagnostics_channel";
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway(3000, { cors: true })
 export class QuizzesGateway {
     private readonly logger = new Logger(QuizzesGateway.name);
     constructor(
