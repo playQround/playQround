@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
-import { PrimaryGeneratedColumn } from "typeorm";
 
 export type RecordDocument = HydratedDocument<Record>;
 
@@ -8,6 +7,8 @@ export type RecordDocument = HydratedDocument<Record>;
 export class Record {
     @Prop()
     userId: number;
+    @Prop()
+    socketId: string;
     @Prop()
     roomId: string;
     @Prop()

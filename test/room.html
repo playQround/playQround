@@ -12,19 +12,22 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-12 text-center bg-light">
-        <h1 id="room-name" class="py-3">방이름이 여기에 출력됩니다.</h1>
+        <h1 id="room-name" class="py-3">Room Title</h1>
       </div>
       <div class="col-12 text-center bg-light">
-        <h3 id="room-id" class="py-3">방코드가 여기에 출력됩니다.</h3>
+        <h3 id="room-id" class="py-3">Room Code</h3>
       </div>
-      <div class="col-12 text-center bg-light">
-        <h1 id="question" class="py-3">문제가 여기에 출력됩니다.</h1>
+      <div class="col-9 text-center bg-light">
+        <h1 id="question" class="py-3">문제 준비중 입니다.</h1>
+      </div>
+      <div class="col-3 text-center bg-light">
+        <h1 id="quiz-count" class="py-3"></h1>
       </div>
     </div>
     <div class="row">
       <div class="col-9">
         <div id="chat" class="border my-3 px-3 py-2" style="height: 400px; overflow: auto">
-          채팅 내역이 여기에 출력됩니다.
+          Chating Log
         </div>
         <form class="input-group mb-3" onsubmit="event.preventDefault(); sendMessage();">
           <input type="text" id="message-input" class="form-control" placeholder="채팅을 입력해주세요."
@@ -34,7 +37,7 @@
               전송
             </button>
 
-            <button class="btn btn-outline-secondary" type="button" onclick="startMessage()">
+            <button id="quiz-start" class="btn btn-outline-secondary" type="button" onclick="startMessage()">
               퀴즈시작
             </button>
           </div>
@@ -53,16 +56,17 @@
   <script src="https://code.jquery.com/jquery-3.6.1.slim.js"></script>
   <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script>
   <script src="http://192.168.65.134:3000/socket.io/socket.io.js"></script> -->
-  <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script>
-  <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+  <!-- <script src="http://121.154.221.110:3000/socket.io/socket.io.js"></script> -->
+  <script src="https://api.playqround.site/socket.io/socket.io.js"></script>
   <script>
     let now_quiz_answer = "";
     let nickname = "";
     let userid = "";
     let socketRoom = "";
+    let quiz_count = 0;
     //소켓 인스턴스 생성
-    let socket = io("http://121.154.221.110:3000");
-    // let socket = io("http://localhost:3000");
+    // let socket = io("http://121.154.221.110:3000");
+    let socket = io("https://api.playqround.site");
     //let socket = io("http://192.168.65.134:3000");
 
     //닉네임과 방코드 입력받기 (url에서 입력받는것으로 수정)
@@ -131,9 +135,57 @@
 
     //퀴즈시작버튼 클릭시 room이름과 nickname을 서버로 보내기
     function startMessage() {
+      //총진행될 문제의 수
+      const questionCount = 10;
+      var currentUrl = window.location.origin;
+
+      //url링크
+      const url = currentUrl + "/api/rooms/" + socketRoom + "/start?count=" + questionCount
+      //console.log(url)
+
+      //axios api를 이용하여 방상태를 변경한다
+      axios.get(url)
+        .then(function (response) {
+          // handle success
+          //console.log(response);
+          console.log("퀴즈시작 성공")
+        })
+        .catch(function (error) {
+          // handle error
+          //console.log(error);
+          console.log("퀴즈시작 실패")
+        });
+
+
+      $("#quiz-start").attr("disabled", true);
       socket.emit("startQuiz", { room: socketRoom, nickname: nickname });
     }
 
+    // 퀴즈가 끝났을때
+    function endMessage() {
+      var currentUrl = window.location.origin;
+
+      //url링크
+      const url = currentUrl + "/api/rooms/" + socketRoom + "/end"
+      //console.log(url)
+
+      //axios api를 이용하여 방상태를 변경한다
+      axios.get(url)
+        .then(function (response) {
+          // handle success
+          //console.log(response);
+          console.log("퀴즈끝 성공")
+        })
+        .catch(function (error) {
+          // handle error
+          //console.log(error);
+          console.log("퀴즈끝 실패")
+        });
+
+      //TODO대기상태로 돌아가 시작하려면 추가 코드가 필요함
+      //$("#quiz-start").attr("disabled", true);
+      //socket.emit("startQuiz", { room: socketRoom, nickname: nickname });
+    }
     //소켓이 연결에 성공했을 때
     socket.on("connect", () => {
       console.log("연결됨!!");
@@ -147,8 +199,16 @@
 
     //서버로부터 퀴즈에 대한 정보가 전달 되었을 때
     socket.on("quize", (quizz) => {
+      quiz_count++;
+      if (quiz_count > 5) {
+        //퀴즈 종료 alert 창 띄우기 내용은 참여자 점수 리스트
+        endMessage();
+        alert("퀴즈가 종료되었습니다.");
+
+        return
+      }
       now_quiz_answer = quizz.answer;
-      $("#question").text(`${quizz.question} (${quizz.answer.length}글자)`);
+      $("#question").text(`${quiz_count})  ${quizz.question} (${quizz.answer.length}글자)`);
     });
 
     //서버로부터 참가자에 대한 정보가 들어 왔을때
@@ -167,6 +227,40 @@
         `<li class="list-group-item">${participant}</li>`
       );
     });
+
+    //서버로부터 roomRecord에 대한 정보가 들어 왔을때
+    socket.on("roomRecord", (roomRecord) => {
+      //서버로부터 roomRecord에 대한 정보가 들어 왔을때 이를 참가자목록에 출력
+      //[{"username":"SeungHo1","userScore":16},{"username":"SeungHo","userScore":7}]
+      //string을 json으로 
+      roomRecord = JSON.parse(roomRecord);
+      //참가자목록 초기화
+      $("#participant-list").empty();
+
+      for (let i = 0; i < roomRecord.length; i++) {
+        $("#participant-list").append(
+          `<li class="list-group-item">${i + 1}  ${roomRecord[i].username} : ${roomRecord[i].userScore} </li>`
+        );
+      }
+
+    });
+
+    //문제와 문제 사이의 대기시간
+    socket.on("readyTime", (time) => {
+      $("#question").text(`${time}`);
+    });
+
+    //퀴즈가 진행되는 동안의 카운트 다운
+    socket.on("quizTime", (time) => {
+      $("#quiz-count").text(`${time}`);
+    });
+
+    //퀴즈가 시작되었으므로 퀴즈시작 버튼을 비활성화 한다.
+    socket.on("startQuiz", () => {
+      $("#quiz-start").attr("disabled", true);
+    });
+
+
   </script>
 </body>
 

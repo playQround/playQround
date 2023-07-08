@@ -74,19 +74,21 @@ export class RoomsRepository {
 
         // 제한 인원 달성으로 방 입장이 불가능 - 403 에러로 추가 예정
         if (target.nowPeople === target.maxPeople) {
-            return { message : "최대 수용 인원에 도달되어 입장이 불가능합니다." }
+            return {
+                message: "최대 수용 인원에 도달되어 입장이 불가능합니다.",
+            };
         }
-        
+
         const targetRoom = {
             roomId: target._id,
             roomName: target.roomName,
             roomStatus: target.roomStatus,
-            nowPeople:target.nowPeople + 1,
+            nowPeople: target.nowPeople + 1,
             maxPeople: target.maxPeople,
             cutRating: target.cutRating,
         };
 
-        await this.RoomModel.findByIdAndUpdate( id, targetRoom, { new: true });
+        await this.RoomModel.findByIdAndUpdate(id, targetRoom, { new: true });
         return targetRoom;
     }
 
@@ -101,13 +103,13 @@ export class RoomsRepository {
             roomId: target._id,
             roomName: target.roomName,
             roomStatus: target.roomStatus,
-            nowPeople:target.nowPeople - 1,
+            nowPeople: target.nowPeople - 1,
             maxPeople: target.maxPeople,
             cutRating: target.cutRating,
         };
 
-        await this.RoomModel.findByIdAndUpdate( id, targetRoom, { new: true });
-        return { message : "Leave Room Success" };
+        await this.RoomModel.findByIdAndUpdate(id, targetRoom, { new: true });
+        return { message: "Leave Room Success" };
     }
 
     async update(id: string, updateRoomDto: UpdateRoomDto): Promise<object> {
@@ -134,5 +136,18 @@ export class RoomsRepository {
         targetRoom.roomStatus = 4; // 논리적 삭제 : roomStatus 값을 4로 변경.
         targetRoom.save();
         return { message: "deleted" };
+    }
+
+    async roomStatusUpdate(id: string, roomStatus: number): Promise<object> {
+        const targetRoom = await this.RoomModel.findOne({ _id: id });
+
+        //방을 찾는 다 못찾으면 뭔가 처리해줘야 할듯
+        if (!targetRoom) {
+            throw new NotFoundException(`${id}`);
+        }
+
+        targetRoom.roomStatus = roomStatus;
+        targetRoom.save();
+        return { message: "updated" };
     }
 }

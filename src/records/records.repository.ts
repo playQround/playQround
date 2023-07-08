@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 // import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRecordDto } from "./dto/update-record.dto";
 import { InjectModel } from "@nestjs/mongoose";
@@ -7,6 +7,7 @@ import { Model } from "mongoose";
 
 @Injectable()
 export class RecordsRepository {
+    private readonly logger = new Logger(RecordsRepository.name);
     constructor(
         @InjectModel(Record.name)
         private RecordModel: Model<Record>,
@@ -14,34 +15,27 @@ export class RecordsRepository {
 
     async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {
         const findRecord = await this.RecordModel.findOne({
+            // uuid 를 숫자로만 변경해서 userId 값으로 findOne 하는 것으로...
             userId: UpdateRecordDto.userId,
             roomId: UpdateRecordDto.roomId,
         });
-        console.log("repo", findRecord);
+        //console.log("repo", findRecord);
         if (!findRecord) {
-            // throw new NotFoundException(
-            //     `Record with ID ${UpdateRecordDto.userId} not found`,
-
-            // );
             const newRecord = new this.RecordModel(UpdateRecordDto);
             await newRecord.save();
             return newRecord;
         } else {
-            console.log("repo_findone", findRecord);
-            //검색된 결과의 점수를 업데이트한다.
             findRecord.userScore += 1;
             await findRecord.save();
+            this.logger.verbose(
+                `Updating record for user: ${findRecord?.userId} in room: ${findRecord?.roomId}. New score: ${findRecord?.userScore}`,
+            );
             return findRecord;
         }
-        return await this.RecordModel.findOne({
-            userId: UpdateRecordDto.userId,
-        });
     }
 
-    // async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {
-    //     return await this.RecordModel.updateOne(
-    //         { userId: UpdateRecordDto.userId },
-    //         { userScore: UpdateRecordDto.userScore },
-    //     );
-    // }
+    async getRoomRecord(roomId: number): Promise<object> {
+        const roomRecord = await this.RecordModel.find({ roomId: roomId });
+        return roomRecord;
+    }
 }
