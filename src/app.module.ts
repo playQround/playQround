@@ -12,7 +12,6 @@ import { AuthModule } from "./auth/auth.module";
 import emailConfig from "./config/emailConfig";
 import { CacheModule } from "@nestjs/cache-manager";
 import * as redisStore from "cache-manager-ioredis";
-// import * as redisStore from "cache-manager-redis-store";
 
 @Module({
     imports: [
