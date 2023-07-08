@@ -199,7 +199,7 @@ export class QuizzesGateway {
             client
                 .to(data["room"])
                 .emit(
-                    "message",
+                    "notice",
                     `★☆★☆★☆★☆${data["nickname"]}님이 정답을 맞추셨습니다 (+${data["point"]}점)★☆★☆★☆★☆`,
                 );
             //stopQuizCountdown(client, data);
