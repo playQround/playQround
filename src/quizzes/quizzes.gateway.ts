@@ -12,7 +12,7 @@ import { RecordsService } from "../records/records.service";
 import { Logger } from "@nestjs/common";
 import { subscribe } from "diagnostics_channel";
 
-@WebSocketGateway(3000, { cors: true })
+@WebSocketGateway({ cors: true })
 export class QuizzesGateway {
     private readonly logger = new Logger(QuizzesGateway.name);
     constructor(
@@ -61,7 +61,7 @@ export class QuizzesGateway {
             );
             client
                 .to(data["room"])
-                .emit("message", `${data["nickname"]} 님이 재입장하셨습니다.`);
+                .emit("notice", `${data["nickname"]} 님이 재입장하셨습니다.`);
             return;
         }
         //join을 통해 소켓의 room에 입장한다.
@@ -71,11 +71,11 @@ export class QuizzesGateway {
         //room에 입장했다는 메세지를 프론트앤드로 보낸다.
         client
             .to(data["room"])
-            .emit("message", `${data["nickname"]} 님이 입장하셨습니다.`);
+            .emit("notice", `${data["nickname"]} 님이 입장하셨습니다.`);
 
         //참여자목록을 Record document에 저장
         const UpdateRecordDto = {
-            userId: data.userId? data.userId : -1, //유저의 아이디를 가져와야한다.
+            userId: data.userId ? data.userId : -1, //유저의 아이디를 가져와야한다.
             roomId: data.room, //생성될때의 방 값을 가져와야한다.
             userName: data.nickname, //유저의 이름을 가져와야한다.
             userScore: 0, //점수 기입방식의 논의가 필요하다.
@@ -90,7 +90,15 @@ export class QuizzesGateway {
         const roomRecord = await this.RecordsService.getRoomRecord(
             data["room"],
         );
-        client.to(data["room"]).emit("participant", roomRecord);
+
+        const participantList = JSON.parse(roomRecord).map((item) => {
+            if (item.userName === data.nickname) {
+                return { ...item, socketId: client.id };
+            } else item;
+        });
+        client
+            .to(data["room"])
+            .emit("participant", JSON.stringify(participantList));
 
         return;
     }
@@ -100,7 +108,7 @@ export class QuizzesGateway {
         client.leave(data?.room);
         client
             .to(data["room"])
-            .emit("message", `${data?.userName} 님이 퇴장하셨습니다.`);
+            .emit("notice", `${data?.userName} 님이 퇴장하셨습니다.`);
         this.logger.verbose(`${data?.userName} left the room ${data?.room}`);
         const roomUserCount = this.getClientIdsInRoom(data?.room).length;
         this.logger.verbose(`Number of users in room: ${roomUserCount}`);
@@ -122,12 +130,7 @@ export class QuizzesGateway {
         if (data["message"] === "!answer") {
             // 치트키 로그
             this.logger.verbose(`User ${data?.nickname} used used cheat code`);
-            client
-                .to(data["room"])
-                .emit(
-                    "message",
-                    `${data["nickname"]} : 정답은 ${data["answer"]}`,
-                );
+            client.to(data["room"]).emit("notice", `정답은 ${data["answer"]}`);
             return;
         }
 
@@ -165,7 +168,7 @@ export class QuizzesGateway {
             this.logger.verbose(`Sending room record to ${roomRecord}`);
             //roomRecord를 스트링ㅇ로 변환하여 프론트앤드로 보낸다.
 
-            client.to(data["room"]).emit("roomRecord", roomRecord);
+            client.to(data["room"]).emit("participant", roomRecord);
 
             //퀴즈 DB의 총 갯수를 구한다.
             const quizCount = await this.quizzesService.getQuizCount();
@@ -175,25 +178,18 @@ export class QuizzesGateway {
             const newQuiz = await this.quizzesService.startQuiz(randomNum);
             await startCountdown(5, client, data);
             //퀴즈를 프론트앤드로 보낸다.
-            client.to(data["room"]).emit("quize", newQuiz);
+            client.to(data["room"]).emit("quiz", newQuiz);
             await startQuizCountdown(10, client, data);
-            //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
+            //console.log("quiz", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다
             this.logger.verbose(`${data["nickname"]} : ${data["message"]}`);
             client
                 .to(data["room"])
                 .emit("message", `${data["nickname"]} : ${data["message"]}`);
-            this.getClientIdsInRoom(data?.room);
         }
 
-        // return this.quizzesService.checkAnswer(
-        //     data["nickname"],
-        //     data["message"],
-        // );
-
         return;
-        //return this.RecordService.test(record);
     }
 
     @SubscribeMessage("startQuiz")
@@ -218,7 +214,7 @@ export class QuizzesGateway {
         //5초간의 준비 시간을 1초간격으로 카운트다운해서 보낸 다음에 퀴즈를 보낸다.
         await startCountdown(5, client, data);
 
-        client.to(data["room"]).emit("quize", newQuiz);
+        client.to(data["room"]).emit("quiz", newQuiz);
         await startQuizCountdown(10, client, data);
         return this.quizzesService.startQuiz(randomNum);
     }
@@ -232,7 +228,6 @@ export class QuizzesGateway {
     update(@MessageBody() updateQuizDto: UpdateQuizDto) {
         return this.quizzesService.update(updateQuizDto.id, updateQuizDto);
     }
-
 }
 let countDownQuiz;
 
