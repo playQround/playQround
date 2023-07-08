@@ -82,7 +82,6 @@ export class QuizzesGateway {
             userName: data.nickname, //유저의 이름을 가져와야한다.
             userScore: 0, //점수 기입방식의 논의가 필요하다.
         };
-        console.log("UpdateRecordDto:", UpdateRecordDto);
         // 사용자 정보를 입력
         await this.RecordsService.update(UpdateRecordDto);
         //client.to(data["room"]).emit("participant", `${data["nickname"]}`);
