@@ -122,7 +122,7 @@ export class QuizzesGateway {
         this.chatQueue.add(
             // 큐에 저장
             "MessageQueue",
-            { data },
+            { data, clientId: client.id },
             { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
         );
 
@@ -208,7 +208,7 @@ export class QuizzesGateway {
             //정답자가 나왔으므로 중간결과를 저장한다.
             const UpdateRecordDto = {
                 userId: data["userId"], //유저의 아이디를 가져와야한다.
-                socketId: client.id,
+                socketId: job.data.data.clientId,
                 roomId: data["room"], //생성될때의 방 값을 가져와야한다.
                 userName: data["nickname"], //유저의 이름을 가져와야한다.
                 userScore: data["point"], //점수 기입방식의 논의가 필요하다.
@@ -241,7 +241,6 @@ export class QuizzesGateway {
             client.to(data["room"]).emit("quiz", newQuiz);
             await startQuizCountdown(10, client, data);
             //console.log("quiz", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
-
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다
             this.logger.verbose(`${data["nickname"]} : ${data["message"]}`);
