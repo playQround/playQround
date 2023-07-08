@@ -62,6 +62,7 @@
     let nickname = "";
     let userid = "";
     let socketRoom = "";
+    let now_quiz_point = 0;
     let quiz_count = 0;
     //소켓 인스턴스 생성
     let socket = io("http://121.154.221.110:3000");
@@ -119,6 +120,7 @@
 
     //전송버튼 클릭시 room이름과 message와 answer(퀴즈정답)과 nickname을 서버로 보내기
     function sendMessage() {
+      console.log(now_quiz_point)
       const message = $("#message-input").val();
       socket.emit("message", {
         room: socketRoom,
@@ -126,6 +128,7 @@
         answer: now_quiz_answer,
         nickname: nickname,
         userid: userid,
+        point: now_quiz_point
       });
       $("#message-input").val("");
     }
@@ -197,6 +200,7 @@
     //서버로부터 퀴즈에 대한 정보가 전달 되었을 때
     socket.on("quize", (quizz) => {
       quiz_count++;
+      now_quiz_point = 3;
       if (quiz_count > 5) {
         //퀴즈 종료 alert 창 띄우기 내용은 참여자 점수 리스트
         endMessage();
@@ -249,7 +253,50 @@
 
     //퀴즈가 진행되는 동안의 카운트 다운
     socket.on("quizTime", (time) => {
-      $("#quiz-count").text(`${time}`);
+      //time을 int로
+      const intTime = parseInt(time);
+      let hint = "";
+
+      if (intTime == 0) {
+        now_quiz_point = 0;
+        $("#question").text(`정답은 ${now_quiz_answer} 입니다.`);
+      }
+      if (1 <= intTime && intTime <= 5) {
+        now_quiz_point = 1;
+        //answer의 길이를 파악해서 첫번째와 마지막 글자만 보이게 하고 나머지는"O"로 표시
+        var answer = now_quiz_answer;
+        var answer_length = answer.length;
+        var answer_first = answer.substring(0, 1);
+        var answer_last = answer.substring(answer_length - 1, answer_length);
+        var answer_last_length = answer_length - 2;
+        var answer_last_O = "";
+        for (var i = 0; i < answer_last_length; i++) {
+          answer_last_O += "O";
+        }
+        var answer_O = answer_first + answer_last_O + answer_last;
+        hint = `(${answer_O})`;
+
+
+      }
+      if (6 <= intTime && intTime <= 10) {
+        now_quiz_point = 2;
+
+        //answer의 길이를 파악해서 첫번째 글자만 보이게 하고 나머지는"O"로 표시
+        var answer = now_quiz_answer;
+        var answer_length = answer.length;
+        var answer_first = answer.substring(0, 1);
+        var answer_last = answer.substring(1, answer_length);
+        var answer_last_length = answer_last.length;
+        var answer_last_O = "";
+        for (var i = 0; i < answer_last_length; i++) {
+          answer_last_O += "O";
+        }
+        var answer_O = answer_first + answer_last_O;
+        hint = `(${answer_O})`;
+
+      }
+
+      $("#quiz-count").text(`${time} ${hint}`);
     });
 
     //퀴즈가 시작되었으므로 퀴즈시작 버튼을 비활성화 한다.

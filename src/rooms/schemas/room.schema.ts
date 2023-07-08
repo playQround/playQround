@@ -24,6 +24,9 @@ export class Room {
     @Prop()
     cutRating: number;
 
+    @Prop()
+    nowAnswer: string;
+
     @Prop({ default: new Date() })
     createdAt: Date;
 
