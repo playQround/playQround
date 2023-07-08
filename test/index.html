@@ -397,7 +397,7 @@
                         //string을 json으로 변환
                         const roomData2 = JSON.parse(data);
                         console.log(roomData2);
-                        window.location.href = "http://ecs-alb-1452074460.ap-northeast-2.elb.amazonaws.com//room.html?data=" + encodeURIComponent(jsonRoomData);
+                        window.location.href = "https://api.playqround.site/room.html?data=" + encodeURIComponent(jsonRoomData);
                         // window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
                     })
                     .catch(function(error) {
