@@ -83,9 +83,10 @@ export class RoomsRepository {
             roomId: target._id,
             roomName: target.roomName,
             roomStatus: target.roomStatus,
-            nowPeople: target.nowPeople + 1,
+            nowPeople: target.nowPeople,
             maxPeople: target.maxPeople,
             cutRating: target.cutRating,
+            nowAnswer: target.nowAnswer,
         };
 
         await this.RoomModel.findByIdAndUpdate(id, targetRoom, { new: true });
@@ -149,5 +150,17 @@ export class RoomsRepository {
         targetRoom.roomStatus = roomStatus;
         targetRoom.save();
         return { message: "updated" };
+    }
+
+    async updateRoomAnswer(id: number, answer: string): Promise<void> {
+        const targetRoom = await this.RoomModel.findOne({ _id: id });
+
+        if (!targetRoom) {
+            throw new NotFoundException(`${id}`);
+        }
+
+        targetRoom.nowAnswer = answer;
+        targetRoom.save();
+        return;
     }
 }

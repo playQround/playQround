@@ -25,7 +25,7 @@ export class RecordsRepository {
             await newRecord.save();
             return newRecord;
         } else {
-            findRecord.userScore += 1;
+            findRecord.userScore += UpdateRecordDto.userScore;
             await findRecord.save();
             this.logger.verbose(
                 `Updating record for user: ${findRecord?.userId} in room: ${findRecord?.roomId}. New score: ${findRecord?.userScore}`,

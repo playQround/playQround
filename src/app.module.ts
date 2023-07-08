@@ -37,13 +37,13 @@ import * as redisStore from "cache-manager-ioredis";
         CacheModule.registerAsync({
             useFactory: () => ({
                 store: redisStore,
-                host: 'elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com',
+                host: "elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com",
                 port: 6379,
                 // ttl: 10000,
                 // connectTimeout: 10000
                 // url: 'redis://elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com:6379',
             }),
-        })
+        }),
     ],
     controllers: [AppController],
     providers: [AppService],
