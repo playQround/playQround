@@ -26,6 +26,7 @@ export class RecordsService {
                 return {
                     userName: record.userName,
                     userScore: record.userScore,
+                    socketId: record.socketId,
                 };
             });
         //sortedRecord를 string으로 변환
