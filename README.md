@@ -261,3 +261,18 @@ async function bootstrap() {
 }
 bootstrap();
 ```
+
+7. Elastic Cache for Redis 사용
+```
+# 필요 모듈 설치
+npm install cache-manager
+npm install -D @types/cache-manager
+npm install cache-manager-redis-store
+npm install -D @types/cache-manager-redis-store
+
+npm install cache-manager-ioredis --save
+npm install -D @types/cache-manager-ioredis
+
+# 모듈 사용
+
+```
