@@ -53,52 +53,69 @@ export class QuizzesGateway {
         return clientsInRoom ? Array.from(clientsInRoom) : [];
     }
 
+    // Method to get current participant list
+    private async currentParticipant(room: string): Promise<object> {
+        // 한번이라도 방에 입장했던 client 목록을 조회
+        const currentClientId = this.getClientIdsInRoom(room);
+        // JSON stringify 된 것을 다시 parse...
+        const roomRecord = JSON.parse(
+            await this.RecordsService.getRoomRecord(room),
+        );
+        // 현재 접속한 client id 값으로 필터링
+        const currentParticipant = roomRecord.filter((item) =>
+            currentClientId.includes(item?.socketId),
+        );
+        // 방 참여자 목록을 return
+        return currentParticipant;
+    }
+
     //TODO 여기에 접속한 유저의 숫자를 카운트해야하나
     //방에 입장했을 때 실행되는 서브스크립션
     @SubscribeMessage("joinRoom")
     async joinRoom(client: Socket, data: any) {
+        // 방에 조인한 socket Id 값으로 재입장 구분
         const usersInThisRoom = this.getClientIdsInRoom(data?.room);
         if (usersInThisRoom.includes(client.id)) {
             this.logger.verbose(
-                `${data?.nickname} re-entered the room ${data?.room}`,
+                `${data.nickname} re-entered the room ${data.room}`,
             );
             client
                 .to(data["room"])
                 .emit("notice", `${data["nickname"]} 님이 재입장하셨습니다.`);
-            return;
+        } else {
+            // room에 입장
+            client.join(data.room);
+            // 방 입장 로그
+            this.logger.verbose(
+                `${data.nickname} entered the room ${data.room}`,
+            );
+            //room에 입장했다는 메세지를 프론트앤드로 보낸다.
+            client
+                .to(data.room)
+                .emit("notice", `${data.nickname} 님이 입장하셨습니다.`);
+            // 참여자를 Record document에 저장
+            const UpdateRecordDto = {
+                userId: data.userId
+                    ? data.userId
+                    : this.quizzesService.anonymousUserId(),
+                socketId: client.id,
+                roomId: data.room,
+                userName: data.nickname,
+                userScore: 0,
+            };
+            // 사용자 정보를 저장
+            await this.RecordsService.update(UpdateRecordDto);
+            //client.to(data["room"]).emit("participant", `${data["nickname"]}`);
+            this.logger.verbose(
+                `Number of users in room: ${usersInThisRoom.length}`,
+            );
         }
-        //join을 통해 소켓의 room에 입장한다.
-        client.join(data["room"]);
-        // 방 입장 로그
-        this.logger.verbose(`${data?.nickname} entered the room ${data?.room}`);
-        //room에 입장했다는 메세지를 프론트앤드로 보낸다.
+        // 한번이라도 방에 입장했던 client 목록을 조회
+        const currentParticipant = await this.currentParticipant(data.room);
+        // 방 참여자 목록을 클라이언트에 emit
         client
             .to(data["room"])
-            .emit("notice", `${data["nickname"]} 님이 입장하셨습니다.`);
-
-        //참여자목록을 Record document에 저장
-        const UpdateRecordDto = {
-            userId: data.userId
-                ? data.userId
-                : this.quizzesService.anonymousUserId(), //유저의 아이디를 가져와야한다.
-            socketId: client.id,
-            roomId: data.room, //생성될때의 방 값을 가져와야한다.
-            userName: data.nickname, //유저의 이름을 가져와야한다.
-            userScore: 0, //점수 기입방식의 논의가 필요하다.
-        };
-        // 사용자 정보를 입력
-        await this.RecordsService.update(UpdateRecordDto);
-        //client.to(data["room"]).emit("participant", `${data["nickname"]}`);
-        this.logger.verbose(
-            `Number of users in room: ${this.getClientIdsInRoom.length}`,
-        );
-        // 입력 후 전체 사용자 목록을 조회해서,
-        const roomRecord = await this.RecordsService.getRoomRecord(
-            data["room"],
-        );
-
-        console.log(roomRecord);
-        client.to(data["room"]).emit("participant", roomRecord);
+            .emit("participant", JSON.stringify(currentParticipant));
 
         return;
     }
@@ -112,12 +129,21 @@ export class QuizzesGateway {
         this.logger.verbose(`${data?.userName} left the room ${data?.room}`);
         const roomUserCount = this.getClientIdsInRoom(data?.room).length;
         this.logger.verbose(`Number of users in room: ${roomUserCount}`);
+
+        // 한번이라도 방에 입장했던 client 목록을 조회
+        const currentParticipant = await this.currentParticipant(data.room);
+        // 방 참여자 목록을 클라이언트에 emit
+        client
+            .to(data["room"])
+            .emit("participant", JSON.stringify(currentParticipant));
     }
 
     //프론트 앤드 socket.emit("message", message, now_quiz_answer); 에 응답하기위한 서브스크립션
     @SubscribeMessage("message")
     async handleMessage(client: Socket, data: any) {
-        this.logger.verbose(`User ${data?.nickname} sent a message`);
+        this.logger.verbose(
+            `User ${data?.nickname} sent a message: ${data?.message}`,
+        );
         //퀴즈의 정답을 체크한다. 정답이면 true 오답이면 false를 반환한다.
         this.chatQueue.add(
             // 큐에 저장

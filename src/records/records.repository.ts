@@ -34,7 +34,7 @@ export class RecordsRepository {
         }
     }
 
-    async getRoomRecord(roomId: number): Promise<object> {
+    async getRoomRecord(roomId: string): Promise<object> {
         const roomRecord = await this.RecordModel.find({ roomId: roomId });
         return roomRecord;
     }

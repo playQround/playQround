@@ -14,7 +14,7 @@ export class RecordsService {
         return await this.RecordsRepository.update(UpdateRecordDto);
     }
 
-    async getRoomRecord(roomId: number): Promise<string> {
+    async getRoomRecord(roomId: string): Promise<string> {
         const record = await this.RecordsRepository.getRoomRecord(roomId);
 
         // object 형식의 record 를 json 형식으로 변환
