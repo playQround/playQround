@@ -39,6 +39,7 @@ import * as redisStore from "cache-manager-ioredis";
                 store: redisStore,
                 host: process.env.REDIS_URL,
                 port: 6379,
+                isGlobal: true,
                 // ttl: 10000,
                 // connectTimeout: 10000
                 // url: 'redis://elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com:6379',
