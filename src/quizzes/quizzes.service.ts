@@ -19,11 +19,6 @@ export class QuizzesService {
         return timestamp + random;
     }
 
-    //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
-    startQuiz(quizId: number): Promise<Quizzes | null> {
-        return this.quizzesRepository.startQuiz(quizId);
-    }
-
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
     async checkAnswer(message: any, room: any): Promise<boolean> {
         const roomInfo = await this.roomsRepository.findOne(room);
@@ -36,6 +31,23 @@ export class QuizzesService {
         return false;
     }
 
+    // // 퀴즈 출제 서비스
+    // async getQuiz(): Promise<object> {
+    //     // 퀴즈 DB의 총 갯수를 구한다.
+    //     const quizCount = await this.quizzesRepository.getQuizCount();
+
+    //     //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
+    //     const randomNum = Math.floor(Math.random() *  quizCount) + 1;
+
+    //     // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
+    //     const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
+    //     return newQuiz;
+    // }
+
+    //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
+    startQuiz(quizId: number): Promise<Quizzes | null> {
+        return this.quizzesRepository.startQuiz(quizId);
+    }
     //퀴즈 DB의 총 갯수를 구한다.
     getQuizCount(): Promise<number> {
         return this.quizzesRepository.getQuizCount();

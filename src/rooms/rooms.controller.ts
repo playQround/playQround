@@ -20,14 +20,16 @@ export class RoomsController {
     private readonly logger = new Logger(RoomsController.name);
     constructor(private readonly roomsService: RoomsService) {}
 
-    @Post() // 방 생성하기
+    // 방 생성하기
+    @Post()
     create(@Body() createRoomDto: CreateRoomDto) {
         // 방 생성 로그(추후 useGuard 추가 시 user정보도 로그 추가 필요)
         this.logger.verbose(`Creating new room: ${createRoomDto?.roomName}`);
         return this.roomsService.create(createRoomDto);
     }
 
-    @Get() // 전체 방 목록 조회
+    // 전체 방 목록 조회
+    @Get()
     findAll() {
         // 전체 방 목록 조회 로그(추후 useGuard 추가 시 user정보도 로그 추가 필요)
         this.logger.verbose(`Fetching all rooms.`);
