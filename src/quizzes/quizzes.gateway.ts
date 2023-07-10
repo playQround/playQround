@@ -2,13 +2,11 @@ import {
     WebSocketGateway,
     WebSocketServer,
     SubscribeMessage,
-    MessageBody,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { QuizzesService } from "./quizzes.service";
-import { CreateQuizDto } from "./dto/create-quiz.dto";
-import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { RecordsService } from "../records/records.service";
+import { RoomsService } from "src/rooms/rooms.service";
 import { Logger } from "@nestjs/common";
 import { Process, Processor } from "@nestjs/bull";
 import { InjectQueue } from "@nestjs/bull";
@@ -21,6 +19,7 @@ export class QuizzesGateway {
     constructor(
         private readonly quizzesService: QuizzesService,
         private readonly RecordsService: RecordsService,
+        private readonly roomsService: RoomsService,
         @InjectQueue("MessageQueue") private chatQueue: Queue,
     ) {}
 
@@ -116,8 +115,7 @@ export class QuizzesGateway {
         client
             .to(data["room"])
             .emit("participant", JSON.stringify(currentParticipant));
-
-        return;
+        return this.roomsService.update(data.room, {nowPeople: usersInThisRoom.length});
     }
 
     @SubscribeMessage("leaveRoom")
@@ -136,6 +134,7 @@ export class QuizzesGateway {
         client
             .to(data["room"])
             .emit("participant", JSON.stringify(currentParticipant));
+        return this.roomsService.update(data.room, {nowPeople: roomUserCount});
     }
 
     //프론트 앤드 socket.emit("message", message, now_quiz_answer); 에 응답하기위한 서브스크립션
@@ -267,7 +266,10 @@ export class QuizzesGateway {
             const newQuiz = await this.quizzesService.getQuiz();
 
             //방정보에 현재 퀴즈 답을 업데이트 한다.
-            this.quizzesService.updateRoomAnswer(data["room"], newQuiz['answer']);
+            this.quizzesService.updateRoomAnswer(
+                data["room"],
+                newQuiz["answer"],
+            );
             //퀴즈를 프론트앤드로 보낸다.
             client.to(data["room"]).emit("quiz", newQuiz);
             await startQuizCountdown(10, client, data);
