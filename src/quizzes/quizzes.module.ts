@@ -19,7 +19,8 @@ import { RoomsService } from "../rooms/rooms.service";
         ]),
         BullModule.forRoot({
             redis: {
-                host: process.env.REDIS_URL,
+                host: "20.200.215.75",
+                // host: process.env.REDIS_URL,
             },
         }),
         BullModule.registerQueue({
