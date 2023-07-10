@@ -47,7 +47,7 @@ export class QuizzesGateway {
         );
     }
 
-    // Method to get the list of client IDs in a room
+    // 방에 접속한 클라이언트의 아이디를 조회
     private getClientIdsInRoom(room: string): string[] {
         const clientsInRoom = this.server.sockets.adapter.rooms.get(room);
         return clientsInRoom ? Array.from(clientsInRoom) : [];
@@ -157,13 +157,13 @@ export class QuizzesGateway {
 
     @SubscribeMessage("startQuiz")
     async startQuiz(client: Socket, data: any) {
-        //퀴즈 DB의 총 갯수를 구한다.
-        const quizCount = await this.quizzesService.getQuizCount();
+        // //퀴즈 DB의 총 갯수를 구한다.
+        // const quizCount = await this.quizzesService.getQuizCount();
 
-        //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
-        const randomNum = Math.floor(Math.random() * quizCount) + 1;
-        const newQuiz = await this.quizzesService.startQuiz(randomNum);
-        // const newQuiz = await this.quizzesService.getQuiz();
+        // //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
+        // const randomNum = Math.floor(Math.random() * quizCount) + 1;
+        // const newQuiz = await this.quizzesService.startQuiz(randomNum);
+        const newQuiz = await this.quizzesService.getQuiz();
 
         //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         client
@@ -176,7 +176,8 @@ export class QuizzesGateway {
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
 
         //방정보에 현재 퀴즈 답을 업데이트 한다.
-        this.quizzesService.updateRoomAnswer(data["room"], newQuiz.answer);
+        // this.quizzesService.updateRoomAnswer(data["room"], newQuiz.answer);
+        this.quizzesService.updateRoomAnswer(data["room"], newQuiz['answer']);
 
         //5초간의 준비 시간을 1초간격으로 카운트다운해서 보낸 다음에 퀴즈를 보낸다.
         await startCountdown(5, this.server, data);
@@ -184,7 +185,7 @@ export class QuizzesGateway {
         client.to(data["room"]).emit("quize", newQuiz);
         //startQuizCountdown(15, this.server, data);
 
-        return this.quizzesService.startQuiz(randomNum);
+        return this.quizzesService.getQuiz();
     }
 
     @Process("MessageQueue")
@@ -254,16 +255,16 @@ export class QuizzesGateway {
 
             client.to(data["room"]).emit("participant", roomRecord);
 
-            //퀴즈 DB의 총 갯수를 구한다.
-            const quizCount = await this.quizzesService.getQuizCount();
+            // //퀴즈 DB의 총 갯수를 구한다.
+            // const quizCount = await this.quizzesService.getQuizCount();
 
-            //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
-            const randomNum = Math.floor(Math.random() * quizCount) + 1;
-            const newQuiz = await this.quizzesService.startQuiz(randomNum);
-            // //await startCountdown(5, client, data);
+            // //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
+            // const randomNum = Math.floor(Math.random() * quizCount) + 1;
+            // const newQuiz = await this.quizzesService.startQuiz(randomNum);
+            // // //await startCountdown(5, client, data);
 
             // // 퀴즈 조회 서비스
-            // const newQuiz = await this.quizzesService.getQuiz();
+            const newQuiz = await this.quizzesService.getQuiz();
 
             //방정보에 현재 퀴즈 답을 업데이트 한다.
             this.quizzesService.updateRoomAnswer(data["room"], newQuiz['answer']);

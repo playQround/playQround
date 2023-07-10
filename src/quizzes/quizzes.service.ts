@@ -31,27 +31,27 @@ export class QuizzesService {
         return false;
     }
 
-    // // 퀴즈 출제 서비스
-    // async getQuiz(): Promise<object> {
-    //     // 퀴즈 DB의 총 갯수를 구한다.
-    //     const quizCount = await this.quizzesRepository.getQuizCount();
+    // 퀴즈 조회 서비스
+    async getQuiz(): Promise<any> {
+        // 퀴즈 DB의 총 갯수를 구한다.
+        const quizCount = await this.quizzesRepository.getQuizCount();
 
-    //     //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
-    //     const randomNum = Math.floor(Math.random() *  quizCount) + 1;
+        //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
+        const randomNum = Math.floor(Math.random() *  quizCount) + 1;
 
-    //     // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
-    //     const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
-    //     return newQuiz;
+        // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
+        const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
+        return newQuiz;
+    }
+
+    // //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
+    // startQuiz(quizId: number): Promise<Quizzes | null> {
+    //     return this.quizzesRepository.startQuiz(quizId);
     // }
-
-    //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
-    startQuiz(quizId: number): Promise<Quizzes | null> {
-        return this.quizzesRepository.startQuiz(quizId);
-    }
-    //퀴즈 DB의 총 갯수를 구한다.
-    getQuizCount(): Promise<number> {
-        return this.quizzesRepository.getQuizCount();
-    }
+    // //퀴즈 DB의 총 갯수를 구한다.
+    // getQuizCount(): Promise<number> {
+    //     return this.quizzesRepository.getQuizCount();
+    // }
 
     updateRoomAnswer(roomId: number, answer: string): Promise<void> {
         this.roomsRepository.updateRoomAnswer(roomId, answer);
