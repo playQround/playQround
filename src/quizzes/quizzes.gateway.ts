@@ -137,6 +137,7 @@ export class QuizzesGateway {
         //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
         const randomNum = Math.floor(Math.random() * quizCount) + 1;
         const newQuiz = await this.quizzesService.startQuiz(randomNum);
+        // const newQuiz = await this.quizzesService.getQuiz();
 
         //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         client
@@ -233,10 +234,13 @@ export class QuizzesGateway {
             //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
             const randomNum = Math.floor(Math.random() * quizCount) + 1;
             const newQuiz = await this.quizzesService.startQuiz(randomNum);
-            //await startCountdown(5, client, data);
+            // //await startCountdown(5, client, data);
+
+            // // 퀴즈 조회 서비스
+            // const newQuiz = await this.quizzesService.getQuiz();
 
             //방정보에 현재 퀴즈 답을 업데이트 한다.
-            this.quizzesService.updateRoomAnswer(data["room"], newQuiz.answer);
+            this.quizzesService.updateRoomAnswer(data["room"], newQuiz['answer']);
             //퀴즈를 프론트앤드로 보낸다.
             client.to(data["room"]).emit("quiz", newQuiz);
             await startQuizCountdown(10, client, data);
