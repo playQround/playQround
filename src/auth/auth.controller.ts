@@ -18,11 +18,17 @@ export class AuthController {
 
     @Post("signin")
     async signIn(@Body() signInDto: SignInDto, @Res() res: any) {
-        this.logger.verbose(`User signing in: ${signInDto.userEmail}`);
-        const token = await this.authService.signIn(signInDto, res);
-        return res.status(HttpStatus.OK).json({
-            message: "signed in",
-            token,
-        });
+        try {
+            this.logger.verbose(`User signing in: ${signInDto.userEmail}`);
+            const token = await this.authService.signIn(signInDto, res);
+            return res.status(HttpStatus.OK).json({
+                message: "signed in",
+                token,
+            });
+        } catch (error) {
+            return res.status(HttpStatus.OK).json({
+                message: JSON.stringify(error),
+            });
+        }
     }
 }
