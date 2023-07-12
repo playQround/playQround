@@ -12,9 +12,8 @@ export class AuthService {
         private usersRepository: UsersRepository,
         @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
     ) {}
-
+    
     async signIn(signInDto: SignInDto, @Res() res: any): Promise<any> {
-        try {
             // 입력한 이메일을 사용하는 유저 조회
             const user = await this.usersRepository.findOneAll({
                 userEmail: signInDto.userEmail,
@@ -62,11 +61,6 @@ export class AuthService {
 
             // jwt 토큰 반환
             return token;
-        } catch (error) {
-            return res.status(500).json({
-                message: "어디서 무슨 문제가 생겼을 듯",
-                error
-            });
         }
     }
 }
