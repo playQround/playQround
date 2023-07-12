@@ -87,6 +87,7 @@ jobs:
         DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
         DATABASE_SYNCHRONIZE: ${{ secrets.DATABASE_SYNCHRONIZE }}
         MONGODB_URL: ${{ secrets.MONGODB_URL }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
         REDIS_URL: ${{ secrets.REDIS_URL }}
 
     - name: Login to Amazon ECR

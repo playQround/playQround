@@ -54,8 +54,6 @@ export class AuthService {
                 expiresIn: "1h",
             });
 
-            // const token = "테스트용 토큰값입니다."
-
             // 쿠키로 토큰 설정
             await res.cookie("authorization", `Bearer ${token}`, {
                 secure: false,
