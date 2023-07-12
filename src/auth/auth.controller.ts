@@ -27,7 +27,8 @@ export class AuthController {
             });
         } catch (error) {
             return res.status(HttpStatus.OK).json({
-                message: JSON.stringify(error),
+                message: "컨트롤러에서 문제가 생겼나?",
+                error
             });
         }
     }

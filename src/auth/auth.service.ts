@@ -63,7 +63,8 @@ export class AuthService {
             return token;
         } catch (error) {
             return res.status(500).json({
-                message: JSON.stringify(error),
+                message: "어디서 무슨 문제가 생겼을 듯",
+                error
             });
         }
     }
