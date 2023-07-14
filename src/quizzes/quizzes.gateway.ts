@@ -257,7 +257,6 @@ export class QuizzesGateway {
         // const newQuiz = await this.quizzesService.startQuiz(randomNum);
         const newQuiz = await this.quizzesService.getQuiz();
 
-        //console.log("quize", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         client
             .to(data["room"])
             .emit(
@@ -265,6 +264,8 @@ export class QuizzesGateway {
                 `()()()()()()${data["nickname"]}님이 퀴즈를 시작하셨습니다.()()()()()()()`,
             );
         client.to(data["room"]).emit("startQuiz");
+        // 퀴즈 시작으로 방 상태 변경
+        this.roomsService.start(data["room"], 10);
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
 
         //방정보에 현재 퀴즈 답을 업데이트 한다.
@@ -275,7 +276,10 @@ export class QuizzesGateway {
         await startCountdown(5, this.server, data);
 
         client.to(data["room"]).emit("quiz", newQuiz);
-        //startQuizCountdown(15, this.server, data);
+        // 남은 퀴즈 개수를 클라이언트로 보내기
+        client
+            .to(data["room"])
+            .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
 
         return this.quizzesService.getQuiz();
     }
@@ -349,17 +353,37 @@ export class QuizzesGateway {
 
             client.to(data["room"]).emit("participant", roomRecord);
 
-            // // 퀴즈 조회 서비스
-            const newQuiz = await this.quizzesService.getQuiz();
+            // //퀴즈 DB의 총 갯수를 구한다.
+            // const quizCount = await this.quizzesService.getQuizCount();
 
-            //방정보에 현재 퀴즈 답을 업데이트 한다.
-            this.quizzesService.updateRoomAnswer(
-                data["room"],
-                newQuiz["answer"],
-            );
-            //퀴즈를 프론트앤드로 보낸다.
-            client.to(data["room"]).emit("quiz", newQuiz);
-            //await startQuizCountdown(10, client, data);
+            // //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
+            // const randomNum = Math.floor(Math.random() * quizCount) + 1;
+            // const newQuiz = await this.quizzesService.startQuiz(randomNum);
+            // // //await startCountdown(5, client, data);
+
+            if (data.remainingQuizzes) {
+                // 퀴즈 조회 서비스
+                const newQuiz = await this.quizzesService.getQuiz();
+
+                //방정보에 현재 퀴즈 답을 업데이트 한다.
+                this.quizzesService.updateRoomAnswer(
+                    data["room"],
+                    newQuiz["answer"],
+                );
+                //퀴즈를 프론트앤드로 보낸다.
+                client.to(data["room"]).emit("quiz", newQuiz);
+                // 남은 퀴즈 개수를 클라이언트로 보내기
+                client
+                    .to(data["room"])
+                    .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
+                await startQuizCountdown(10, this.server, data);
+            } else {
+                // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
+                client.to(data["room"]).emit("notice", "모든 퀴즈를 풀었습니다.");
+                // 방 상태 업데이트
+                this.roomsService.end(data["room"])
+            }
+
             //console.log("quiz", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다

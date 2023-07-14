@@ -269,4 +269,76 @@ npm install -D @types/cache-manager
 npm install cache-manager-ioredis --save
 npm install -D @types/cache-manager-ioredis
 
+# Redis 모듈 사용
+@Module({
+    imports: [
+        ConfigModule.forRoot({
+            load: [authConfig, emailConfig],
+            isGlobal: true,
+        }),
+        TypeOrmModule.forRoot({
+            type: "mysql",
+            host: process.env.DATABASE_HOST,
+            port: +process.env.DATABASE_PORT,
+            username: process.env.DATABASE_USER,
+            password: process.env.DATABASE_PASSWORD,
+            database: process.env.DATABASE_NAME,
+            entities: [__dirname + "/**/*.entity{.ts,.js}"],
+            synchronize: false, // 동기화 옵션 해제
+        }),
+        MongooseModule.forRoot(process.env.MONGODB_URL),
+        UsersModule,
+        RoomsModule,
+        QuizzesModule,
+        AuthModule,
+        CacheModule.registerAsync({
+            useFactory: () => ({
+                store: redisStore,
+                host: process.env.REDIS_URL,
+                port: 6379,
+                isGlobal: true,
+                // ttl: 10000,
+                // connectTimeout: 10000
+                // url: 'redis://elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com:6379',
+            }),
+        }),
+    ],
+    controllers: [AppController],
+    providers: [AppService],
+})
+export class AppModule {}
+
+# 레디스 사용 샘플
+//퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
+async startQuiz(quizId: number): Promise<Quizzes> {
+    // 캐시에서 해당 퀴즈를 찾는다.
+    const cachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
+    if (cachedQuiz) {
+        return cachedQuiz;
+    }
+
+    // 캐시에 해당 퀴즈가 없는 경우, DB에서 모든 퀴즈를 찾아 캐시에 넣는다.
+    const allQuizzes = await this.quizzesRepository.find();
+    for (const quiz of allQuizzes) {
+        await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+    }
+
+    // 캐시 업데이트 후, 다시 해당 퀴즈를 찾는다.
+    const updatedCachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
+    return updatedCachedQuiz;
+}
+
+//퀴즈 DB의 총 갯수를 구한다. (Redis Cache 적용)
+async getQuizCount(): Promise<number> {
+    // 레디스 캐시 서버에서 문제 총 개수 조회
+    const cachedCount = await this.cacheManager.get<number>('quizCount');
+    if (cachedCount) {
+        return cachedCount;
+    }
+
+    // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
+    const count = await this.quizzesRepository.count();
+    this.cacheManager.set('quizCount', count, 3000); // Cache for 50 minutes
+    return count;
+}
 ```

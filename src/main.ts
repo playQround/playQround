@@ -11,7 +11,6 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         cors: true,
     });
-    app.enableCors();
     console.log(join(__dirname, "../test"));
     app.useStaticAssets(join(__dirname, "../test"));
     app.use(cookieParser());
