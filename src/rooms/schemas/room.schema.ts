@@ -27,6 +27,12 @@ export class Room {
     @Prop()
     nowAnswer: string;
 
+    @Prop({ default: null })
+    lastAnswerUserId: number;
+
+    @Prop({ default: 1 })
+    combo: number;
+
     @Prop({ default: new Date() })
     createdAt: Date;
 

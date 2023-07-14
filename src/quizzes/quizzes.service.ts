@@ -23,8 +23,8 @@ export class QuizzesService {
     async checkAnswer(message: any, room: any): Promise<boolean> {
         const roomInfo = await this.roomsRepository.findOne(room);
         //console.log("answer_check", roomInfo);
-        console.log("Message", message);
-        console.log("answer_check", roomInfo["nowAnswer"]);
+        //console.log("Message", message);
+        //console.log("answer_check", roomInfo["nowAnswer"]);
         if (message === roomInfo["nowAnswer"]) {
             return true;
         }
@@ -37,7 +37,7 @@ export class QuizzesService {
         const quizCount = await this.quizzesRepository.getQuizCount();
 
         //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
-        const randomNum = Math.floor(Math.random() *  quizCount) + 1;
+        const randomNum = Math.floor(Math.random() * quizCount) + 1;
 
         // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
         const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
@@ -57,6 +57,45 @@ export class QuizzesService {
         this.roomsRepository.updateRoomAnswer(roomId, answer);
         return;
     }
+
+    async updateCombo(roomId: number, userId: number) {
+        //룸 아이디와 유저아이디 값으로 콤보를 업데이트한다.
+        const comboData = await this.roomsRepository.updateCombo(
+            roomId,
+            userId,
+        );
+        console.log("comboData", comboData);
+
+        const comboPoint = [0, 0, 1, 3, 5, 10];
+        const comboName = [
+            ``, //0
+            ``, //1
+            `더블 +1`, //2
+            `◐◐◐트리플 +3 ◐◐◐`, //3
+            `◐◐◐◐쿼드라 +5 ◐◐◐◐`, //4
+            `☞☞☞☞☞펜타 +10 ☜☜☜☜☜`, //5
+            `※※※※※※※전설의 출현 +10 ※※※※※※※`, //6이상
+        ];
+        //콤보가 6이상이면 전설의 출현이라는 메세지를 보낸다.
+        const comboMent =
+            comboData["combo"] < 6
+                ? comboName[+comboData["combo"]]
+                : comboName[6];
+        //삼항연산자로 할당
+        const nowPoint =
+            comboData["combo"] < 5 ? comboPoint[+comboData["combo"]] : 10;
+
+        //콤보 점수도 계산해서 object로 반환한다.
+        const comboObject = {
+            combo: comboData["combo"],
+            lastAnswerUserId: comboData["lastAnswerUserId"],
+            comboPoint: nowPoint,
+            comboMent: comboMent,
+        };
+        console.log("comboObject", comboObject);
+        return comboObject;
+    }
+
     create(createQuizDto: CreateQuizDto) {
         return "This action adds a new quiz";
     }
