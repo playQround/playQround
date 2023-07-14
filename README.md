@@ -342,3 +342,8 @@ async getQuizCount(): Promise<number> {
     return count;
 }
 ```
+
+8. 카프카
+```
+npm install @nestjs/microservices kafka-node
+```

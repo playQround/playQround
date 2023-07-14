@@ -12,6 +12,7 @@ import { AuthModule } from "./auth/auth.module";
 import emailConfig from "./config/emailConfig";
 import { CacheModule } from "@nestjs/cache-manager";
 import * as redisStore from "cache-manager-ioredis";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 @Module({
     imports: [
@@ -45,6 +46,24 @@ import * as redisStore from "cache-manager-ioredis";
                 // url: 'redis://elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com:6379',
             }),
         }),
+        ClientsModule.register([
+            {
+              name: 'KAFKA', // injection token
+              transport: Transport.KAFKA,
+              options: {
+                client: {
+                  clientId: 'server-1',
+                  brokers: ['20.200.220.40:9092','20.200.222.210:9092','20.200.219.239:9092'],
+                },
+                consumer: {
+                  groupId: 'playqround-group'
+                },
+                producer: {
+                    allowAutoTopicCreation: true, // 토픽 자동 생성 허용 여부
+                }
+              }
+            }
+          ])
     ],
     controllers: [AppController],
     providers: [AppService],

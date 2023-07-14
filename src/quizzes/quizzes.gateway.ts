@@ -7,10 +7,11 @@ import { Server, Socket } from "socket.io";
 import { QuizzesService } from "./quizzes.service";
 import { RecordsService } from "../records/records.service";
 import { RoomsService } from "src/rooms/rooms.service";
-import { Logger } from "@nestjs/common";
+import { Inject, Logger } from "@nestjs/common";
 import { Process, Processor } from "@nestjs/bull";
 import { InjectQueue } from "@nestjs/bull";
 import { Queue, Job } from "bull";
+import { ClientKafka, Ctx, KafkaContext, MessagePattern, Payload } from "@nestjs/microservices";
 
 @WebSocketGateway({ cors: true })
 @Processor("MessageQueue")
@@ -21,6 +22,7 @@ export class QuizzesGateway {
         private readonly RecordsService: RecordsService,
         private readonly roomsService: RoomsService,
         @InjectQueue("MessageQueue") private chatQueue: Queue,
+        @Inject('KAFKA') private readonly kafkaProducer: ClientKafka,
     ) {}
 
     @WebSocketServer() server: Server;
@@ -143,6 +145,7 @@ export class QuizzesGateway {
         this.logger.verbose(
             `User ${data?.nickname} sent a message: ${data?.message}`,
         );
+
         //퀴즈의 정답을 체크한다. 정답이면 true 오답이면 false를 반환한다.
         this.chatQueue.add(
             // 큐에 저장
@@ -151,7 +154,30 @@ export class QuizzesGateway {
             { removeOnComplete: true }, // 작업 저장 성공 시 작업 데이터 삭제
         );
 
+        // // 카프카 테스트
+        // const message = {value: 'playqround test12345678910'}
+        // await this.kafkaProducer.emit(
+        //     'kafkatest', 
+        //     message,
+        // );
+
         return;
+    }
+
+    // 카프카 컨슈머
+    @MessagePattern('kafkatest')
+    readMessage(@Payload() message:  any, @Ctx() context: KafkaContext) {
+        const originalMessage = context.getMessage();
+        const response = originalMessage.value;
+
+        console.log(originalMessage.value);
+        // console.log(message);
+
+        // console.log(context.getTopic());
+        // console.log(context.getArgs());
+        // console.log(context.getPartition());
+
+        // return response;
     }
 
     @SubscribeMessage("startQuiz")
