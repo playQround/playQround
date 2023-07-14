@@ -16,8 +16,8 @@ export class RecordsRepository {
     async update(UpdateRecordDto: UpdateRecordDto): Promise<object> {
         const findRecord = await this.RecordModel.findOne({
             // uuid 를 숫자로만 변경해서 userId 값으로 findOne 하는 것으로...
-            userId: UpdateRecordDto.userId,
             roomId: UpdateRecordDto.roomId,
+            socketId: UpdateRecordDto.socketId,
         });
         //console.log("repo", findRecord);
         if (!findRecord) {
@@ -26,6 +26,7 @@ export class RecordsRepository {
             return newRecord;
         } else {
             findRecord.userScore += UpdateRecordDto.userScore;
+            findRecord.userName = UpdateRecordDto.userName
             await findRecord.save();
             this.logger.verbose(
                 `Updating record for user: ${findRecord?.userId} in room: ${findRecord?.roomId}. New score: ${findRecord?.userScore}`,
