@@ -115,7 +115,9 @@ export class QuizzesGateway {
         client
             .to(data["room"])
             .emit("participant", JSON.stringify(currentParticipant));
-        return this.roomsService.update(data.room, {nowPeople: usersInThisRoom.length});
+        return this.roomsService.update(data.room, {
+            nowPeople: usersInThisRoom.length,
+        });
     }
 
     @SubscribeMessage("leaveRoom")
@@ -134,7 +136,9 @@ export class QuizzesGateway {
         client
             .to(data["room"])
             .emit("participant", JSON.stringify(currentParticipant));
-        return this.roomsService.update(data.room, {nowPeople: roomUserCount});
+        return this.roomsService.update(data.room, {
+            nowPeople: roomUserCount,
+        });
     }
 
     //프론트 앤드 socket.emit("message", message, now_quiz_answer); 에 응답하기위한 서브스크립션
@@ -177,7 +181,7 @@ export class QuizzesGateway {
 
         //방정보에 현재 퀴즈 답을 업데이트 한다.
         // this.quizzesService.updateRoomAnswer(data["room"], newQuiz.answer);
-        this.quizzesService.updateRoomAnswer(data["room"], newQuiz['answer']);
+        this.quizzesService.updateRoomAnswer(data["room"], newQuiz["answer"]);
 
         //5초간의 준비 시간을 1초간격으로 카운트다운해서 보낸 다음에 퀴즈를 보낸다.
         await startCountdown(5, this.server, data);
@@ -254,8 +258,13 @@ export class QuizzesGateway {
 
             this.logger.verbose(`Sending room record to ${roomRecord}`);
             //roomRecord를 스트링ㅇ로 변환하여 프론트앤드로 보낸다.
-
-            client.to(data["room"]).emit("participant", roomRecord);
+            
+            // 한번이라도 방에 입장했던 client 목록을 조회
+            const currentParticipant = await this.currentParticipant(data.room);
+            // 방 참여자 목록을 클라이언트에 emit
+            client
+                .to(data["room"])
+                .emit("participant", JSON.stringify(currentParticipant));
 
             // //퀴즈 DB의 총 갯수를 구한다.
             // const quizCount = await this.quizzesService.getQuizCount();
@@ -283,9 +292,11 @@ export class QuizzesGateway {
                 await startQuizCountdown(10, this.server, data);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
-                client.to(data["room"]).emit("notice", "모든 퀴즈를 풀었습니다.");
+                client
+                    .to(data["room"])
+                    .emit("notice", "모든 퀴즈를 풀었습니다.");
                 // 방 상태 업데이트
-                this.roomsService.end(data["room"])
+                this.roomsService.end(data["room"]);
             }
 
             //console.log("quiz", newQuiz);퀴즈 확인용 출력입니다 주석처리 합니다
