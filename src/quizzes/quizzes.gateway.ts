@@ -267,7 +267,9 @@ export class QuizzesGateway {
         // //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
         // const randomNum = Math.floor(Math.random() * quizCount) + 1;
         // const newQuiz = await this.quizzesService.startQuiz(randomNum);
+        // console.log("quizzes gateway, before getQuiz")
         const newQuiz = await this.quizzesService.getQuiz();
+        // console.log("quizzes gateway, after getQuiz")
 
         client
             .to(data["room"])
@@ -277,7 +279,7 @@ export class QuizzesGateway {
             );
         client.to(data["room"]).emit("startQuiz");
         // 퀴즈 시작으로 방 상태 변경
-        this.roomsService.start(data["room"], 10);
+        this.roomsService.start(data["room"]);
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
 
         //방정보에 현재 퀴즈 답을 업데이트 한다.
@@ -293,7 +295,7 @@ export class QuizzesGateway {
             .to(data["room"])
             .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
 
-        return this.quizzesService.getQuiz();
+        return
     }
 
     @Process("MessageQueue")
