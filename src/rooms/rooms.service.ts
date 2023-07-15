@@ -38,9 +38,7 @@ export class RoomsService {
     }
 
     async start(id: string, quizCount: number): Promise<any> {
-        this.roomRepository.roomStatusUpdate(id, 1);
-        return await this.quizzesRepository.start(id, quizCount);
-        // return await this.roomRepository.start(id, quizCount);
+        return this.roomRepository.roomStatusUpdate(id, 1);
     }
 
     async end(id: string): Promise<any> {
