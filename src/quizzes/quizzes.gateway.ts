@@ -286,14 +286,16 @@ export class QuizzesGateway {
         // this.quizzesService.updateRoomAnswer(data["room"], newQuiz.answer);
         this.quizzesService.updateRoomAnswer(data["room"], newQuiz["answer"]);
 
-        //5초간의 준비 시간을 1초간격으로 카운트다운해서 보낸 다음에 퀴즈를 보낸다.
-        await startCountdown(5, this.server, data);
-
+        // 게임 시작을 준비할 시간으로 3초 FE로 보내기
+        client.to(data["room"]).emit("readyTime", 3);
+        // 첫번째 퀴즈 전달
         client.to(data["room"]).emit("quiz", newQuiz);
         // 남은 퀴즈 개수를 클라이언트로 보내기
         client
             .to(data["room"])
             .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
+        // 카운트 다운 할 초 FE에 전달(= 한문제당 풀이 시간 - 게임 시작 준비 시간)
+        client.to(data["room"]).emit("quizTime", 6);
 
         return
     }
@@ -395,7 +397,8 @@ export class QuizzesGateway {
                 client
                     .to(data["room"])
                     .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
-                await startQuizCountdown(5, this.server, data);
+                // 문제 풀이 제한 시간을 FE로 보내기
+                client.to(data["room"]).emit("quizTime", 3);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
                 client
@@ -416,50 +419,4 @@ export class QuizzesGateway {
         }
         ///////////////////////////////////////////////////////////////////////
     }
-}
-let countDownQuiz;
-
-function startCountdown(
-    seconds: number,
-    client: Server,
-    data: any,
-): Promise<void> {
-    return new Promise((resolve) => {
-        let counter: number = seconds;
-
-        const countdown = setInterval(() => {
-            client.to(data["room"]).emit("readyTime", counter);
-            counter--;
-            if (counter < 0) {
-                clearInterval(countdown);
-                resolve();
-            }
-        }, 1000);
-    });
-}
-//퀴즈가 진행 되는 동안 카우트다운을 하는 함수
-function startQuizCountdown(
-    seconds: number,
-    client: Server,
-    data: any,
-): Promise<void> {
-    return new Promise((resolve) => {
-        let counter: number = seconds;
-
-        countDownQuiz = setInterval(() => {
-            client.to(data["room"]).emit("quizTime", counter);
-            counter--;
-            if (counter < 0) {
-                clearInterval(countDownQuiz);
-                resolve();
-            }
-        }, 1000);
-    });
-}
-
-// 퀴즈가 진행되는 동안 카운트 다운 하는 도중 정답을 맞춘 사람이 생길 경우 카운트를 중단 하는함수
-function stopQuizCountdown(client: Server, data: any): Promise<void> {
-    clearInterval(countDownQuiz);
-    client.to(data["room"]).emit("quizTime", "");
-    return;
 }
