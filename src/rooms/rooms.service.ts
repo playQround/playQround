@@ -37,7 +37,7 @@ export class RoomsService {
         );
     }
 
-    async start(id: string, quizCount: number): Promise<any> {
+    async start(id: string): Promise<any> {
         return this.roomRepository.roomStatusUpdate(id, 1);
     }
 

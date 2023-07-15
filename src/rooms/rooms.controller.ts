@@ -57,14 +57,14 @@ export class RoomsController {
         );
     }
 
-    @Get(":id/start")
-    start(@Param("id") id: string, @Query("count") quizCount: string) {
-        // 방의 시작 로그
-        this.logger.verbose(
-            `Starting room with ID: ${id}, quizCount: ${quizCount}`,
-        );
-        return this.roomsService.start(id, +quizCount);
-    }
+    // @Get(":id/start")
+    // start(@Param("id") id: string, @Query("count") quizCount: string) {
+    //     // 방의 시작 로그
+    //     this.logger.verbose(
+    //         `Starting room with ID: ${id}, quizCount: ${quizCount}`,
+    //     );
+    //     return this.roomsService.start(id, +quizCount);
+    // }
 
     @Get(":id/end")
     end(@Param("id") id: string) {
