@@ -13,6 +13,8 @@ import { RoomsModule } from "../rooms/rooms.module";
 import { RoomsService } from "../rooms/rooms.service";
 import { CacheModule } from "@nestjs/cache-manager";
 import * as redisStore from "cache-manager-ioredis";
+require("dotenv").config();
+
 @Module({
     imports: [
         TypeOrmModule.forFeature([Quizzes]),
@@ -21,8 +23,7 @@ import * as redisStore from "cache-manager-ioredis";
         ]),
         BullModule.forRoot({
             redis: {
-                host: "20.200.215.75",
-                // host: process.env.REDIS_URL,
+                host: process.env.REDIS_URL,
             },
         }),
         BullModule.registerQueue({

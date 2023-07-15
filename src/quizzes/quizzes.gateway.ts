@@ -297,7 +297,7 @@ export class QuizzesGateway {
         // 카운트 다운 할 초 FE에 전달(= 한문제당 풀이 시간 - 게임 시작 준비 시간)
         client.to(data["room"]).emit("quizTime", 6);
 
-        return
+        return;
     }
 
     @Process("MessageQueue")
@@ -336,21 +336,20 @@ export class QuizzesGateway {
                 .to(data["room"])
                 .emit("message", `${data["nickname"]} : ${data["message"]}`);
             //정답이므로 정답 축하 메세지를 보낸다.
+            const getPoint =
+                comboCheck.combo > 1
+                    ? `+${data["point"]}점 | ${comboCheck["comboMent"]} 점`
+                    : `+${data["point"]}점`;
             client
                 .to(data["room"])
                 .emit(
                     "notice",
-                    `★☆★☆★☆★☆${data["nickname"]}님이 정답을 맞추셨습니다 (+${data["point"]}점)★☆★☆★☆★☆`,
+                    `★☆★☆★☆★☆${data["nickname"]}님이 정답을 맞추셨습니다 (${getPoint})★☆★☆★☆★☆`,
                 );
-            if (comboCheck["combo"] > 1) {
-                client
-                    .to(data["room"])
-                    .emit("notice", `${comboCheck["comboMent"]}`);
-            }
             //정답자가 나왔으므로 중간결과를 저장한다.
             const UpdateRecordDto = {
                 userId: data["userId"], //유저의 아이디를 가져와야한다.
-                socketId: job.data.data.clientId,
+                socketId: job.data.clientId,
                 roomId: data["room"], //생성될때의 방 값을 가져와야한다.
                 userName: data["nickname"], //유저의 이름을 가져와야한다.
                 userScore: data["point"] + comboCheck["comboPoint"], //점수 기입방식의 논의가 필요하다.
@@ -362,7 +361,6 @@ export class QuizzesGateway {
             const roomRecord = await this.RecordsService.getRoomRecord(
                 data["room"],
             );
-            //console.log("roomRecord", roomRecord);
 
             this.logger.verbose(`Sending room record to ${roomRecord}`);
             //roomRecord를 스트링ㅇ로 변환하여 프론트앤드로 보낸다.
