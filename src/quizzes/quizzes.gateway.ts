@@ -289,7 +289,7 @@ export class QuizzesGateway {
                 client
                     .to(data["room"])
                     .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
-                await startQuizCountdown(10, this.server, data);
+                await startQuizCountdown(5, this.server, data);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
                 client
