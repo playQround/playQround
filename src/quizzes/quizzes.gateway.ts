@@ -416,5 +416,10 @@ export class QuizzesGateway {
                 .emit("message", `${data["nickname"]} : ${data["message"]}`);
         }
         ///////////////////////////////////////////////////////////////////////
+
+    }
+    @SubscribeMessage("refreshRoom")
+    async handlerefreshRoom(client: Socket) {
+        client.broadcast.emit("refreshRoom")
     }
 }
