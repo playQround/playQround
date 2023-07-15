@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { UpdateRecordDto } from "./dto/update-record.dto";
 import { RecordsRepository } from "./records.repository";
+import { GetRecordDto } from "./dto/get-record.dto";
 
 @Injectable()
 export class RecordsService {
@@ -11,13 +12,11 @@ export class RecordsService {
         return await this.RecordsRepository.update(UpdateRecordDto);
     }
 
-    async getRoomRecord(roomId: string): Promise<string> {
+    async getRoomRecord(roomId: string): Promise<Array<GetRecordDto>> {
         const record = await this.RecordsRepository.getRoomRecord(roomId);
 
-        // object 형식의 record 를 json 형식으로 변환
-        const jsonRecord = JSON.parse(JSON.stringify(record));
         // jsonRecord 를 userScore로 정렬하고 username과 userScore값만 가지는 배열로 변환
-        const sortedRecord = jsonRecord
+        const sortedRecord = record
             .sort((a, b) => b.userScore - a.userScore)
             .map((record) => {
                 return {
@@ -26,9 +25,7 @@ export class RecordsService {
                     socketId: record.socketId,
                 };
             });
-        //sortedRecord를 string으로 변환
-        const stringRecord = JSON.stringify(sortedRecord);
 
-        return stringRecord;
+        return sortedRecord;
     }
 }

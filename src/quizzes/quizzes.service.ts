@@ -20,7 +20,7 @@ export class QuizzesService {
     }
 
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
-    async checkAnswer(message: any, room: any): Promise<boolean> {
+    async checkAnswer(message: string, room: string): Promise<boolean> {
         const roomInfo = await this.roomsRepository.findOne(room);
         //console.log("answer_check", roomInfo);
         //console.log("Message", message);
@@ -47,15 +47,6 @@ export class QuizzesService {
         return newQuiz;
     }
 
-    // //퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
-    // startQuiz(quizId: number): Promise<Quizzes | null> {
-    //     return this.quizzesRepository.startQuiz(quizId);
-    // }
-    // //퀴즈 DB의 총 갯수를 구한다.
-    // getQuizCount(): Promise<number> {
-    //     return this.quizzesRepository.getQuizCount();
-    // }
-
     updateRoomAnswer(roomId: number, answer: string): Promise<void> {
         this.roomsRepository.updateRoomAnswer(roomId, answer);
         return;
@@ -74,13 +65,13 @@ export class QuizzesService {
             ``, //0
             ``, //1
             `더블 +1`, //2
-            `◐◐◐트리플 +3 ◐◐◐`, //3
-            `◐◐◐◐쿼드라 +5 ◐◐◐◐`, //4
-            `☞☞☞☞☞펜타 +10 ☜☜☜☜☜`, //5
-            `※※※※※※※전설의 출현 +10 ※※※※※※※`, //6이상
+            `트리플 +3`, //3
+            `쿼드라 +5`, //4
+            `펜타 +10`, //5
+            `전설의 출현 +10`, //6이상
         ];
         //콤보가 6이상이면 전설의 출현이라는 메세지를 보낸다.
-        const comboMent =
+        const comboMention =
             comboData["combo"] < 6
                 ? comboName[+comboData["combo"]]
                 : comboName[6];
@@ -93,7 +84,7 @@ export class QuizzesService {
             combo: comboData["combo"],
             lastAnswerUserId: comboData["lastAnswerUserId"],
             comboPoint: nowPoint,
-            comboMent: comboMent,
+            comboMention,
         };
         console.log("comboObject", comboObject);
         return comboObject;
