@@ -167,4 +167,40 @@ export class RoomsRepository {
         targetRoom.save();
         return;
     }
+
+    async updateCombo(roomId: number, userId: number) {
+        //roomId로 방을 찾는다.
+        const targetRoom = await this.RoomModel.findOne({ _id: roomId });
+        // 방이 없다면 에러를 반환한다.
+        if (!targetRoom) {
+            throw new NotFoundException(`${roomId}`);
+        }
+
+        // 방이 있다면 현재 마지막 정답자(lastAnswerUserId)를 가져오며 값이 없으면 바로 입력한다
+        if (targetRoom.lastAnswerUserId === null) {
+            targetRoom.lastAnswerUserId = userId;
+            targetRoom.combo = 1;
+            targetRoom.save();
+            // 현재 콤보와 마지막 정답자를 반환한다.
+            return {
+                combo: targetRoom.combo,
+                lastAnswerUserId: targetRoom.lastAnswerUserId,
+            };
+        }
+        // 마지막 정답자가 있다면 현재 정답자와 비교하여 같다면 콤보를 1 증가시키고 다르다면 1로 초기화한다.
+        else {
+            if (targetRoom.lastAnswerUserId === userId) {
+                targetRoom.combo += 1;
+            } else {
+                targetRoom.combo = 1;
+            }
+            targetRoom.lastAnswerUserId = userId;
+            targetRoom.save();
+            // 현재 콤보와 마지막 정답자를 반환한다.
+            return {
+                combo: targetRoom.combo,
+                lastAnswerUserId: targetRoom.lastAnswerUserId,
+            };
+        }
+    }
 }

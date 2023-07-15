@@ -105,7 +105,7 @@
         let selectedRow = null; //현재 선택된 방을 저장 할 변수
 
         // 페이지가 로드되었을 때 실행되는 함수
-        window.onload = function() {
+        window.onload = function () {
             // 페이지가 로드되면 바로 한 번 roomList를 새로고침
             refreshRoomList();
 
@@ -145,7 +145,7 @@
             };
             axios
                 .post(url, data)
-                .then(function(response) {
+                .then(function (response) {
                     //console.log("Success:", response["data"]);
                     // var roomData = {
                     //   nickname: "",
@@ -165,7 +165,7 @@
                     joinRoom();
 
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error("Error:", error);
                 });
 
@@ -203,7 +203,7 @@
             };
             axios
                 .post(url, data)
-                .then(function(response) {
+                .then(function (response) {
                     //console.log("Success axios:", response["data"]);
                     //로그인 성공시 로그인 정보를 저장
                     //localStorage.setItem("token", response["data"].token);
@@ -244,7 +244,7 @@
                     document.getElementById("signup").style.display = "none";
                     document.getElementById("createRoom").style.display = "block";
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error("Error:", error);
                 });
             //userInfo();
@@ -283,12 +283,12 @@
 
             axios
                 .post(url, data)
-                .then(function(response) {
+                .then(function (response) {
                     console.log("Success:", response["data"]);
                     //회원가입 성공시 팝업
                     alert("회원가입이 완료되었습니다.");
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error("Error:", error);
                 });
 
@@ -301,7 +301,7 @@
         function refreshRoomList() {
             axios
                 .get("api/rooms")
-                .then(function(response) {
+                .then(function (response) {
                     //console.log("room_list !!! : ", response.data["rooms"])
 
                     roomsList = response.data["rooms"];
@@ -327,7 +327,7 @@
 
                     document.getElementById("roomList").innerHTML = roomListHTML;
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error("An error occurred:", error);
                 });
         }
@@ -353,7 +353,7 @@
                 //console.log("selectedRow : ", selectedRow);
 
                 await axios.get('api/rooms/' + selectedRow)
-                    .then(function(response) {
+                    .then(function (response) {
                         //console.log("Success:", response["data"]);
                         if (response["data"]["message"] != undefined) {
                             alert("방 인원이 가득 찼습니다.")
@@ -386,7 +386,7 @@
 
                         // 쿼리 문자열을 가져옵니다. (예: '?myVariable=Hello%2C%20world!')
                         var queryString = "?data=" + encodeURIComponent(jsonRoomData)
-                            //console.log("queryString : ", queryString)
+                        //console.log("queryString : ", queryString)
 
                         // URLSearchParams 객체를 생성하여 쿼리 문자열을 파싱합니다.
                         var urlParams = new URLSearchParams(queryString);
@@ -400,7 +400,7 @@
                         window.location.href = "https://api.playqround.site/room.html?data=" + encodeURIComponent(jsonRoomData);
                         // window.location.href = "http://121.154.221.110:3000/room.html?data=" + encodeURIComponent(jsonRoomData);
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                         console.error("Error:", error);
                     });
 
@@ -418,7 +418,7 @@
         //회원정보를 불러오는 함수 (쿠키값을 이용)
         async function userInfo() {
             console.log("userInfo")
-                //axios 를 이용 하여 헤더값에 쿠키를 넣어줌
+            //axios 를 이용 하여 헤더값에 쿠키를 넣어줌
 
             const url = "api/users/info";
             const config = {
@@ -429,9 +429,9 @@
             console.log("config : ", config)
             await axios
                 .get(url, config)
-                .then(function(response) {
+                .then(function (response) {
                     console.log("Success:", response["data"]);
-                }).catch(function(error) {
+                }).catch(function (error) {
                     console.error("Error:", error);
                 });
         }

@@ -131,7 +131,7 @@
         message: message,
         answer: now_quiz_answer,
         nickname: nickname,
-        userid: userid,
+        userId: userid,
         point: now_quiz_point
       });
       $("#message-input").val("");
@@ -200,12 +200,17 @@
       $("#chat").append(`<div>${message}</div>`);
       $("#chat").scrollTop($("#chat")[0].scrollHeight);
     });
+    //서버로부터 소켓으로 채팅입력에대한 처리가 돌아왔을때 및 채팅내역 맨아래로 스크롤
+    socket.on("notice", (message) => {
+      $("#chat").append(`<div>${message}</div>`);
+      $("#chat").scrollTop($("#chat")[0].scrollHeight);
+    });
 
     //서버로부터 퀴즈에 대한 정보가 전달 되었을 때
-    socket.on("quize", (quizz) => {
+    socket.on("quiz", (quizz) => {
       quiz_count++;
       now_quiz_point = 3;
-      if (quiz_count > 5) {
+      if (quiz_count > 10) {
         //퀴즈 종료 alert 창 띄우기 내용은 참여자 점수 리스트
         endMessage();
         alert("퀴즈가 종료되었습니다.");
