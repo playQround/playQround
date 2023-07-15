@@ -13,37 +13,37 @@ export class QuizzesRepository {
         @Inject(CACHE_MANAGER) private cacheManager: Cache, // 캐시를 사용하기 위해 추가
     ) {}
 
-    // async start(id: string, quizCount: number): Promise<any> {
-    //     // utils 로 보낼 함수
-    //     const generateRandomQuizzes = async (quizCount: number) => {
-    //         let quizArray = [];
-    //         let checker = {};
-    //         let randomQuiz: number;
+    async start(id: string, quizCount: number): Promise<any> {
+        // utils 로 보낼 함수
+        const generateRandomQuizzes = async (quizCount: number) => {
+            let quizArray = [];
+            let checker = {};
+            let randomQuiz: number;
 
-    //         while (quizArray.length < quizCount) {
-    //             // 아래 1000 값은 db 길이로 반환해야함.
-    //             const count: number = await this.getQuizCount();
-    //             randomQuiz = Math.floor(Math.random() * (count - 1)) + 1;
+            while (quizArray.length < quizCount) {
+                // 아래 1000 값은 db 길이로 반환해야함.
+                const count: number = await this.getQuizCount();
+                randomQuiz = Math.floor(Math.random() * (count - 1)) + 1;
 
-    //             // 이미 들어간 값인지 검사하면서 퀴즈 리스트에 넣음
-    //             if (!checker[randomQuiz]) {
-    //                 checker[randomQuiz] = 1;
-    //                 quizArray.push(randomQuiz);
-    //             }
-    //         }
+                // 이미 들어간 값인지 검사하면서 퀴즈 리스트에 넣음
+                if (!checker[randomQuiz]) {
+                    checker[randomQuiz] = 1;
+                    quizArray.push(randomQuiz);
+                }
+            }
 
-    //         return quizArray;
-    //     };
+            return quizArray;
+        };
 
-    //     const quizIdList = await generateRandomQuizzes(quizCount);
+        const quizIdList = await generateRandomQuizzes(quizCount);
 
-    //     const quizList = await this.quizzesRepository
-    //         .createQueryBuilder("quizzes")
-    //         .where("quizzes.quizid IN (:id)", { id: quizIdList })
-    //         .getMany();
+        const quizList = await this.quizzesRepository
+            .createQueryBuilder("quizzes")
+            .where("quizzes.quizid IN (:id)", { id: quizIdList })
+            .getMany();
 
-    //     return { quizzes: quizList };
-    // }
+        return { quizzes: quizList };
+    }
 
     //퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
     async startQuiz(quizId: number): Promise<Quizzes> {
