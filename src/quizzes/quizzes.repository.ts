@@ -48,24 +48,43 @@ export class QuizzesRepository {
     //퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
     async startQuiz(quizId: number): Promise<Quizzes> {
         // 캐시에서 해당 퀴즈를 찾는다.
-        const cachedQuiz = await this.cacheManager.get<Quizzes>(
-            `quiz_${quizId}`,
-        );
+        const cachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
         if (cachedQuiz) {
             return cachedQuiz;
         }
 
-        const quizCount = await this.getQuizCount();
-        const randomNum = Math.floor(Math.random() * quizCount) + 1;
-        const quiz = await this.quizzesRepository.findOne({
-            where: {
-                quizid: randomNum,
-            },
-        });
-        await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+        // 캐시에 해당 퀴즈가 없는 경우, DB에서 모든 퀴즈를 찾아 캐시에 넣는다.
+        const allQuizzes = await this.quizzesRepository.find();
+        for (const quiz of allQuizzes) {
+            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+        }
 
-        return quiz;
+        // 캐시 업데이트 후, 다시 해당 퀴즈를 찾는다.
+        const updatedCachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
+        return updatedCachedQuiz;
     }
+
+    // //퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
+    // async startQuiz(quizId: number): Promise<Quizzes> {
+    //     // 캐시에서 해당 퀴즈를 찾는다.
+    //     const cachedQuiz = await this.cacheManager.get<Quizzes>(
+    //         `quiz_${quizId}`,
+    //     );
+    //     if (cachedQuiz) {
+    //         return cachedQuiz;
+    //     }
+
+    //     const quizCount = await this.getQuizCount();
+    //     const randomNum = Math.floor(Math.random() * quizCount) + 1;
+    //     const quiz = await this.quizzesRepository.findOne({
+    //         where: {
+    //             quizid: randomNum,
+    //         },
+    //     });
+    //     await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+
+    //     return quiz;
+    // }
 
     //퀴즈 DB의 총 갯수를 구한다. (Redis Cache 적용)
     async getQuizCount(): Promise<number> {
