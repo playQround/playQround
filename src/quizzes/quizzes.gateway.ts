@@ -141,8 +141,20 @@ export class QuizzesGateway {
         });
     }
 
+    // 게임 전/후 메시지 처리
+    @SubscribeMessage("messageOutGame")
+    async handleMessageOutGame(client: Socket, data: any) {
+        //정답이 아니므로 채팅 내용만 프론트로 보낸다
+        this.logger.verbose(
+            `Out Game Message:${data["nickname"]} : ${data["message"]}`,
+        );
+        client
+            .to(data["room"])
+            .emit("message", `${data["nickname"]} : ${data["message"]}`);
+    }
+
     //프론트 앤드 socket.emit("message", message, now_quiz_answer); 에 응답하기위한 서브스크립션
-    @SubscribeMessage("message")
+    @SubscribeMessage("messageInGame")
     async handleMessage(client: Socket, data: any) {
         //Redis Bull 이용 안함
         //////////////////////////////////////////////////////////////////////
@@ -234,7 +246,7 @@ export class QuizzesGateway {
         //Redis Bull 이용
         ////////////////////////////////////////////////////////////////////
         this.logger.verbose(
-            `User ${data?.nickname} sent a message: ${data?.message}`,
+            `In Game Message:${data["nickname"]} : ${data["message"]}`,
         );
         //퀴즈의 정답을 체크한다. 정답이면 true 오답이면 false를 반환한다.
         this.chatQueue.add(
@@ -350,7 +362,7 @@ export class QuizzesGateway {
 
             this.logger.verbose(`Sending room record to ${roomRecord}`);
             //roomRecord를 스트링ㅇ로 변환하여 프론트앤드로 보낸다.
-            
+
             // 한번이라도 방에 입장했던 client 목록을 조회
             const currentParticipant = await this.currentParticipant(data.room);
             // 방 참여자 목록을 클라이언트에 emit
@@ -387,6 +399,7 @@ export class QuizzesGateway {
                 client
                     .to(data["room"])
                     .emit("notice", "모든 퀴즈를 풀었습니다.");
+                client.to(data["room"]).emit("end", "게임종료");
                 // 방 상태 업데이트
                 this.roomsService.end(data["room"]);
             }
