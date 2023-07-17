@@ -8,10 +8,12 @@ import { QuizzesService } from "./quizzes.service";
 import { RecordsService } from "../records/records.service";
 import { RoomsService } from "src/rooms/rooms.service";
 import { Logger } from "@nestjs/common";
+import { join } from "path"; // 경로 문자열을 결합하는데 사용
 import { Process, Processor } from "@nestjs/bull";
 import { InjectQueue } from "@nestjs/bull";
 import { Queue, Job } from "bull";
 import { instrument } from "@socket.io/admin-ui";
+const winston = require("winston");
 
 @WebSocketGateway({
     cors: {
@@ -25,7 +27,15 @@ import { instrument } from "@socket.io/admin-ui";
 })
 @Processor("MessageQueue")
 export class QuizzesGateway {
-    private readonly logger = new Logger(QuizzesGateway.name);
+    private readonly logger = winston.createLogger({
+        level: "info",
+        format: winston.format.combine(
+            winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+            winston.format.json(),
+        ),
+        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+    });
+    //private readonly logger = new Logger(QuizzesGateway.name);
     constructor(
         // Quizzes Service DI
         private readonly quizzesService: QuizzesService,
@@ -196,20 +206,31 @@ export class QuizzesGateway {
     // 퀴즈 시작 이벤트
     @SubscribeMessage("startQuiz")
     async startQuiz(client: Socket, data: any) {
-        // console.log("quizzes gateway, before getQuiz")
+        this.logger.info(
+            `quizzes gateway, before getQuiz ${client.id}, ${data.nickname}`,
+        );
         const newQuiz = await this.quizzesService.getQuiz();
-        // console.log("quizzes gateway, after getQuiz")
+        this.logger.info("quizzes gateway, after getQuiz");
         // 퀴즈 시작 메시지(notice)
         client
             .to(data.room)
             .emit("notice", `${data.nickname}님이 퀴즈를 시작하셨습니다.`);
+        this.logger.info(
+            `quizzes gateway, send start quiz notice ${client.id}, ${data.nickname}`,
+        );
         // 퀴즈 시작 메시지 emit
         client.to(data.room).emit("startQuiz");
         // 퀴즈 시작으로 방 상태 변경
         this.roomsService.start(data.room);
+        this.logger.info(
+            `quizzes gateway, changed room status to start ${client.id}, ${data.nickname}`,
+        );
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
         //방정보에 현재 퀴즈 답을 업데이트
         this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
+        this.logger.info(
+            `quizzes gateway, update room answer to quizzes service ${client.id}, ${data.nickname}`,
+        );
 
         // 게임 시작을 준비할 시간으로 3초 FE로 보내기
         client.to(data.room).emit("readyTime", 3);
@@ -221,6 +242,10 @@ export class QuizzesGateway {
             .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
         // 카운트 다운 할 초 FE에 전달(= 한문제당 풀이 시간 - 게임 시작 준비 시간)
         client.to(data.room).emit("quizTime", 6);
+
+        this.logger.info(
+            `quizzes gateway, start quiz ended ${client.id}, ${data.nickname}`,
+        );
 
         return;
     }

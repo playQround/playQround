@@ -4,9 +4,19 @@ import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { Quizzes } from "./entities/quizzes.entity";
 import { QuizzesRepository } from "./quizzes.repository";
 import { RoomsRepository } from "src/rooms/rooms.repository";
+import { join } from "path";
+const winston = require("winston");
 
 @Injectable()
 export class QuizzesService {
+    private readonly logger = winston.createLogger({
+        level: "info",
+        format: winston.format.combine(
+            winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+            winston.format.json(),
+        ),
+        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+    });
     constructor(
         private readonly quizzesRepository: QuizzesRepository,
         private readonly roomsRepository: RoomsRepository,
@@ -27,14 +37,14 @@ export class QuizzesService {
     // 퀴즈 조회 서비스
     async getQuiz(): Promise<any> {
         // 퀴즈 DB의 총 갯수를 구한다.
-        // console.log("quizzes service call quizzes repository getQuizCount")
+        this.logger.info("quizzes service, call quizzes repository getQuizCount")
         const quizCount = await this.quizzesRepository.getQuizCount();
 
-        // console.log("quizzes service make random number")
+        this.logger.info("quizzes service, make random number")
         //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
         const randomNum = Math.floor(Math.random() * quizCount) + 1;
 
-        // console.log("quizzes service call quizzes repository startQuiz")
+        this.logger.info("quizzes service, call quizzes repository startQuiz")
         // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
         const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
         return newQuiz;
@@ -42,6 +52,7 @@ export class QuizzesService {
 
     updateRoomAnswer(roomId: number, answer: string): Promise<void> {
         this.roomsRepository.updateRoomAnswer(roomId, answer);
+        this.logger.info("quizzes service, update room answer to rooms repository")
         return;
     }
 
