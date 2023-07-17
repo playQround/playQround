@@ -87,7 +87,7 @@ export class QuizzesRepository {
         });
         this.logger.info("quizzes repository startQuiz, save a quiz to cache");
         try {
-            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000000); // Cache for 50 minutes
         } catch (error) {
             this.logger.info(
                 `quizzes repository startQuiz, save a quiz to cache while error with ${error}`,
@@ -141,7 +141,7 @@ export class QuizzesRepository {
         // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
         const count = await this.quizzesRepository.count();
         try {
-            this.cacheManager.set("quizCount", count, 3000); // Cache for 50 minutes
+            this.cacheManager.set("quizCount", count, 3000000); // Cache for 50 minutes
         } catch (error) {
             this.logger.info(
                 `quizzes repository getQuizCount after cachedCount while error with ${error}`,
