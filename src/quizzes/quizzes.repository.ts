@@ -15,7 +15,11 @@ export class QuizzesRepository {
             winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
             winston.format.json(),
         ),
-        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+        transports: [
+            new winston.transports.File({
+                filename: join(__dirname, "../../test/info.log"),
+            }),
+        ],
     });
     constructor(
         @InjectRepository(Quizzes)
@@ -57,13 +61,21 @@ export class QuizzesRepository {
 
     //퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
     async startQuiz(quizId: number): Promise<Quizzes> {
-        this.logger.info("quizzes repository startQuiz, before find cachedQuiz");
-        // 캐시에서 해당 퀴즈를 찾는다.
-        const cachedQuiz = await this.cacheManager.get<Quizzes>(
-            `quiz_${quizId}`,
+        this.logger.info(
+            "quizzes repository startQuiz, before find cachedQuiz",
         );
-        if (cachedQuiz) {
-            return cachedQuiz;
+        try {
+            // 캐시에서 해당 퀴즈를 찾는다.
+            const cachedQuiz = await this.cacheManager.get<Quizzes>(
+                `quiz_${quizId}`,
+            );
+            if (cachedQuiz) {
+                return cachedQuiz;
+            }
+        } catch (error) {
+            this.logger.info(
+                `quizzes repository startQuiz, error while find cachedQuiz ${error}`,
+            );
         }
 
         this.logger.info(
@@ -74,7 +86,13 @@ export class QuizzesRepository {
             where: { quizid: quizId },
         });
         this.logger.info("quizzes repository startQuiz, save a quiz to cache");
-        await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+        try {
+            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
+        } catch (error) {
+            this.logger.info(
+                `quizzes repository startQuiz, save a quiz to cache while error with ${error}`,
+            );
+        }
 
         this.logger.info("quizzes repository startQuiz, return");
         return quiz;
@@ -106,15 +124,30 @@ export class QuizzesRepository {
     async getQuizCount(): Promise<number> {
         this.logger.info("quizzes repository getQuizCount before cachedCount");
         // 레디스 캐시 서버에서 문제 총 개수 조회
-        const cachedCount = await this.cacheManager.get<number>("quizCount");
-        if (cachedCount) {
-            return cachedCount;
+        try {
+            const cachedCount = await this.cacheManager.get<number>(
+                "quizCount",
+            );
+            if (cachedCount) {
+                return cachedCount;
+            }
+        } catch (error) {
+            this.logger.info(
+                `quizzes repository getQuizCount get error ${error}`,
+            );
         }
 
         this.logger.info("quizzes repository getQuizCount after cachedCount");
         // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
         const count = await this.quizzesRepository.count();
-        this.cacheManager.set("quizCount", count, 3000); // Cache for 50 minutes
+        try {
+            this.cacheManager.set("quizCount", count, 3000); // Cache for 50 minutes
+        } catch (error) {
+            this.logger.info(
+                `quizzes repository getQuizCount after cachedCount while error with ${error}`,
+            );
+        }
+
         return count;
     }
 }
