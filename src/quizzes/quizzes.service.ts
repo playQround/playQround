@@ -12,13 +12,6 @@ export class QuizzesService {
         private readonly roomsRepository: RoomsRepository,
     ) {}
 
-    // 익명 접속자의 임시 userId 생성 메서드
-    anonymousUserId(): number {
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 100);
-        return timestamp + random;
-    }
-
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
     async checkAnswer(message: string, room: string): Promise<boolean> {
         const roomInfo = await this.roomsRepository.findOne(room);

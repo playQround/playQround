@@ -21,6 +21,7 @@ export class RecordsService {
             .map((record) => {
                 return {
                     userName: record.userName,
+                    userId: record.userId,
                     userScore: record.userScore,
                     socketId: record.socketId,
                 };
