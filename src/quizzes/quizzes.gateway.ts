@@ -11,8 +11,18 @@ import { Logger } from "@nestjs/common";
 import { Process, Processor } from "@nestjs/bull";
 import { InjectQueue } from "@nestjs/bull";
 import { Queue, Job } from "bull";
+import { instrument } from "@socket.io/admin-ui";
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({
+    cors: {
+        origin: [
+            "https://admin.socket.io",
+            "http://localhost:4000",
+            "https://www.playqround.site/",
+        ],
+        credentials: true,
+    },
+})
 @Processor("MessageQueue")
 export class QuizzesGateway {
     private readonly logger = new Logger(QuizzesGateway.name);
@@ -29,6 +39,16 @@ export class QuizzesGateway {
 
     @WebSocketServer() server: Server;
     //소켓에 접속 되었을때 실행
+
+    afterInit() {
+        instrument(this.server, {
+            auth: false,
+            mode: "development",
+            namespaceName: "/custom",
+            serverId: `${require("os").hostname()}#${process.pid}`,
+        });
+    }
+
     public handleConnection(client: Socket) {
         //이미 접속된 room에서 나간다? 이게 맞나? 안하면 뒤에 join 작동안함
         client.leave(client.id);
@@ -303,6 +323,6 @@ export class QuizzesGateway {
     }
     @SubscribeMessage("refreshRoom")
     async handlerefreshRoom(client: Socket) {
-        client.broadcast.emit("refreshRoom")
+        client.broadcast.emit("refreshRoom");
     }
 }
