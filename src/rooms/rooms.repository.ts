@@ -4,10 +4,20 @@ import { UpdateRoomDto } from "./dto/update-room.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Room } from "./schemas/room.schema";
 import { Model } from "mongoose";
+import { join } from "path";
+const winston = require("winston");
 
 @Injectable()
 export class RoomsRepository {
-    private readonly logger = new Logger(RoomsRepository.name);
+    private readonly logger = winston.createLogger({
+        level: "info",
+        format: winston.format.combine(
+            winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+            winston.format.json(),
+        ),
+        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+    });
+    // private readonly logger = new Logger(RoomsRepository.name);
     constructor(
         @InjectModel(Room.name)
         private RoomModel: Model<Room>,
@@ -158,6 +168,7 @@ export class RoomsRepository {
 
     async updateRoomAnswer(id: number, answer: string): Promise<void> {
         const targetRoom = await this.RoomModel.findOne({ _id: id });
+        this.logger.info("rooms repository, find one where id")
 
         if (!targetRoom) {
             throw new NotFoundException(`${id}`);
@@ -165,6 +176,7 @@ export class RoomsRepository {
 
         targetRoom.nowAnswer = answer;
         targetRoom.save();
+        this.logger.info("rooms repository, update answer")
         return;
     }
 

@@ -15,6 +15,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { Request } from "express";
+const fs = require('fs')
 
 @Controller("users")
 export class UsersController {
