@@ -97,9 +97,7 @@ export class QuizzesGateway {
                 .emit("notice", `${data.nickname} 님이 입장하셨습니다.`);
             // 참여자를 Record document에 저장
             const UpdateRecordDto = {
-                userId: data.userId
-                    ? data.userId
-                    : this.quizzesService.anonymousUserId(),
+                userId: data.userId,
                 socketId: client.id,
                 roomId: data.room,
                 userName: data.nickname,
