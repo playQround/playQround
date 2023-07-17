@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Users } from "./entities/user.entity";
-import { Repository } from "typeorm";
+import { Repository, TreeRepositoryUtils } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
@@ -52,6 +52,24 @@ export class UsersRepository {
             {verifyToken},
             { active: true }
         );
+        return true;
+    }
+
+    // 유저 레이팅 변경
+    async updateRecord(userId: number, userScore: number): Promise<boolean> {
+        const user = await this.usersRepository.findOne({
+            where : {
+                userId,
+            },
+        })
+
+        if(!user) {
+            return false;
+        }
+
+        user.userRating += userScore;
+        this.usersRepository.save(user);
+
         return true;
     }
 }
