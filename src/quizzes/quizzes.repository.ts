@@ -77,6 +77,9 @@ export class QuizzesRepository {
             const cachedCount = this.cacheManager.get<number>(
                 "quizCount",
             );
+            this.logger.info(
+                `quizzes repository getQuizCount cachedCount: ${cachedCount}`,
+            );
             if (cachedCount) {
                 return cachedCount;
             }
