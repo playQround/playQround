@@ -74,7 +74,7 @@ export class QuizzesRepository {
                 "quizzes repository getQuizCount before cachedCount",
             );
             // 레디스 캐시 서버에서 문제 총 개수 조회
-            const cachedCount = await this.cacheManager.get<number>(
+            const cachedCount = this.cacheManager.get<number>(
                 "quizCount",
             );
             if (cachedCount) {
