@@ -18,7 +18,11 @@ export class RoomsRepository {
             winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
             winston.format.json(),
         ),
-        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+        transports: [
+            new winston.transports.File({
+                filename: join(__dirname, "../../test/info.log"),
+            }),
+        ],
     });
     // private readonly logger = new Logger(RoomsRepository.name);
     constructor(
@@ -39,26 +43,9 @@ export class RoomsRepository {
     }
 
     async findAll(): Promise<object> {
-        const allRooms = await this.RoomModel.find().exec();
-        const rooms = allRooms.map(
-            ({
-                _id,
-                roomName,
-                roomStatus,
-                nowPeople,
-                maxPeople,
-                cutRating,
-                createdAt,
-            }) => ({
-                _id,
-                roomName,
-                roomStatus,
-                nowPeople,
-                maxPeople,
-                cutRating,
-                createdAt,
-            }),
-        );
+        const rooms = await this.RoomModel.find()
+            .sort({ roomStatus: 1, createdAt: -1 })
+            .exec();
 
         return { rooms: rooms };
     }
@@ -170,13 +157,14 @@ export class RoomsRepository {
 
         // 방이 종료되는 경우
         if (roomStatus === 2) {
-            const targetRoomRecords = await this.recordsRepository.getRoomRecord(id);
+            const targetRoomRecords =
+                await this.recordsRepository.getRoomRecord(id);
             for (let user of targetRoomRecords) {
-                
                 // 회원인 경우
                 if (String(user.userId).length < String(Date.now()).length) {
                     await this.usersRepository.updateRecord(
-                        user.userId, user.userScore
+                        user.userId,
+                        user.userScore,
                     );
                 }
             }
@@ -188,7 +176,7 @@ export class RoomsRepository {
 
     async updateRoomAnswer(id: number, answer: string): Promise<void> {
         const targetRoom = await this.RoomModel.findOne({ _id: id });
-        this.logger.info("rooms repository, find one where id")
+        this.logger.info("rooms repository, find one where id");
 
         if (!targetRoom) {
             throw new NotFoundException(`${id}`);
@@ -196,7 +184,7 @@ export class RoomsRepository {
 
         targetRoom.nowAnswer = answer;
         targetRoom.save();
-        this.logger.info("rooms repository, update answer")
+        this.logger.info("rooms repository, update answer");
         return;
     }
 
