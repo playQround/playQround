@@ -43,14 +43,9 @@ export class RoomsRepository {
     }
 
     async findAll(): Promise<object> {
-        const allRooms = await this.RoomModel.find().exec();
-        const rooms = allRooms.sort(function (a, b) {
-            if (a.roomStatus < b.roomStatus) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
+        const rooms = await this.RoomModel.find()
+            .sort({ roomStatus: 1, createdAt: -1 })
+            .exec();
 
         return { rooms: rooms };
     }
