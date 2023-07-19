@@ -33,17 +33,35 @@ export class QuizzesRepository {
             this.logger.info(
                 "quizzes repository startQuiz, before find cachedQuiz",
             );
-            // 캐시에서 해당 퀴즈를 찾는다.
-            const cachedQuiz = await this.cacheManager.get<Quizzes>(
+
+            const cachedQuizPromise = this.cacheManager.get<Quizzes>(
                 `quiz_${quizId}`,
             );
-            if (cachedQuiz) {
+
+            // 타임아웃 설정
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Timeout occurred"));
+                }, 5000); // 5초 타임아웃
+            });
+
+            // Promise race
+            const result = await Promise.race([
+                cachedQuizPromise,
+                timeoutPromise,
+            ]);
+
+            if (result instanceof Quizzes) {
+                const cachedQuiz = result;
+                this.logger.info(
+                    `quizzes repository getQuizCount cachedCount: ${cachedQuiz}`,
+                );
                 return cachedQuiz;
+            } else {
+                throw new Error("Timeout occurred");
             }
         } catch (error) {
-            this.logger.info(
-                `quizzes repository startQuiz, error while find cachedQuiz ${error}`,
-            );
+            this.logger.info(`quizzes repository startQuiz, error: ${error}`);
         }
 
         try {
@@ -74,14 +92,32 @@ export class QuizzesRepository {
                 "quizzes repository getQuizCount before cachedCount",
             );
             // 레디스 캐시 서버에서 문제 총 개수 조회
-            const cachedCount = this.cacheManager.get<number>(
-                "quizCount",
-            );
-            this.logger.info(
-                `quizzes repository getQuizCount cachedCount: ${cachedCount}`,
-            );
-            if (cachedCount) {
-                return cachedCount;
+            const cachedCountPromise =
+                this.cacheManager.get<number>("quizCount");
+
+            // 타임아웃 설정
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Timeout occurred"));
+                }, 5000); // 5초 타임아웃
+            });
+
+            // Promise race
+            const result = await Promise.race([
+                cachedCountPromise,
+                timeoutPromise,
+            ]);
+
+            if (typeof result === "number") {
+                const cachedCount = result;
+                this.logger.info(
+                    `quizzes repository getQuizCount cachedCount: ${cachedCount}`,
+                );
+                if (cachedCount) {
+                    return cachedCount;
+                } else {
+                    throw new Error("Timeout occurred");
+                }
             }
         } catch (error) {
             this.logger.info(
