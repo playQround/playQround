@@ -72,6 +72,7 @@ export class QuizzesRepository {
             const quiz = await this.quizzesRepository.findOne({
                 where: { quizid: quizId },
             });
+            this.logger.info(`found quiz: ${quiz}`);
             this.logger.info(
                 "quizzes repository startQuiz, save a quiz to cache",
             );
@@ -131,6 +132,7 @@ export class QuizzesRepository {
             );
             // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
             const count = await this.quizzesRepository.count();
+            this.logger.info(`quizzesRepository.count() results: ${count}`);
             this.cacheManager.set("quizCount", count, 0); // 에러 발생 테스트를 위한 캐시 영구 적용
             return count;
         } catch (error) {
