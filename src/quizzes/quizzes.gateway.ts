@@ -20,7 +20,7 @@ const winston = require("winston");
         origin: [
             "https://admin.socket.io",
             "http://localhost:4000",
-            "https://www.playqround.site/",
+            "https://www.playqround.site",
         ],
         credentials: true,
     },
@@ -33,7 +33,11 @@ export class QuizzesGateway {
             winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
             winston.format.json(),
         ),
-        transports: [new winston.transports.File({ filename: join(__dirname, "../../test/info.log") })],
+        transports: [
+            new winston.transports.File({
+                filename: join(__dirname, "../../test/info.log"),
+            }),
+        ],
     });
     //private readonly logger = new Logger(QuizzesGateway.name);
     constructor(

@@ -7,6 +7,9 @@ import { Model } from "mongoose";
 import { join } from "path";
 const winston = require("winston");
 
+import { RecordsRepository } from "../records/records.repository";
+import { UsersRepository } from "src/users/users.repository";
+
 @Injectable()
 export class RoomsRepository {
     private readonly logger = winston.createLogger({
@@ -21,6 +24,8 @@ export class RoomsRepository {
     constructor(
         @InjectModel(Room.name)
         private RoomModel: Model<Room>,
+        private recordsRepository: RecordsRepository,
+        private usersRepository: UsersRepository,
     ) {}
 
     async create(createRoomDto: CreateRoomDto): Promise<object> {
@@ -162,6 +167,21 @@ export class RoomsRepository {
         }
 
         targetRoom.roomStatus = roomStatus;
+
+        // 방이 종료되는 경우
+        if (roomStatus === 2) {
+            const targetRoomRecords = await this.recordsRepository.getRoomRecord(id);
+            for (let user of targetRoomRecords) {
+                
+                // 회원인 경우
+                if (String(user.userId).length < String(Date.now()).length) {
+                    await this.usersRepository.updateRecord(
+                        user.userId, user.userScore
+                    );
+                }
+            }
+        }
+
         targetRoom.save();
         return { message: "updated" };
     }
