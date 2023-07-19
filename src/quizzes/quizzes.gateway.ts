@@ -20,7 +20,7 @@ const winston = require("winston");
         origin: [
             "https://admin.socket.io",
             "http://localhost:4000",
-            "https://www.playqround.site/",
+            "https://www.playqround.site",
         ],
         credentials: true,
     },

@@ -54,4 +54,22 @@ export class UsersRepository {
         );
         return true;
     }
+
+    // 유저 레이팅 변경
+    async updateRecord(userId: number, userScore: number): Promise<boolean> {
+        const user = await this.usersRepository.findOne({
+            where : {
+                userId,
+            },
+        })
+
+        if(!user) {
+            return false;
+        }
+
+        user.userRating += userScore;
+        this.usersRepository.save(user);
+
+        return true;
+    }
 }
