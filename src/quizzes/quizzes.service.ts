@@ -50,16 +50,24 @@ export class QuizzesService {
                 "quizzes service, call quizzes repository getQuizCount",
             );
             const quizCount = await this.quizzesRepository.getQuizCount();
-
+            this.logger.info(
+                `quizzes service, from repo, quizCount: ${quizCount}`,
+            );
             this.logger.info("quizzes service, make random number");
             //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
             const randomNum = Math.floor(Math.random() * quizCount) + 1;
+            this.logger.info(
+                `quizzes service, made random number: ${randomNum}`,
+            );
 
             this.logger.info(
                 "quizzes service, call quizzes repository startQuiz",
             );
             // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
             const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
+            this.logger.info(
+                `quizzes service, from repo, new quiz: ${newQuiz}`,
+            );
             return newQuiz;
         } catch (error) {
             this.logger.info(
