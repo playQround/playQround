@@ -42,7 +42,7 @@ export class QuizzesRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 5000); // 5초 타임아웃
+                }, 1000); // 1초 타임아웃
             });
 
             // Promise race
@@ -75,7 +75,7 @@ export class QuizzesRepository {
             this.logger.info(
                 "quizzes repository startQuiz, save a quiz to cache",
             );
-            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000000); // Cache for 50 minutes
+            this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 0);
             this.logger.info("quizzes repository startQuiz, return");
             return quiz;
         } catch (error) {
@@ -99,7 +99,7 @@ export class QuizzesRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 5000); // 5초 타임아웃
+                }, 1000); // 1초 타임아웃
             });
 
             // Promise race
