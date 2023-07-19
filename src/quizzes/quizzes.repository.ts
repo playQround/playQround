@@ -42,7 +42,7 @@ export class QuizzesRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 5000); // 5초 타임아웃
+                }, 1000); // 1초 타임아웃
             });
 
             // Promise race
@@ -75,7 +75,7 @@ export class QuizzesRepository {
             this.logger.info(
                 "quizzes repository startQuiz, save a quiz to cache",
             );
-            await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000000); // Cache for 50 minutes
+            this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 0);
             this.logger.info("quizzes repository startQuiz, return");
             return quiz;
         } catch (error) {
@@ -99,7 +99,7 @@ export class QuizzesRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 5000); // 5초 타임아웃
+                }, 1000); // 1초 타임아웃
             });
 
             // Promise race
@@ -131,7 +131,7 @@ export class QuizzesRepository {
             );
             // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
             const count = await this.quizzesRepository.count();
-            this.cacheManager.set("quizCount", count, 3000000); // Cache for 50 minutes
+            this.cacheManager.set("quizCount", count, 0);
             return count;
         } catch (error) {
             this.logger.info(
