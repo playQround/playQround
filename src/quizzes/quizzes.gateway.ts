@@ -240,7 +240,7 @@ export class QuizzesGateway {
             .to(data.room)
             .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
         // 카운트 다운 할 초 FE에 전달(= 한문제당 풀이 시간 - 게임 시작 준비 시간)
-        client.to(data.room).emit("quizTime", 6);
+        client.to(data.room).emit("quizTime", 13);
 
         this.logger.info(
             `quizzes gateway, start quiz ended ${client.id}, ${data.nickname}`,
@@ -327,7 +327,7 @@ export class QuizzesGateway {
                     .to(data.room)
                     .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
                 // 문제 풀이 제한 시간을 FE로 보내기
-                client.to(data.room).emit("quizTime", 3);
+                client.to(data.room).emit("quizTime", 10);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
                 client.to(data.room).emit("notice", "모든 퀴즈를 풀었습니다.");
