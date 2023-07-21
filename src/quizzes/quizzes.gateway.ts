@@ -140,7 +140,7 @@ export class QuizzesGateway {
             .to(data.room)
             .emit("participant", JSON.stringify(currentParticipant));
         // 방 정보 업데이트를 위한 emit
-        client.broadcast.emit("refreshRoom");
+        client.emit("refreshRoom", "joinRoom");
         return this.roomsService.update(data.room, {
             nowPeople: usersInThisRoom.length,
         });
@@ -163,7 +163,7 @@ export class QuizzesGateway {
             .to(data.room)
             .emit("participant", JSON.stringify(currentParticipant));
         // 방 정보 업데이트를 위한 emit
-        client.broadcast.emit("refreshRoom");
+        client.emit("refreshRoom", "leaveRoom");
         return this.roomsService.update(data.room, {
             nowPeople: roomUserCount,
         });
@@ -220,7 +220,7 @@ export class QuizzesGateway {
         // 퀴즈 시작으로 방 상태 변경
         this.roomsService.start(data.room);
         // 방 정보 업데이트를 위한 emit
-        client.broadcast.emit("refreshRoom");
+        client.emit("refreshRoom", "startQuiz");
         this.logger.info(
             `quizzes gateway, changed room status to start ${client.id}, ${data.nickname}`,
         );
@@ -335,7 +335,7 @@ export class QuizzesGateway {
                 // 방 상태 업데이트
                 this.roomsService.end(data.room);
                 // 방 정보 업데이트를 위한 emit
-                client.emit("refreshRoom");
+                client.emit("refreshRoom", "quiz ended");
             }
         } else {
             //정답이 아니므로 채팅 내용만 프론트로 보낸다
@@ -347,6 +347,6 @@ export class QuizzesGateway {
     }
     @SubscribeMessage("refreshRoom")
     async handleRefreshRoom(client: Socket) {
-        client.broadcast.emit("refreshRoom");
+        client.emit("refreshRoom", "refreshRoom");
     }
 }
