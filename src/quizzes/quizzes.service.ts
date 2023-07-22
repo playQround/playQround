@@ -1,26 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { CreateQuizDto } from "./dto/create-quiz.dto";
-import { UpdateQuizDto } from "./dto/update-quiz.dto";
-import { Quizzes } from "./entities/quizzes.entity";
+import { Injectable, Logger } from "@nestjs/common";
 import { QuizzesRepository } from "./quizzes.repository";
 import { RoomsRepository } from "src/rooms/rooms.repository";
-import { join } from "path";
-const winston = require("winston");
 
 @Injectable()
 export class QuizzesService {
-    private readonly logger = winston.createLogger({
-        level: "info",
-        format: winston.format.combine(
-            winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-            winston.format.json(),
-        ),
-        transports: [
-            new winston.transports.File({
-                filename: join(__dirname, "../../test/info.log"),
-            }),
-        ],
-    });
+    private readonly logger = new Logger(QuizzesService.name);
     constructor(
         private readonly quizzesRepository: QuizzesRepository,
         private readonly roomsRepository: RoomsRepository,
@@ -30,9 +14,9 @@ export class QuizzesService {
     async checkAnswer(message: string, room: string): Promise<boolean> {
         try {
             const roomInfo = await this.roomsRepository.findOne(room);
-            //console.log("answer_check", roomInfo);
-            //console.log("Message", message);
-            //console.log("answer_check", roomInfo["nowAnswer"]);
+            this.logger.verbose(
+                `Current answer is ${roomInfo["nowAnswer"]} at room: ${room}`,
+            );
             if (message === roomInfo["nowAnswer"]) {
                 return true;
             }
@@ -46,31 +30,14 @@ export class QuizzesService {
     async getQuiz(): Promise<any> {
         try {
             // 퀴즈 DB의 총 갯수를 구한다.
-            this.logger.info(
-                "quizzes service, call quizzes repository getQuizCount",
-            );
             const quizCount = await this.quizzesRepository.getQuizCount();
-            this.logger.info(
-                `quizzes service, from repo, quizCount: ${quizCount}`,
-            );
-            this.logger.info("quizzes service, make random number");
             //랜덤한 id값을 생성하고 그 id값의 퀴즈를 고른다.
             const randomNum = Math.floor(Math.random() * quizCount) + 1;
-            this.logger.info(
-                `quizzes service, made random number: ${randomNum}`,
-            );
-
-            this.logger.info(
-                "quizzes service, call quizzes repository startQuiz",
-            );
             // 퀴즈 DB에서 quizId를 기준으로 퀴즈를 찾는다.
             const newQuiz = await this.quizzesRepository.startQuiz(randomNum);
-            this.logger.info(
-                `quizzes service, from repo, new quiz: ${newQuiz}`,
-            );
             return newQuiz;
         } catch (error) {
-            this.logger.info(
+            this.logger.error(
                 `quizzes service, error in quizzes service getQuiz ${error}`,
             );
         }
@@ -79,12 +46,9 @@ export class QuizzesService {
     updateRoomAnswer(roomId: number, answer: string): Promise<void> {
         try {
             this.roomsRepository.updateRoomAnswer(roomId, answer);
-            this.logger.info(
-                "quizzes service, update room answer to rooms repository",
-            );
             return;
         } catch (error) {
-            this.logger.info(
+            this.logger.error(
                 `quizzes service, update room answer with error: ${error}`,
             );
         }
@@ -134,15 +98,10 @@ export class QuizzesService {
                 comboPoint: 0,
                 comboMention: "콤보 에러 발생",
             };
+            this.logger.error(
+                `quizzes service, updateCombo with error: ${error}`,
+            );
             return comboObject;
         }
-    }
-
-    create(createQuizDto: CreateQuizDto) {
-        return "This action adds a new quiz";
-    }
-
-    update(id: number, updateQuizDto: UpdateQuizDto) {
-        return `This action updates a #${id} quiz`;
     }
 }
