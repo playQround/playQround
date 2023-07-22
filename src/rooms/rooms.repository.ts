@@ -205,7 +205,24 @@ export class RoomsRepository {
     }
 
     async updateRoomAnswer(id: string, answer: string): Promise<void> {
-        this.cacheManager.set(id, answer, 50000);
+        try {
+            const cacheSet = this.cacheManager.set(id, answer, 50000);
+            // 타임아웃 설정
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Timeout occurred"));
+                }, 1000); // 1초 타임아웃
+            });
+            // Promise race
+            await Promise.race([cacheSet, timeoutPromise]);
+        } catch (error) {
+            this.logger.error(
+                `error in update room answer to redis cache: ${error}`,
+            );
+        }
+        const targetRoom = await this.RoomModel.findOne({ _id: id });
+        targetRoom.nowAnswer = answer;
+        targetRoom.save();
         return;
     }
 
