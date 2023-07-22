@@ -93,7 +93,7 @@ export class RoomsRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 1000); // 1초 타임아웃
+                }, 100); // 0.1초 타임아웃
             });
 
             // Promise race
