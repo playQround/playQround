@@ -18,6 +18,7 @@ require("dotenv").config();
         origin: [
             "https://admin.socket.io",
             "http://localhost:4000",
+            "http://localhost:3001",
             "https://www.playqround.site",
         ],
         credentials: true,
@@ -114,6 +115,7 @@ export class QuizzesGateway {
             };
             // 사용자 정보를 저장
             await this.recordsService.update(UpdateRecordDto);
+            
             //client.to(data.room).emit("participant", `${data.nickname}`);
             this.logger.verbose(
                 `Number of users in room: ${usersInThisRoom.length}`,
@@ -121,15 +123,18 @@ export class QuizzesGateway {
         }
         // 한번이라도 방에 입장했던 client 목록을 조회
         const currentParticipant = await this.currentParticipant(data.room);
+
         // 방 참여자 목록을 클라이언트에 emit
         client
             .to(data.room)
             .emit("participant", JSON.stringify(currentParticipant));
         // 방 정보 업데이트를 위한 emit
-        client.emit("refreshRoom", "joinRoom");
-        return this.roomsService.update(data.room, {
-            nowPeople: usersInThisRoom.length,
+        client.broadcast.emit("refreshRoom");
+        await this.roomsService.update(data.room, {
+            nowPeople: usersInThisRoom.length + 1,
         });
+
+        return
     }
 
     @SubscribeMessage("leaveRoom")
@@ -149,7 +154,7 @@ export class QuizzesGateway {
             .to(data.room)
             .emit("participant", JSON.stringify(currentParticipant));
         // 방 정보 업데이트를 위한 emit
-        client.emit("refreshRoom", "leaveRoom");
+        client.broadcast.emit("refreshRoom");
         return this.roomsService.update(data.room, {
             nowPeople: roomUserCount,
         });
@@ -198,8 +203,10 @@ export class QuizzesGateway {
         client.to(data.room).emit("startQuiz");
         // 퀴즈 시작으로 방 상태 변경
         this.roomsService.start(data.room);
+        
         // 방 정보 업데이트를 위한 emit
-        client.emit("refreshRoom", "startQuiz");
+        this.server.emit("refreshRoom", "");
+        
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
         //방정보에 현재 퀴즈 답을 업데이트
         this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
@@ -304,7 +311,7 @@ export class QuizzesGateway {
                 // 방 상태 업데이트
                 this.roomsService.end(data.room);
                 // 방 정보 업데이트를 위한 emit
-                client.emit("refreshRoom", "quiz ended");
+                client.emit("refreshRoom");
             }
         }
     }
