@@ -8,10 +8,10 @@ import { QuizzesService } from "./quizzes.service";
 import { RecordsService } from "../records/records.service";
 import { RoomsService } from "src/rooms/rooms.service";
 import { Logger } from "@nestjs/common";
-import { join } from "path"; // 경로 문자열을 결합하는데 사용
 import { Process, Processor } from "@nestjs/bull";
 import { InjectQueue } from "@nestjs/bull";
 import { Queue, Job } from "bull";
+require("dotenv").config();
 
 @WebSocketGateway({
     cors: {
@@ -204,7 +204,7 @@ export class QuizzesGateway {
         //방정보에 현재 퀴즈 답을 업데이트
         this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
         // 게임 시작을 준비할 시간으로 3초 FE로 보내기
-        client.to(data.room).emit("readyTime", 3);
+        client.to(data.room).emit("readyTime", process.env.READY_QUIZ_TIME);
         // 첫번째 퀴즈 전달
         client.to(data.room).emit("quiz", newQuiz);
         // 남은 퀴즈 개수를 클라이언트로 보내기
@@ -212,7 +212,7 @@ export class QuizzesGateway {
             .to(data.room)
             .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
         // 카운트 다운 할 초 FE에 전달(= 한문제당 풀이 시간 - 게임 시작 준비 시간)
-        client.to(data.room).emit("quizTime", 13);
+        client.to(data.room).emit("quizTime", process.env.START_QUIZ_TIME);
         return;
     }
 
@@ -296,7 +296,7 @@ export class QuizzesGateway {
                     .to(data.room)
                     .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
                 // 문제 풀이 제한 시간을 FE로 보내기
-                client.to(data.room).emit("quizTime", 10);
+                client.to(data.room).emit("quizTime", process.env.QUIZ_SOLVE_TIME);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
                 client.to(data.room).emit("notice", "모든 퀴즈를 풀었습니다.");
@@ -310,6 +310,6 @@ export class QuizzesGateway {
     }
     @SubscribeMessage("refreshRoom")
     async handleRefreshRoom(client: Socket) {
-        client.emit("refreshRoom", "refreshRoom");
+        client.broadcast.emit("refreshRoom", "refreshRoom");
     }
 }
