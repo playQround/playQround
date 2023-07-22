@@ -16,6 +16,7 @@ require("dotenv").config();
 @WebSocketGateway({
     cors: {
         origin: [
+            "https://play-qround-fe.vercel.app",
             "https://admin.socket.io",
             "http://localhost:4000",
             "http://localhost:3001",
@@ -247,7 +248,8 @@ export class QuizzesGateway {
         if (data.message === "!answer") {
             // 치트키 로그
             this.logger.verbose(`User ${data?.nickname} used used cheat code`);
-            client.to(data.room).emit("notice", `정답은 ${data.answer}`);
+            const cheatKey = this.quizzesService.getAnswer(data.room);
+            client.to(data.room).emit("notice", `정답은 ${cheatKey}`);
             return;
         }
 
