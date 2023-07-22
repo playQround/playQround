@@ -27,7 +27,7 @@ export class RecordsRepository {
         } else {
             findRecord.userScore += UpdateRecordDto.userScore;
             findRecord.userName = UpdateRecordDto.userName;
-            findRecord.nowCorrect += 1;
+            findRecord.nowCorrect += UpdateRecordDto.nowCorrect;
             findRecord.maxCombo = UpdateRecordDto.maxCombo;
             await findRecord.save();
             this.logger.verbose(
