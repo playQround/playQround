@@ -109,7 +109,7 @@ export class RoomsRepository {
             }
         } catch (error) {
             this.logger.error(`room repository getAnswer get error ${error}`);
-            const roomInfo = this.findOne(id);
+            const roomInfo = await this.RoomModel.findOne({ _id: id }).exec();
             return roomInfo["nowAnswer"];
         }
     }
