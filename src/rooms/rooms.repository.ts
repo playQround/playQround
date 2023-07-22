@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { UpdateRoomDto } from "./dto/update-room.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Room } from "./schemas/room.schema";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
 import { Model } from "mongoose";
 import { join } from "path";
 
@@ -17,6 +19,7 @@ export class RoomsRepository {
         private RoomModel: Model<Room>,
         private recordsRepository: RecordsRepository,
         private usersRepository: UsersRepository,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache, // 캐시를 사용하기 위해 추가
     ) {}
 
     async create(createRoomDto: CreateRoomDto): Promise<object> {
@@ -81,6 +84,34 @@ export class RoomsRepository {
 
         await this.RoomModel.findByIdAndUpdate(id, targetRoom, { new: true });
         return targetRoom;
+    }
+
+    async findAnswer(id: string): Promise<string> {
+        try {
+            const cachedAnswer = this.cacheManager.get<string>(id);
+            // 타임아웃 설정
+            const timeoutPromise = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error("Timeout occurred"));
+                }, 1000); // 1초 타임아웃
+            });
+
+            // Promise race
+            const result = await Promise.race([cachedAnswer, timeoutPromise]);
+
+            if (typeof result === "string") {
+                const cachedAnswer = result;
+                if (cachedAnswer) {
+                    return cachedAnswer;
+                } else {
+                    throw new Error("Timeout occurred");
+                }
+            }
+        } catch (error) {
+            this.logger.error(`room repository getAnswer get error ${error}`);
+            const roomInfo = this.findOne(id);
+            return roomInfo["nowAnswer"];
+        }
     }
 
     async leaveRoom(id: string): Promise<any> {
@@ -161,15 +192,8 @@ export class RoomsRepository {
         return { message: "updated" };
     }
 
-    async updateRoomAnswer(id: number, answer: string): Promise<void> {
-        const targetRoom = await this.RoomModel.findOne({ _id: id });
-
-        if (!targetRoom) {
-            throw new NotFoundException(`${id}`);
-        }
-
-        targetRoom.nowAnswer = answer;
-        targetRoom.save();
+    async updateRoomAnswer(id: string, answer: string): Promise<void> {
+        this.cacheManager.set(id, answer, 50000);
         return;
     }
 

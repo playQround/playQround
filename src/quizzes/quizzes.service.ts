@@ -13,11 +13,11 @@ export class QuizzesService {
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
     async checkAnswer(message: string, room: string): Promise<boolean> {
         try {
-            const roomInfo = await this.roomsRepository.findOne(room);
+            const roomAnswer = await this.roomsRepository.findAnswer(room);
             this.logger.verbose(
-                `Current answer is ${roomInfo["nowAnswer"]} at room: ${room}`,
+                `Current answer is ${roomAnswer} at room: ${room}`,
             );
-            if (message === roomInfo["nowAnswer"]) {
+            if (message === roomAnswer) {
                 return true;
             }
             return false;
@@ -43,7 +43,7 @@ export class QuizzesService {
         }
     }
 
-    updateRoomAnswer(roomId: number, answer: string): Promise<void> {
+    updateRoomAnswer(roomId: string, answer: string): Promise<void> {
         try {
             this.roomsRepository.updateRoomAnswer(roomId, answer);
             return;
