@@ -76,7 +76,7 @@ export class RoomsRepository {
             roomId: target._id,
             roomName: target.roomName,
             roomStatus: target.roomStatus,
-            nowPeople: target.nowPeople,
+            nowPeople: target.nowPeople + 1,
             maxPeople: target.maxPeople,
             cutRating: target.cutRating,
             nowAnswer: target.nowAnswer,

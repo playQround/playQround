@@ -12,7 +12,7 @@ export class Room {
     @Prop({ default: 0 })
     roomStatus: number;
 
-    @Prop({ default: 1 })
+    @Prop({ default: 0 })
     nowPeople: number;
 
     @Prop()
