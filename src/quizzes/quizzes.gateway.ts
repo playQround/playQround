@@ -20,7 +20,6 @@ require("dotenv").config();
             "http://localhost:4000",
             "http://localhost:3001",
             "https://www.playqround.site",
-            "http://121.154.221.110:4000",
         ],
         credentials: true,
     },
