@@ -46,14 +46,24 @@ export class RoomsRepository {
         maxPeople: number,
         cutRating: number,
     ): Promise<object> {
-        const roomList = await this.RoomModel.find({
-            roomName: { $regex: roomName },
-            roomStatus: roomStatus,
-            maxPeople: { $gte: maxPeople },
-            cutRating: { $gte: cutRating },
-        });
+        // 전체 조회일 때
+        if (roomStatus === 3) {
+            const roomList = await this.RoomModel.find({
+                roomName: { $regex: roomName },
+                maxPeople: { $gte: maxPeople },
+                cutRating: { $gte: cutRating },
+            })
+            return { rooms: roomList };
 
-        return { rooms: roomList };
+        } else {
+            const roomList = await this.RoomModel.find({
+                roomName: { $regex: roomName },
+                roomStatus: roomStatus,
+                maxPeople: { $gte: maxPeople },
+                cutRating: { $gte: cutRating },
+            })
+            return { rooms: roomList };
+        }
     }
 
     async findOne(id: string): Promise<object> {
