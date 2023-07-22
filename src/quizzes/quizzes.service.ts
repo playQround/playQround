@@ -26,6 +26,15 @@ export class QuizzesService {
         }
     }
 
+    //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
+    async getAnswer(room: string): Promise<string> {
+        try {
+            return await this.roomsRepository.findAnswer(room);
+        } catch (error) {
+            this.logger.verbose(`error in getAnswer in ${room}`);
+        }
+    }
+
     // 퀴즈 조회 서비스
     async getQuiz(): Promise<any> {
         try {
