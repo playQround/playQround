@@ -241,17 +241,19 @@ export class QuizzesGateway {
             client.to(data.room).emit("notice", `정답은 ${data.answer}`);
             return;
         }
-
+        
+        this.logger.verbose(`${data.nickname} : ${data.message}`);
+        //채팅 내용을 프론트 앤드로 보낸다
+        client
+            .to(data.room)
+            .emit("message", `${data.nickname} : ${data.message}`);
+        
         if (answerCheck) {
             //콤보 체크를 한다.
             const comboCheck = await this.quizzesService.updateCombo(
                 data.room,
                 data.userId,
             );
-            //채팅 내용을 프론트 앤드로 보낸다
-            client
-                .to(data.room)
-                .emit("message", `${data.nickname} : ${data.message}`);
             //정답이므로 정답 축하 메세지를 보낸다.
             const getPoint =
                 comboCheck.combo > 1
@@ -304,12 +306,6 @@ export class QuizzesGateway {
                 // 방 정보 업데이트를 위한 emit
                 client.emit("refreshRoom", "quiz ended");
             }
-        } else {
-            //정답이 아니므로 채팅 내용만 프론트로 보낸다
-            this.logger.verbose(`${data.nickname} : ${data.message}`);
-            client
-                .to(data.room)
-                .emit("message", `${data.nickname} : ${data.message}`);
         }
     }
     @SubscribeMessage("refreshRoom")
