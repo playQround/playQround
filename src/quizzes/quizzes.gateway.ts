@@ -248,7 +248,7 @@ export class QuizzesGateway {
         if (data.message === "!answer") {
             // 치트키 로그
             this.logger.verbose(`User ${data?.nickname} used used cheat code`);
-            const cheatKey = this.quizzesService.getAnswer(data.room);
+            const cheatKey = await this.quizzesService.getAnswer(data.room);
             client.to(data.room).emit("notice", `정답은 ${cheatKey}`);
             return;
         }
