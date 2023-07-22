@@ -93,7 +93,7 @@ export class RoomsRepository {
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 1000); // 1초 타임아웃
+                }, 100); // 0.1초 타임아웃
             });
 
             // Promise race
@@ -109,7 +109,7 @@ export class RoomsRepository {
             }
         } catch (error) {
             this.logger.error(`room repository getAnswer get error ${error}`);
-            const roomInfo = this.findOne(id);
+            const roomInfo = await this.RoomModel.findOne({ _id: id }).exec();
             return roomInfo["nowAnswer"];
         }
     }
