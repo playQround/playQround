@@ -11,7 +11,10 @@ export class UsersRepository {
     ) {}
 
     // 유저 생성
-    async create(createUserDto: CreateUserDto, verifyToken: string): Promise<Object> {
+    async create(
+        createUserDto: CreateUserDto,
+        verifyToken: string,
+    ): Promise<Object> {
         const user = new Users();
         user.userEmail = createUserDto.userEmail;
         user.userName = createUserDto.userName;
@@ -25,9 +28,12 @@ export class UsersRepository {
     async findOneInfo(userData: Partial<Users>): Promise<Object> {
         const user = await this.usersRepository.findOne({
             select: [
-                'userEmail',
-                'userName',
-                'userRating',
+                "userEmail",
+                "userName",
+                "userRating",
+                "totalCorrect",
+                "maxCombo",
+                "firstPlace",
             ],
             where: {
                 ...userData,
@@ -48,28 +54,53 @@ export class UsersRepository {
 
     // 유저 활성화
     async update(verifyToken: string): Promise<boolean> {
-        await this.usersRepository.update(
-            {verifyToken},
-            { active: true }
-        );
+        await this.usersRepository.update({ verifyToken }, { active: true });
         return true;
     }
 
     // 유저 레이팅 변경
-    async updateRecord(userId: number, userScore: number): Promise<boolean> {
+    async updateRecord(
+        userId: number,
+        userScore: number,
+        nowCorrect: number,
+        maxCombo: number,
+    ): Promise<boolean> {
         const user = await this.usersRepository.findOne({
-            where : {
+            where: {
                 userId,
             },
-        })
+        });
 
-        if(!user) {
+        if (!user) {
             return false;
         }
 
         user.userRating += userScore;
+        user.totalCorrect += nowCorrect;
+        if (user.maxCombo < maxCombo) {
+            user.maxCombo = maxCombo;
+        }
         this.usersRepository.save(user);
 
         return true;
+    }
+
+    // 유저 랭킹 조회
+    async findRanking(item: string, rank: number) {
+        //item에 따라서 랭킹을 다르게 보여줌
+        const ranking = await this.usersRepository.find({
+            select: [
+                "userName",
+                "userRating",
+                "totalCorrect",
+                "maxCombo",
+                "firstPlace",
+            ],
+            order: {
+                [item]: "DESC",
+            },
+            take: rank,
+        });
+        return ranking;
     }
 }

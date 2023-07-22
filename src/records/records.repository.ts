@@ -26,7 +26,9 @@ export class RecordsRepository {
             return newRecord;
         } else {
             findRecord.userScore += UpdateRecordDto.userScore;
-            findRecord.userName = UpdateRecordDto.userName
+            findRecord.userName = UpdateRecordDto.userName;
+            findRecord.nowCorrect += 1;
+            findRecord.maxCombo = UpdateRecordDto.maxCombo;
             await findRecord.save();
             this.logger.verbose(
                 `Updating record for user: ${findRecord?.userId} in room: ${findRecord?.roomId}. New score: ${findRecord?.userScore}`,

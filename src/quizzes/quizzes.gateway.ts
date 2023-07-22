@@ -112,10 +112,12 @@ export class QuizzesGateway {
                 roomId: data.room,
                 userName: data.nickname,
                 userScore: 0,
+                nowCorrect: 0,
+                maxCombo: 0,
             };
             // 사용자 정보를 저장
             await this.recordsService.update(UpdateRecordDto);
-            
+
             //client.to(data.room).emit("participant", `${data.nickname}`);
             this.logger.verbose(
                 `Number of users in room: ${usersInThisRoom.length}`,
@@ -134,7 +136,7 @@ export class QuizzesGateway {
             nowPeople: usersInThisRoom.length + 1,
         });
 
-        return
+        return;
     }
 
     @SubscribeMessage("leaveRoom")
@@ -203,10 +205,10 @@ export class QuizzesGateway {
         client.to(data.room).emit("startQuiz");
         // 퀴즈 시작으로 방 상태 변경
         this.roomsService.start(data.room);
-        
+
         // 방 정보 업데이트를 위한 emit
         this.server.emit("refreshRoom", "");
-        
+
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
         //방정보에 현재 퀴즈 답을 업데이트
         this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
@@ -248,13 +250,13 @@ export class QuizzesGateway {
             client.to(data.room).emit("notice", `정답은 ${data.answer}`);
             return;
         }
-        
+
         this.logger.verbose(`${data.nickname} : ${data.message}`);
         //채팅 내용을 프론트 앤드로 보낸다
         client
             .to(data.room)
             .emit("message", `${data.nickname} : ${data.message}`);
-        
+
         if (answerCheck) {
             //콤보 체크를 한다.
             const comboCheck = await this.quizzesService.updateCombo(
@@ -279,6 +281,12 @@ export class QuizzesGateway {
                 roomId: data.room, //생성될때의 방 값을 가져와야한다.
                 userName: data.nickname, //유저의 이름을 가져와야한다.
                 userScore: data.point + comboCheck.comboPoint, //점수 기입방식의 논의가 필요하다.
+                nowCorrect: 1, //정답을 맞춘 횟수를 기입한다.
+                //comboCheck.lastAnswerUserId와 data.userId가 같으면 comboCheck.combo를 기입한다.
+                maxCombo:
+                    comboCheck.lastAnswerUserId === data.userId
+                        ? comboCheck.combo
+                        : 1,
             };
             //퀴즈 중간 결과 값을 업데이트한다.
             await this.recordsService.update(UpdateRecordDto);
@@ -303,7 +311,9 @@ export class QuizzesGateway {
                     .to(data.room)
                     .emit("remainingQuizzesNum", data.remainingQuizzes - 1);
                 // 문제 풀이 제한 시간을 FE로 보내기
-                client.to(data.room).emit("quizTime", process.env.QUIZ_SOLVE_TIME);
+                client
+                    .to(data.room)
+                    .emit("quizTime", process.env.QUIZ_SOLVE_TIME);
             } else {
                 // 남은 퀴즈가 없는 경우 notice로 퀴즈 종료 안내
                 client.to(data.room).emit("notice", "모든 퀴즈를 풀었습니다.");

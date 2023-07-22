@@ -8,6 +8,7 @@ import {
     Req,
     HttpStatus,
     Query,
+    Param,
     Logger,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
@@ -15,7 +16,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
 import { Request } from "express";
-const fs = require('fs')
+const fs = require("fs");
 
 @Controller("users")
 export class UsersController {
@@ -42,16 +43,16 @@ export class UsersController {
     }
 
     // 이메일 인증 Controller
-    @Post('verify')
+    @Post("verify")
     async verifyEmail(
-        @Query() verifyEmailDto: VerifyEmailDto, 
+        @Query() verifyEmailDto: VerifyEmailDto,
         @Res() res: any,
     ): Promise<Object> {
         const { signupVerifyToken } = verifyEmailDto;
         await this.usersService.verifyEmail(signupVerifyToken);
         return res.status(HttpStatus.OK).json({
             message: "verified",
-        })
+        });
     }
 
     // 유저 조회 Controller
@@ -69,6 +70,17 @@ export class UsersController {
             userEmail: user.userEmail,
         });
 
+        return res.status(HttpStatus.OK).json(userResult);
+    }
+
+    //userRating, totalCorrect, maxCombo 의 순위를 반환해주는 api
+    @Get("rank/:item/:rank")
+    async getRank(
+        @Param("item") item: string,
+        @Param("rank") rank: number,
+        @Res() res: any,
+    ): Promise<Object> {
+        const userResult = await this.usersService.getRank(item, rank);
         return res.status(HttpStatus.OK).json(userResult);
     }
 }

@@ -8,4 +8,8 @@ export class UpdateRecordDto {
     userName: string;
 
     userScore: number;
+
+    nowCorrect: number;
+
+    maxCombo: number;
 }

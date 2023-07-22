@@ -183,6 +183,8 @@ export class RoomsRepository {
                     await this.usersRepository.updateRecord(
                         user.userId,
                         user.userScore,
+                        user.nowCorrect,
+                        user.maxCombo,
                     );
                 }
             }
