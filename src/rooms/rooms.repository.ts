@@ -31,7 +31,17 @@ export class RoomsRepository {
     }
 
     async findAll(): Promise<object> {
-        const rooms = await this.RoomModel.find()
+        const rooms = await this.RoomModel.find({
+            $or: [
+                { roomStatus: 0 }, // roomStatus is 1 (nowPeople will be ignored)
+                {
+                    $and: [
+                        { nowPeople: { $ne: 0 } },
+                        { roomStatus: { $ne: 1 } },
+                    ],
+                }, // nowPeople is not 0 and roomStatus is not 1
+            ],
+        })
             .sort({ roomStatus: 1, createdAt: -1 })
             .exec();
 
@@ -50,6 +60,7 @@ export class RoomsRepository {
                 roomName: { $regex: roomName },
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
+                nowPeople: { $ne: 0 },
             });
             return { rooms: roomList };
         } else {
@@ -58,6 +69,7 @@ export class RoomsRepository {
                 roomStatus: roomStatus,
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
+                nowPeople: { $ne: 0 },
             });
             return { rooms: roomList };
         }
