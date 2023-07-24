@@ -212,8 +212,12 @@ export class QuizzesGateway {
 
         this.logger.verbose(`User ${data?.nickname} starts the quiz`);
         //방정보에 현재 퀴즈 답을 업데이트
-        this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
-        // 게임 시작을 준비할 시간으로 3초 FE로 보내기
+        this.quizzesService.updateRoomAnswer(
+            data.room,
+            newQuiz.answer,
+            data.remainingQuizzes,
+        );
+        // 게임 시작을 준비할 시간 FE로 보내기
         client.to(data.room).emit("readyTime", process.env.READY_QUIZ_TIME);
         // 첫번째 퀴즈 전달
         client.to(data.room).emit("quiz", newQuiz);
@@ -236,6 +240,7 @@ export class QuizzesGateway {
         const answerCheck = await this.quizzesService.checkAnswer(
             data.message,
             data.room,
+            data.remainingQuizzes,
         );
         console.log("answerCheck", answerCheck);
 
@@ -248,7 +253,10 @@ export class QuizzesGateway {
         if (data.message === "!answer") {
             // 치트키 로그
             this.logger.verbose(`User ${data?.nickname} used used cheat code`);
-            const cheatKey = await this.quizzesService.getAnswer(data.room);
+            const cheatKey = await this.quizzesService.getAnswer(
+                data.room,
+                data.remainingQuizzes,
+            );
             client.to(data.room).emit("notice", `정답은 ${cheatKey}`);
             return;
         }
@@ -305,7 +313,11 @@ export class QuizzesGateway {
                 // 퀴즈 조회
                 const newQuiz = await this.quizzesService.getQuiz();
                 //방정보에 현재 퀴즈 답을 업데이트 한다.
-                this.quizzesService.updateRoomAnswer(data.room, newQuiz.answer);
+                this.quizzesService.updateRoomAnswer(
+                    data.room,
+                    newQuiz.answer,
+                    data.remainingQuizzes,
+                );
                 //퀴즈를 프론트앤드로 보낸다.
                 client.to(data.room).emit("quiz", newQuiz);
                 // 남은 퀴즈 개수를 클라이언트로 보내기

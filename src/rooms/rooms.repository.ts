@@ -6,8 +6,6 @@ import { Room } from "./schemas/room.schema";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from "cache-manager";
 import { Model } from "mongoose";
-import { join } from "path";
-
 import { RecordsRepository } from "../records/records.repository";
 import { UsersRepository } from "src/users/users.repository";
 
@@ -52,16 +50,15 @@ export class RoomsRepository {
                 roomName: { $regex: roomName },
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
-            })
+            });
             return { rooms: roomList };
-
         } else {
             const roomList = await this.RoomModel.find({
                 roomName: { $regex: roomName },
                 roomStatus: roomStatus,
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
-            })
+            });
             return { rooms: roomList };
         }
     }
@@ -96,9 +93,11 @@ export class RoomsRepository {
         return targetRoom;
     }
 
-    async findAnswer(id: string): Promise<string> {
+    async findAnswer(id: string, numRemainingQuizzes: string): Promise<string> {
         try {
-            const cachedAnswer = this.cacheManager.get<string>(id);
+            const cachedAnswerPromise = this.cacheManager.get(
+                id + numRemainingQuizzes,
+            );
             // 타임아웃 설정
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -107,15 +106,19 @@ export class RoomsRepository {
             });
 
             // Promise race
-            const result = await Promise.race([cachedAnswer, timeoutPromise]);
-
-            if (typeof result === "string") {
-                const cachedAnswer = result;
-                if (cachedAnswer) {
-                    return cachedAnswer;
-                } else {
-                    throw new Error("Timeout occurred");
-                }
+            const result = await Promise.race([
+                cachedAnswerPromise,
+                timeoutPromise,
+            ]);
+            if (result === "null") {
+                throw new Error("Timeout occurred");
+            } else if (typeof result === "string") {
+                this.logger.verbose(
+                    `room repository get answer from cache ${result}`,
+                );
+                return result;
+            } else {
+                throw new Error("Timeout occurred");
             }
         } catch (error) {
             this.logger.error(`room repository getAnswer get error ${error}`);
@@ -204,14 +207,22 @@ export class RoomsRepository {
         return { message: "updated" };
     }
 
-    async updateRoomAnswer(id: string, answer: string): Promise<void> {
+    async updateRoomAnswer(
+        id: string,
+        answer: string,
+        numRemainingQuizzes: string,
+    ): Promise<void> {
         try {
-            const cacheSet = this.cacheManager.set(id, answer, 50000);
+            const cacheSet = this.cacheManager.set(
+                id + numRemainingQuizzes,
+                answer,
+                50000,
+            );
             // 타임아웃 설정
             const timeoutPromise = new Promise((resolve, reject) => {
                 setTimeout(() => {
                     reject(new Error("Timeout occurred"));
-                }, 1000); // 1초 타임아웃
+                }, 100); // 0.1초 타임아웃
             });
             // Promise race
             await Promise.race([cacheSet, timeoutPromise]);
@@ -223,6 +234,9 @@ export class RoomsRepository {
         const targetRoom = await this.RoomModel.findOne({ _id: id });
         targetRoom.nowAnswer = answer;
         targetRoom.save();
+        this.logger.verbose(
+            `room repository update room answer(${answer}) to mongo DB`,
+        );
         return;
     }
 

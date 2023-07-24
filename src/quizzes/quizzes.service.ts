@@ -11,9 +11,16 @@ export class QuizzesService {
     ) {}
 
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
-    async checkAnswer(message: string, room: string): Promise<boolean> {
+    async checkAnswer(
+        message: string,
+        room: string,
+        numRemainingQuizzes: string,
+    ): Promise<boolean> {
         try {
-            const roomAnswer = await this.roomsRepository.findAnswer(room);
+            const roomAnswer = await this.roomsRepository.findAnswer(
+                room,
+                numRemainingQuizzes,
+            );
             this.logger.verbose(
                 `Current answer is ${roomAnswer} at room: ${room}`,
             );
@@ -27,9 +34,15 @@ export class QuizzesService {
     }
 
     //정답을 체크한다. 유저가 입력한 message와 answer 정답을 비교 정답이면 true 오답이면 false를 반환한다.
-    async getAnswer(room: string): Promise<string> {
+    async getAnswer(
+        room: string,
+        numRemainingQuizzes: string,
+    ): Promise<string> {
         try {
-            return await this.roomsRepository.findAnswer(room);
+            return await this.roomsRepository.findAnswer(
+                room,
+                numRemainingQuizzes,
+            );
         } catch (error) {
             this.logger.verbose(`error in getAnswer in ${room}`);
         }
@@ -52,9 +65,17 @@ export class QuizzesService {
         }
     }
 
-    updateRoomAnswer(roomId: string, answer: string): Promise<void> {
+    updateRoomAnswer(
+        roomId: string,
+        answer: string,
+        numRemainingQuizzes: string,
+    ): Promise<void> {
         try {
-            this.roomsRepository.updateRoomAnswer(roomId, answer);
+            this.roomsRepository.updateRoomAnswer(
+                roomId,
+                answer,
+                numRemainingQuizzes,
+            );
             return;
         } catch (error) {
             this.logger.error(
