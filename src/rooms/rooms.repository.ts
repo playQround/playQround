@@ -63,6 +63,14 @@ export class RoomsRepository {
                 nowPeople: { $ne: 0 },
             });
             return { rooms: roomList };
+        } else if (roomStatus === 0) {
+            const roomList = await this.RoomModel.find({
+                roomName: { $regex: roomName },
+                roomStatus: roomStatus,
+                maxPeople: { $gte: maxPeople },
+                cutRating: { $gte: cutRating },
+            });
+            return { rooms: roomList };
         } else {
             const roomList = await this.RoomModel.find({
                 roomName: { $regex: roomName },
