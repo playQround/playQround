@@ -57,10 +57,18 @@ export class RoomsRepository {
         // 전체 조회일 때
         if (roomStatus === 3) {
             const roomList = await this.RoomModel.find({
+                $or: [
+                    { roomStatus: 0 },
+                    {
+                        $and: [
+                            { nowPeople: { $ne: 0 } },
+                            { roomStatus: { $ne: 1 } },
+                        ],
+                    },
+                ],
                 roomName: { $regex: roomName },
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
-                nowPeople: { $ne: 0 },
             });
             return { rooms: roomList };
         } else if (roomStatus === 0) {
