@@ -31,7 +31,17 @@ export class RoomsRepository {
     }
 
     async findAll(): Promise<object> {
-        const rooms = await this.RoomModel.find()
+        const rooms = await this.RoomModel.find({
+            $or: [
+                { roomStatus: 0 },
+                {
+                    $and: [
+                        { nowPeople: { $ne: 0 } },
+                        { roomStatus: { $ne: 1 } },
+                    ],
+                },
+            ],
+        })
             .sort({ roomStatus: 1, createdAt: -1 })
             .exec();
 
@@ -47,7 +57,24 @@ export class RoomsRepository {
         // 전체 조회일 때
         if (roomStatus === 3) {
             const roomList = await this.RoomModel.find({
+                $or: [
+                    { roomStatus: 0 },
+                    {
+                        $and: [
+                            { nowPeople: { $ne: 0 } },
+                            { roomStatus: { $ne: 1 } },
+                        ],
+                    },
+                ],
                 roomName: { $regex: roomName },
+                maxPeople: { $gte: maxPeople },
+                cutRating: { $gte: cutRating },
+            });
+            return { rooms: roomList };
+        } else if (roomStatus === 0) {
+            const roomList = await this.RoomModel.find({
+                roomName: { $regex: roomName },
+                roomStatus: roomStatus,
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
             });
@@ -58,6 +85,7 @@ export class RoomsRepository {
                 roomStatus: roomStatus,
                 maxPeople: { $gte: maxPeople },
                 cutRating: { $gte: cutRating },
+                nowPeople: { $ne: 0 },
             });
             return { rooms: roomList };
         }
