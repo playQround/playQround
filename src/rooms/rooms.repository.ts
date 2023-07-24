@@ -33,13 +33,13 @@ export class RoomsRepository {
     async findAll(): Promise<object> {
         const rooms = await this.RoomModel.find({
             $or: [
-                { roomStatus: 0 }, // roomStatus is 1 (nowPeople will be ignored)
+                { roomStatus: 0 },
                 {
                     $and: [
                         { nowPeople: { $ne: 0 } },
                         { roomStatus: { $ne: 1 } },
                     ],
-                }, // nowPeople is not 0 and roomStatus is not 1
+                },
             ],
         })
             .sort({ roomStatus: 1, createdAt: -1 })
