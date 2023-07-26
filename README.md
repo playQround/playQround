@@ -1,344 +1,132 @@
-1. 필요 모듈 설치
-```
-npm i --save @nestjs/config // config 패키지 (dotenv와 유사한 기능)
-npm i --save @nestjs/typeorm typeorm mysql2 // typeorm 및 mysql 패키지
-npm i @nestjs/mongoose mongoose // mongodb 패키지
-npm i jsonwebtoken // jwt 패키지
-npm i --save-dev @types/jsonwebtoken // jwt 패키지
-npm i cookie-parser // 쿠키 Parser 패키지
-npm i bcryptjs // 비밀번호 암호화를 위한 패키지
-npm i --save-dev @types/bcryptjs
-npm i uuid // uuid 생성용 패키지
-npm i --save-dev @types/uuid
-npm i nodemailer
-npm i --save-dev @types/nodemailer
-```
+# PLAYQROUND
 
-2. Config(dotenv와 유사한 서비스) 설정
-```
-// app.module.ts 파일 설정 추가
-// imports 항목에 아래와 같이 env 파일 경로 추가
-@Module({
-    imports: [ConfigModule.forRoot({
-        load: [authConfig],
-        isGlobal: true, // 전역 모듈로 설정
-    })],
-})
+![Thumbnail](./src/images/playqroundlogo.png)
 
-// 루트경로에 .env 파일 생성 및 아래 내용 추가
-DATABASE_HOST=<SQLDB호스트경로>
-DATABASE_PORT=<SQLDB포트>
-DATABASE_USER=<SQLDB유저아이디>
-DATABASE_PASSWORD=<SQLDB비밀번호>
-DATABASE_NAME=<SQLDB이름>
-MONGODB_URL=<MongoDB URL>
-JWT_SECRET=<jwt시크릿키>
+# 목차
 
-// src/config/ 디렉토리 아래에 auth 관련 클래스 정의 및 app.modules.ts 파일에 load 설정 추가
-// 예시 src/config/authConfig.ts -> JWT키를 코드에서 사용하기 위한 클래스
-import { registerAs } from "@nestjs/config";
+### 1. [프로젝트 소개](#-프로젝트-소개)
 
-export default registerAs('auth', () => ({
-  jwtSecret: process.env.JWT_SECRET,
-}));
-```
+### 2. [프로젝트 목표](#-프로젝트-목표)
 
-3. DB 연결을 위한 설정
-```
-// app.modules.ts 설정 추가
-// TypeOrmModule -> MySQL 연결
-// MongooseModule -> MongoDB 연결
-imports: [
-        TypeOrmModule.forRoot({
-            type: "mysql",
-            host: process.env.DATABASE_HOST,
-            port: +process.env.DATABASE_PORT,
-            username: process.env.DATABASE_USER,
-            password: process.env.DATABASE_PASSWORD,
-            database: process.env.DATABASE_NAME,
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: true,
-        }),
-        MongooseModule.forRoot(process.env.MONGODB_URL),
-    ],
-```
+### 3. [주요 기능](#-주요-기능)
 
-4. Entity 정의 (Repository Pattern)
-```
-// 4-1. 시간 기준을 (utc+9) 시간으로 변경하기 위해 트랜스포머 생성
-// src/transformers/kct.transformer.ts
-import { ValueTransformer } from "typeorm";
+### 4. [기술 스텍](#-기술-스텍)
 
-export class kctTransformer implements ValueTransformer {
-    // to() 값을 저장할 때 사용되는 메서드
-    to(value: Date): Date {
-        return value;
-    }
+### 5. [아키텍처](#-아키텍처)
 
-    // from() 값을 호출할때 사용되는 메서드
-    from(value: Date | string): Date {
-        if (typeof value === "string") {
-            value = new Date(value);
-        }
+### 6. [트러블 슈팅](#-트러블-슈팅)
 
-        if (value) {
-            // UTC+9 시간으로 변환
-            value.setHours(value.getHours() + 9);
-        }
+### 7. [성능 개선](#-성능-개선)
 
-        return value;
-    }
-}
+### 7. [팀원](#-팀원)
 
-// 4-2. user.entity.ts 정의
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ValueTransformer } from "typeorm";
-import { kctTransformer } from '../transformers/kct.transformer';
 
-@Entity()
-export class User {
-    @PrimaryGeneratedColumn()
-    userId: number;
+# 프로젝트 소개
+- 간단한 레크레이션, 아이스브레이킹, 숏게임 등을 원하는 사용자를 위한 퀴즈 제공 서비스 / 긴말이 필요없는 누구나 간단히 문제를 보고 단답형의 정답을 채팅을 통하여 맞추는 게임입니다!
+### - 개발 기간 : 2023년 06월 9일 ~ 2023년 07월 26일
+### - 홈페이지 : [playQround](https://www.playqround.site/)
+### - Github : [Organizations](https://github.com/playQround)
+### - Project 정보 : [Notion](https://peterlah.notion.site/playQround-1-66479cc3d95b471fb92e93519478c771?pvs=4)
 
-    @Column({ unique: true })
-    userEmail: string;
 
-    @Column({ unique: true })
-    userName: string;
+# 프로젝트 목표
+- socket.io 를 통한 실시간 퀴즈 서비스
+- 원하는 퀴즈방을 검색 할 수 있는 검색 서비스
+- 대규모 문제 DB에서 원하는 퀴즈 데이터를 조회
+- 음성 채팅 기능 제공
+- CI/CD 파이프라인 구성
 
-    @Column()
-    userPassword: string;
+# 주요 기능
+### 실시간 퀴즈 서비스
+- socket.io를 통해 실시간 채팅 서비스 구현
+- In Game Message(Direct Broadcast) / Out Game Message(Redis Queue로 저장) 분리
+![Thumbnail](./src/images/RealTimeQuizService.png)
+### 검색 서비스 및 필터링 기능
+- 백엔드 서버에서는 모든 퀴즈방 정보를 전달
+- 사용자의 필요에 따라 필터 기능 및 검색 기능을 사용하면 방리스트 중에서 원하는 옵션의 방만 조회 가능
+![Thumbnail](./src/images/SearchAndFilter.png)
+### 대규모 문제 DB에서 원하는 퀴즈 데이터 조회
+- 문제 DB의 경우 변경 작업이 자주 있지 않아 SQL DB로 구성
+![Thumbnail](./src/images/DB.png)
+- DB에 직접 조회하는 방법이 예상 보다 성능이 좋지 않아, 캐싱 서비스를 통해 문제를 가지고 오도록 로직 수정
+![Thumbnail](./src/images/DB2.png)
+- 사용 코드 예시
+![Thumbnail](./src/images/DB3.png)
+### 음성 채팅 서비스
+- WebRTC를 통해 실시간 음성 및 화상 통신 기능 구현
+- 초기 버전의 화상/음성채팅
+![Thumbnail](./src/images/webrtc1.png)
+- 화상 통신의 경우 개발 단계에서는 구현하였지만, 서비스 취지에 어울리지 않는것으로 판단 되어 음성채팅 기능만 사용
+- N:N 통신을 위해 클라이언트 간 Peer 연결 정보를 Object로 관리 하도록 구현
+![Thumbnail](./src/images/webrtc2.png)
+### CI/CD 파이프라인 구성
+- WorkFlow
+![Thumbnail](./src/images/cicd.png)
+- 실제 서비스는 비용 관계성 EKS가 아닌 ECS로 변경
+- Github → Github Action → Amazon ECR → Amazon ESC 를 통해 자동으로 서비스가 배포 되도록 파이프라인 구성
+# 기술 스텍
+- Language:
+  - HTML+CSS
+  - Javascript
+  - Typescript
+- Library:
+  - React
+  - NestJS
+- Runtime: Node.js
+- Tech Stack:
+  - Socket.io: 실시간 채팅
+  - WebRTC: 실시간 음성 통화
+  - Axios: API 호출
+- Platform:
+  - AWS: 실제서비스 배포
+  - Azure: 부하테스트 진행
+- DB:
+  - Redis: 캐싱 DB, Queue
+  - MongoDB: 변경이 많은 실시간 데이터 저장
+  - MySQL: 변경이 별로 없고 읽기 작업이 많은 데이터 저장
+- Infra & Pipeline:
+  - Github Action
+  - AWS EKS, ECR, ALB, Route53
+- Test & Monitoring:
+  - Artillery
+  - Socket.IO Admin UI
 
-    @Column()
-    userRating: number;
+# 아키텍처
+- 아키텍처
+![Thumbnail](./src/images/architecture.png)
+- ERD
+![Thumbnail](./src/images/ERD.png)
 
-    @CreateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)', // 마이크로초까지 표현
-        transformer: new kctTransformer(),
-    })
-    createdAt: Date;
-
-    @UpdateDateColumn({
-        type: 'timestamp',
-        default: () => 'CURRENT_TIMESTAMP(6)',
-        transformer: new kctTransformer(),
-    })
-    updatedAt: Date;
-}
-```
-
-5. Guard를 통한 인가(Authorization) 설정
-```
-// 5-1. 필요 모듈 설치
-npm install @nestjs/passport @nestjs/jwt passport-jwt
-
-// 5-2. src/auth/auth.guard.ts 생성
-import {
-    CanActivate,
-    ExecutionContext,
-    Inject,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import authConfig from 'src/config/authConfig';
-import { ConfigType } from '@nestjs/config';
-
-@Injectable()
-export class AuthGuard implements CanActivate {
-    constructor(
-        private jwtService: JwtService,
-        @Inject(authConfig.KEY) private config: ConfigType<typeof authConfig>,
-    ) {}
-
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
-        if (!token) {
-            throw new UnauthorizedException();
-        }
-        try {
-            const payload = await this.jwtService.verifyAsync(
-                token,
-                {
-                    secret: this.config.jwtSecret
-                }
-            );
-            request['user'] = {
-                userId: payload.userId,
-                userEmail: payload.userEmail,
-                userName: payload.userName,
-                userPassword: payload.userPassword,
-                userRating: payload.userRating,
-                createdAt: payload.createdAt,
-                updatedAt: payload.updatedAt,
-            };
-        } catch {
-            throw new UnauthorizedException();
-        }
-        return true;
-    }
-
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
-    }
-}
-
-// 5-3. authguard를 실제 API 메소드에 적용
-// 적용 샘플 예제
-// 유저 조회
-@UseGuards(AuthGuard) // 적용하고자 하는 메소드상단에 가드 데코레이터 추가
-@Get('info')
-async getUserInfo(@Req() req: any): Promise<any> {
-    const user = req.user; // 토큰에서 유저 정보가 필요한 경우 req.user를 통해 추출 가능
-    return await this.usersService.getUserInfo({userId: user.userId, userEmail: user.userEmail});
-}
-
-```
-
-6. 입력 데이터에 대한 유효성 검사 기능 추가
-```
-// 6-1. class-validator 설치
-npm install class-validator class-transformer
-
-// 6-2. DTO 클래스 생성 및 수정
-// 예 > src/users/dto/create-user.dto.ts
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from "class-validator";
-
-export class CreateUserDto {
-    // 이메일에 대한 검증 규칙 지정: 값이 공백인지 확인, 이메일 형식인지 확인
-    @IsNotEmpty()
-    @IsEmail()
-    readonly userEmail: string;
-
-    // 유저네임에 대한 검증 규칙 지정: 값이 공백인지 확인, 문자열 형식인지 확인, 길이가 4자 이상 ~ 20자 이하인지 확인
-    @IsNotEmpty()
-    @IsString()
-    @MinLength(4)
-    @MaxLength(20)
-    readonly userName: string;
-
-    // 패스워드에 대한 검증 규칙 지정: 값이 공백인지 확인
-    // 정규표현식 : 최소 8자 이상이어야 하며, 최소 하나의 알파벳이 포함, 최소 하나의 숫자가 포함
-    @IsNotEmpty()
-    @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {
-        message: '비밀번호는 최소 8자 이상이며, 알파벳과 숫자를 포함해야 합니다.',
-    })
-    readonly userPassword: string;
-}
-
-// 6-3. 컨트롤러에서 유효성 검사 적용
-// 예 > src/users/users.controller.ts에서 CreateUserDto를 사용하면 사전에 유효성 검증이 진행된 데이터를 통해 데이터를 전달 합니다.
-// 회원가입
-@Post("signup")
-async signUp(
-    @Body() createUserDto: CreateUserDto, // dto를 통해 유효성 검증 진행
-    @Res() res: any,
-): Promise<Object> {
-    await this.usersService.signUp(createUserDto);
-    return res.status(201).json({
-        message: "signed up",
-    });
-}
-
-// 6-4. src/main.ts 파일에 유효성 검사 파이프라인을 전역적으로 사용하도록 추가
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { join } from "path";
-import { ValidationPipe } from "@nestjs/common";
-
-async function bootstrap() {
-    //const app = await NestFactory.create(AppModule);
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    console.log(join(__dirname, "../test"));
-    app.useStaticAssets(join(__dirname, "../test"));
-    app.useGlobalPipes(new ValidationPipe()); // 입력값 유효성 검사를 위한 ValidationPipe 추가
-    app.setGlobalPrefix("api");
-    await app.listen(3000);
-}
-bootstrap();
-
-7. Elastic Cache for Redis 사용
-```
-# 필요 모듈 설치
-npm install cache-manager
-npm install -D @types/cache-manager
-npm install cache-manager-ioredis --save
-npm install -D @types/cache-manager-ioredis
-
-# Redis 모듈 사용
-@Module({
-    imports: [
-        ConfigModule.forRoot({
-            load: [authConfig, emailConfig],
-            isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-            type: "mysql",
-            host: process.env.DATABASE_HOST,
-            port: +process.env.DATABASE_PORT,
-            username: process.env.DATABASE_USER,
-            password: process.env.DATABASE_PASSWORD,
-            database: process.env.DATABASE_NAME,
-            entities: [__dirname + "/**/*.entity{.ts,.js}"],
-            synchronize: false, // 동기화 옵션 해제
-        }),
-        MongooseModule.forRoot(process.env.MONGODB_URL),
-        UsersModule,
-        RoomsModule,
-        QuizzesModule,
-        AuthModule,
-        CacheModule.registerAsync({
-            useFactory: () => ({
-                store: redisStore,
-                host: process.env.REDIS_URL,
-                port: 6379,
-                isGlobal: true,
-                // ttl: 10000,
-                // connectTimeout: 10000
-                // url: 'redis://elastic-cluster.itqyqt.ng.0001.apn2.cache.amazonaws.com:6379',
-            }),
-        }),
-    ],
-    controllers: [AppController],
-    providers: [AppService],
-})
-export class AppModule {}
-
-# 레디스 사용 샘플
-//퀴즈 DB에서 quizId 기준으로 퀴즈를 찾는다. (Redis Cache 적용)
-async startQuiz(quizId: number): Promise<Quizzes> {
-    // 캐시에서 해당 퀴즈를 찾는다.
-    const cachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
-    if (cachedQuiz) {
-        return cachedQuiz;
-    }
-
-    // 캐시에 해당 퀴즈가 없는 경우, DB에서 모든 퀴즈를 찾아 캐시에 넣는다.
-    const allQuizzes = await this.quizzesRepository.find();
-    for (const quiz of allQuizzes) {
-        await this.cacheManager.set(`quiz_${quiz.quizid}`, quiz, 3000); // Cache for 50 minutes
-    }
-
-    // 캐시 업데이트 후, 다시 해당 퀴즈를 찾는다.
-    const updatedCachedQuiz = await this.cacheManager.get<Quizzes>(`quiz_${quizId}`);
-    return updatedCachedQuiz;
-}
-
-//퀴즈 DB의 총 갯수를 구한다. (Redis Cache 적용)
-async getQuizCount(): Promise<number> {
-    // 레디스 캐시 서버에서 문제 총 개수 조회
-    const cachedCount = await this.cacheManager.get<number>('quizCount');
-    if (cachedCount) {
-        return cachedCount;
-    }
-
-    // 레디스 캐시 서버에 문제 총 개수에 대한 정보가 없는 경우 데이터베이스에서 직접 조회 및 해당 값을 캐시 서버에 등록
-    const count = await this.quizzesRepository.count();
-    this.cacheManager.set('quizCount', count, 3000); // Cache for 50 minutes
-    return count;
-}
-```
+# 트러블 슈팅
+- 배포 파이프라인이 원하는 대로 트리거 되지 않는 문제
+![Thumbnail](./src/images/trouble1.png)
+- 퀴즈 정답 맞추기에 대한 동시성 이슈
+![Thumbnail](./src/images/trouble2.png)
+# 성능 개선
+- 동시성 제어에 대한 성능 개선
+![Thumbnail](./src/images/perf.png)
+- 서비스 품질개선
+  - DB -> Cache -> Multi Thread 사용으로 성능 개선
+  - 테스트 결과 요약
+  ![Thumbnail](./src/images/perf2.png)
+  - DB 사용 테스트 결과
+  ![Thumbnail](./src/images/perftest1.png)
+  - DB 사용 → 캐시 서비스 사용: ((7260 - 4403) / 7260) * 100 = 39.36% 성능 개선
+  ![Thumbnail](./src/images/perftest2.png)
+  - DB 사용 → 캐시 서비스 및 멀티 쓰레드 사용: ((7260 - 242) / 7260) * 100 = 96.68% 성능 개선
+  ![Thumbnail](./src/images/perftest3.png)
+- 서비스 동시 접속자수 개선
+  - 만명의 동시접속자를 목표로 테스트 진행
+  - 16Core / 32GB Mem 스펙의 단일 노드로 테스트 진행
+  - 테스트 요약
+  ![Thumbnail](./src/images/perftest4.png)
+  - Single Thread - 5000 user
+  ![Thumbnail](./src/images/perftest5.png)
+  - Multi Thread(8 Thread) - 5000 user
+  ![Thumbnail](./src/images/perftest6.png)
+  - Multi Thread(8 Thread) - 10000 user
+  ![Thumbnail](./src/images/perftest7.png)
+  - Multi Thread(16 Thread) - 10000 user
+  ![Thumbnail](./src/images/perftest8.png)
+- 게임적 요소 추가
+![Thumbnail](./src/images/gamification.png)
