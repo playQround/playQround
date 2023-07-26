@@ -13,13 +13,13 @@ export class UsersRepository {
     // 유저 생성
     async create(
         createUserDto: CreateUserDto,
-        verifyToken: string,
+        // verifyToken: string,
     ): Promise<Object> {
         const user = new Users();
         user.userEmail = createUserDto.userEmail;
         user.userName = createUserDto.userName;
         user.userPassword = createUserDto.userPassword;
-        user.verifyToken = verifyToken;
+        // user.verifyToken = verifyToken;
         await this.usersRepository.save(user);
         return user;
     }

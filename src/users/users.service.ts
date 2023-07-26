@@ -47,11 +47,11 @@ export class UsersService {
         );
 
         // 이메일 인증
-        const verifyToken = uuid.v1(); // uuid를 통한 인증용 토큰 생성
-        await this.emailUtil.sendUserJoinVerification(
-            createUserDto.userEmail,
-            verifyToken,
-        );
+        // const verifyToken = uuid.v1(); // uuid를 통한 인증용 토큰 생성
+        // await this.emailUtil.sendUserJoinVerification(
+        //     createUserDto.userEmail,
+        //     verifyToken,
+        // );
 
         // 유저 생성
         const user = await this.usersRepository.create(
@@ -59,7 +59,7 @@ export class UsersService {
                 ...createUserDto,
                 userPassword: hashedPassword,
             },
-            verifyToken,
+            // verifyToken,
         );
         return user;
     }
